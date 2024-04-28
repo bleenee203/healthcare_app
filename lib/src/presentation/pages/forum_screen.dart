@@ -10,7 +10,7 @@ class ForumPage extends StatefulWidget {
 class _ForumPage extends State<ForumPage> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Forum Page',
         style: TextStyle(fontSize: 24),
