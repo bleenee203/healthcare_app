@@ -81,6 +81,10 @@ flutter:
           weight: 600
         - asset: res/fonts/SourceSans3-Regular.ttf
           weight: 400
+        - asset: res/fonts/SourceSans3-ExtraLightItalic.ttf
+          weight: 200
+        - asset: res/fonts/SourceSans3-Light.ttf
+          weight: 300
       - family: Lato
         fonts:
         - asset: res/fonts/Lato-Regular.ttf
