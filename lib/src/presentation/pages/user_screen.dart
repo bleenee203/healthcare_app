@@ -10,7 +10,7 @@ class UserProfilePage extends StatefulWidget {
 class _UserProfilePage extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'User Page',
         style: TextStyle(fontSize: 24),

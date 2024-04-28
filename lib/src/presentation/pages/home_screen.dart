@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/presentation/widgets/ImageSliderWithDots.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -711,7 +709,7 @@ class _HomePage extends State<HomePage> {
             const SizedBox(
               height: 12,
             ),
-            CarouselSliderWithDots(),
+            const CarouselSliderWithDots(),
             const Padding(
               padding: EdgeInsets.only(left: 18, top: 20),
               child: Row(

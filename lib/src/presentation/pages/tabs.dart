@@ -214,7 +214,7 @@ class _MyTabsState extends State<MyTabs> {
                           ],
                         ),
                 ],
-                animationDuration: Duration(microseconds: 200000),
+                animationDuration: const Duration(microseconds: 200000),
                 onTap: _onTabTapped,
               ),
             ),

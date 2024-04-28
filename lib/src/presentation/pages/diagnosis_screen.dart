@@ -10,7 +10,7 @@ class DiagnosisPage extends StatefulWidget {
 class _DiagnosisPage extends State<DiagnosisPage> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Diagnosis Page',
         style: TextStyle(fontSize: 24),
