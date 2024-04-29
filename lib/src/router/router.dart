@@ -13,7 +13,7 @@ import '../presentation/pages/register_screen.dart';
 
 class RouterCustom{
   static final GoRouter router = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/login',
   routes: <RouteBase>[
     GoRoute(
       path: '/', // Path cho giao diện splash

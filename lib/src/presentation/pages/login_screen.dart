@@ -14,6 +14,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passController = TextEditingController();
+  bool passToggle = true;
 
   @override
   Widget build(BuildContext context) {
@@ -91,38 +94,33 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: Row(
-                            children: <Widget>[
-                              Image.asset('res/images/user-icon.png'),
-                              const SizedBox(
-                                width: 10,
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              prefixIcon: Image.asset('res/images/user-icon.png'),
+                              hintText: "Email",
+                              hintStyle: const TextStyle(
+                                fontFamily: 'SourceSans3',
+                                fontSize: 14,
+                                color: Color(0x80000000),
+                                fontWeight: FontWeight.w400,
                               ),
-                              Expanded(
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    hintText: "Email",
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'SourceSans3',
-                                      fontSize: 14,
-                                      color: Color(0x80000000),
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                  keyboardType: TextInputType.emailAddress,
-                                  validator: (value) {
-                                    bool _isEmailValid = RegExp(
-                                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                                        .hasMatch(value ?? '');
-                                    if (!_isEmailValid) {
-                                      return 'Invalid email format'; // Trả về thông báo lỗi
-                                    }
-                                    return null; // Email hợp lệ
-                                  },
-                                ),
-                              ),
-                            ],
+                              border: InputBorder.none,
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            controller: emailController,
+                            validator: (value) {
+                              bool _isEmailValid = RegExp(
+                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                  .hasMatch(value ?? '');
+                              if (value!.isEmpty){
+                                return "Enter Email";
+                              }
+                              if (!_isEmailValid) {
+                                return 'Invalid email format'; // Trả về thông báo lỗi
+                              }
+                              return null; // Email hợp lệ
+                            },
                           ),
                         ),
                       ),
@@ -137,29 +135,33 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: Row(
-                            children: <Widget>[
-                              Image.asset('res/images/key-icon.png'),
-                              const SizedBox(
-                                width: 10,
+                          child: TextFormField(
+                            obscureText: passToggle,
+                            controller: passController,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.fromLTRB(0, 10, 20, 0),
+                              prefixIcon: Image.asset('res/images/key-icon.png'),
+                              hintText: "Password",
+                              hintStyle: const TextStyle(
+                                fontFamily: 'SourceSans3',
+                                fontSize: 14,
+                                color: Color(0x80000000),
+                                fontWeight: FontWeight.w400,
                               ),
-                              Expanded(
-                                child: TextFormField(
-                                  obscureText: true,
-                                  decoration: const InputDecoration(
-                                    hintText: "Password",
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'SourceSans3',
-                                      fontSize: 14,
-                                      color: Color(0x80000000),
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
+                              border: InputBorder.none,
+                              suffixIcon: InkWell(
+                                onTap: (){
+                                  setState(() {
+                                    passToggle = !passToggle;
+                                  });
+                                },
+                                child: Container(
+                                    padding: const EdgeInsets.only(top: 0),
+                                    child: Icon(passToggle ? Icons.visibility : Icons.visibility_off)),
                               ),
-                            ],
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+
                           ),
                         ),
                       ),
@@ -249,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
                                   context.goNamed('tabs');
                                 }
 
-                              }, //Để đây sử sau
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF77258B),
                                 foregroundColor: Colors.white,
