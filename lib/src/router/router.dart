@@ -3,10 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/home_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/resetPassword_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/signup_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
 import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
+
+import '../presentation/pages/register_screen.dart';
 
 class RouterCustom{
   static final GoRouter router = GoRouter(
@@ -15,7 +18,7 @@ class RouterCustom{
     GoRoute(
       path: '/', // Path cho giao diện splash
       name: 'splash',
-      builder: (BuildContext context, GoRouterState state) => const splash(), // Hiển thị LoginPage
+      builder: (BuildContext context, GoRouterState state) => const ResetPassword(), // Hiển thị LoginPage
     ),
     GoRoute(
       path: '/login', // Path cho giao diện đăng nhập
@@ -41,6 +44,11 @@ class RouterCustom{
       path: '/success', // Path cho giao diện splash
       name: 'success',
       builder: (BuildContext context, GoRouterState state) => const Success(), // Hiển thị LoginPage
+    ),
+    GoRoute(
+      path: '/register', // Path cho giao diện splash
+      name: 'register',
+      builder: (BuildContext context, GoRouterState state) => const Register(), // Hiển thị LoginPage
     ),
   ],
 );

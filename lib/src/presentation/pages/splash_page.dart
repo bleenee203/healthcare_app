@@ -21,7 +21,7 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-      Future.delayed(const Duration(milliseconds: 2000,), () {
+      Future.delayed(const Duration(milliseconds: 3000,), () {
         context.go('/login');
       });
   }
@@ -42,15 +42,15 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
             height: double.infinity,
             width: double.infinity,
             decoration: const BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.topCenter, colors: [
-                Color(0xFFFBEDEC),
-                Color(0xFFD37FE0),
-              ]),
+              // gradient: LinearGradient(begin: Alignment.topCenter, colors: [
+              //   Color(0xFFFBEDEC),
+              //   Color(0xFFD37FE0),
+              // ]),
+              color: Color(0xFFFBEDEC),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                FadeAnimation(1,
                   Container(
                     width: 400,
                     height: 400,
@@ -61,7 +61,6 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
                       'res/images/GEN-Z.png',
                     ),
                   ),
-                ),
                 const SizedBox(
                   height: 0,
                 ),
@@ -76,7 +75,7 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
                           fontFamily: 'Playfair',
                           fontSize: 25,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF183172),
+                          color: Colors.black,
                         ),
                       ),
                     ),
