@@ -26,7 +26,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
             width: double.infinity,
             height: double.infinity,
-            color: Color(0xFFFCD4D1),
+            color: Color(0xFFFBEDEC),
             child: Column(children: <Widget>[
               Row(
                 children: [
@@ -166,7 +166,7 @@ class _ResetPasswordState extends State<ResetPassword> {
 
                     }, //Để đây sử sau
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFE7B60),
+                      backgroundColor: const Color(0xFFFCD4D1),
                       foregroundColor: Colors.white,
                       padding:
                       const EdgeInsets.fromLTRB(10, 10, 10, 10),
