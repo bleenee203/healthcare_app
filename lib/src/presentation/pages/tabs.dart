@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/presentation/pages/diagnosis_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/forum_screen.dart';
