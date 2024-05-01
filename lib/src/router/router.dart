@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/change-password.dart';
 import 'package:healthcare_app/src/presentation/pages/home_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/profile_screen.dart';
@@ -59,10 +60,15 @@ class RouterCustom {
             const Register(), // Hiển thị LoginPage
       ),
       GoRoute(
-        path: '/profile',
-        name: 'profile',
-        builder: (BuildContext context, GoRouterState state) => const ProfilePage()
-      ),
+          path: '/profile',
+          name: 'profile',
+          builder: (BuildContext context, GoRouterState state) =>
+              const ProfilePage()),
+      GoRoute(
+          path: '/change-password',
+          name: 'change-password',
+          builder: (BuildContext context, GoRouterState state) =>
+              const ChangePasswordPage()),
     ],
   );
 }

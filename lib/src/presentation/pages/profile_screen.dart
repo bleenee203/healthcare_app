@@ -32,7 +32,11 @@ class _ProfilePage extends State<ProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       GestureDetector(
-                        onTap: () => RouterCustom.router.pop(),
+                        onTap: () {
+                          if (RouterCustom.router.canPop()) {
+                            RouterCustom.router.pop();
+                          }
+                        },
                         child: Image.asset('res/images/go-back.png'),
                       ),
                       Text(
