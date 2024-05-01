@@ -1,4 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:healthcare_app/src/router/router.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/thum_shape.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -29,7 +33,13 @@ class _UserProfilePage extends State<UserProfilePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Image.asset('res/images/go-back.png'),
+                        GestureDetector(
+                            onTap: () {
+                              if (RouterCustom.router.canPop()) {
+                                RouterCustom.router.pop();
+                              }
+                            },
+                            child: Image.asset('res/images/go-back.png')),
                         Text(
                           "USER",
                           style: TextStyle(
@@ -163,24 +173,28 @@ class _UserProfilePage extends State<UserProfilePage> {
                       ),
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset("res/images/key-solid.png"),
-                      const Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 17),
-                          child: Text(
-                            "Change password",
-                            style: TextStyle(
-                                fontFamily: "SourceSans3",
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14),
+                  GestureDetector(
+                    onTap: () =>
+                        GoRouter.of(context).pushNamed('change-password'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.asset("res/images/key-solid.png"),
+                        const Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 17),
+                            child: Text(
+                              "Change password",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14),
+                            ),
                           ),
                         ),
-                      ),
-                      Image.asset("res/images/right.png")
-                    ],
+                        Image.asset("res/images/right.png")
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 22, bottom: 22),
