@@ -38,11 +38,16 @@ class _VerifyState extends State<Verify> {
     var jsonResponse = jsonDecode(response.body);
     print(jsonEncode(regBody));
     print(jsonResponse['success']);
-    if (jsonResponse['success']) {
-      context.push('/success');
-    } else {
-      print("SomeThing Went Wrong");
+    if (jsonResponse['success'] != null){
+      if (jsonResponse['success']) {
+        context.push('/success');
+      } else {
+        String mess = jsonResponse['message'];
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(mess)));
+      }
     }
+
   }
 
   @override

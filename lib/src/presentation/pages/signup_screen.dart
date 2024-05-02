@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 
 import 'config.dart';
+import 'overlay.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -42,7 +43,10 @@ class _SignupPageState extends State<SignupPage> {
       var jsonResponse = jsonDecode(response.body);
       print(jsonResponse['succes']);
       if(jsonResponse['succes']){
+        // Sử dụng:
+        LoadingOverlay.show(context);
         context.go('/verify/$mail/$pass');
+        LoadingOverlay.hide();
       }else{
         print("SomeThing Went Wrong");
       }
@@ -119,9 +123,18 @@ class _SignupPageState extends State<SignupPage> {
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(0, 0, 10 , 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0 , 0),
                           child: TextFormField(
                             decoration: InputDecoration(
+                              errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
                               prefixIcon: Image.asset('res/images/user-icon.png'),
                               hintText: "Email",
                               hintStyle: const TextStyle(
@@ -157,10 +170,20 @@ class _SignupPageState extends State<SignupPage> {
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(0, 0, 10 , 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0 , 0),
                           child: TextFormField(
                             controller: passController,
                             decoration: InputDecoration(
+                              errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
+                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
                               prefixIcon: Image.asset('res/images/key-icon.png'),
                               hintText: "Password",
                               hintStyle: const TextStyle(
@@ -206,11 +229,21 @@ class _SignupPageState extends State<SignupPage> {
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(0, 0, 10 , 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0 , 0),
                           child: TextFormField(
                             controller: confirmPassController,
                             obscureText: confirmPassToggle,
                             decoration: InputDecoration(
+                              errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
+                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
                               prefixIcon: Image.asset('res/images/key-icon.png'),
                               hintText: "Confirm Password",
                               hintStyle: const TextStyle(

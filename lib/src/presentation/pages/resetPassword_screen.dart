@@ -42,7 +42,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         print(jsonResponse);
         print(jsonResponse['success']);
         if (jsonResponse['success']) {
-          context.go('/succes');
+          context.go('/success');
         } else {
           print("SomeThing Went Wrong");
         }

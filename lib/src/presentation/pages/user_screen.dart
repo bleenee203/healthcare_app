@@ -18,6 +18,43 @@ class _UserProfilePage extends State<UserProfilePage> {
   double _currentWeightValue = 53;
   double _lastWeightValue = 49.2;
   double _targetWeightValue = 55;
+
+  Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Logout'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to log out?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Logout'),
+              onPressed: () {
+                // Perform logout actions here
+                // For example:
+                Navigator.of(context).pop(); // Close dialog
+                RouterCustom.router.go('/login'); // Navigate to login page
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(children: <Widget>[
@@ -35,9 +72,7 @@ class _UserProfilePage extends State<UserProfilePage> {
                       children: [
                         GestureDetector(
                             onTap: () {
-                              if (RouterCustom.router.canPop()) {
-                                RouterCustom.router.pop();
-                              }
+
                             },
                             child: Image.asset('res/images/go-back.png')),
                         Text(
@@ -196,25 +231,28 @@ class _UserProfilePage extends State<UserProfilePage> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 22, bottom: 22),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Image.asset("res/images/logout.png"),
-                        const Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 17),
-                            child: Text(
-                              "Logout",
-                              style: TextStyle(
-                                  fontFamily: "SourceSans3",
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14),
+                  GestureDetector(
+                    onTap: () => _showLogoutConfirmationDialog(context),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 22, bottom: 22),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Image.asset("res/images/logout.png"),
+                          const Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 17),
+                              child: Text(
+                                "Logout",
+                                style: TextStyle(
+                                    fontFamily: "SourceSans3",
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14),
+                              ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                   const Padding(
