@@ -10,6 +10,7 @@ import 'package:healthcare_app/src/presentation/pages/signup_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
 import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
 
 import '../presentation/pages/register_screen.dart';
 
@@ -74,6 +75,11 @@ class RouterCustom {
           name: 'personality',
           builder: (BuildContext context, GoRouterState state) =>
               const PersonalityPage()),
+      GoRoute(
+          path: '/water',
+          name: 'water',
+          builder: (BuildContext context, GoRouterState state) =>
+              const WaterPage()),
     ],
   );
 }

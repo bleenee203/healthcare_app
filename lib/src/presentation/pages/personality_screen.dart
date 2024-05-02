@@ -314,83 +314,86 @@ class _PersonalityPage extends State<PersonalityPage> {
                 const SizedBox(
                   height: 16,
                 ),
-                Card.filled(
-                  elevation: 0,
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Water amount",
-                          style: TextStyle(
-                            fontFamily: "SourceSans3",
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 13,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "2000",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "SourceSans3",
-                                fontSize: 36,
-                              ),
+                GestureDetector(
+                  onTap: () => RouterCustom.router.pushNamed('water'),
+                  child: Card.filled(
+                    elevation: 0,
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Water amount",
+                            style: TextStyle(
+                              fontFamily: "SourceSans3",
+                              fontSize: 16,
                             ),
-                            const Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding: EdgeInsets.only(top: 10),
-                                child: Text(
-                                  "ml",
-                                  style: TextStyle(
-                                    fontFamily: "SourceSans3",
-                                    fontSize: 16,
+                          ),
+                          const SizedBox(
+                            height: 13,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "2000",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 36,
+                                ),
+                              ),
+                              const Expanded(
+                                flex: 2,
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Text(
+                                    "ml",
+                                    style: TextStyle(
+                                      fontFamily: "SourceSans3",
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                                child: Stack(
-                                    fit: StackFit.loose,
-                                    alignment: Alignment.center,
-                                    children: [
-                                  Positioned(
-                                    child: CircularPercentIndicator(
-                                      radius: 30,
-                                      lineWidth: 6,
-                                      backgroundColor: HexColor("F3F4F7"),
-                                      progressColor: HexColor("BBB7EA"),
-                                      circularStrokeCap:
-                                          CircularStrokeCap.round,
-                                      percent: 0.4,
+                              SizedBox(
+                                  child: Stack(
+                                      fit: StackFit.loose,
+                                      alignment: Alignment.center,
+                                      children: [
+                                    Positioned(
+                                      child: CircularPercentIndicator(
+                                        radius: 30,
+                                        lineWidth: 6,
+                                        backgroundColor: HexColor("F3F4F7"),
+                                        progressColor: HexColor("BBB7EA"),
+                                        circularStrokeCap:
+                                            CircularStrokeCap.round,
+                                        percent: 0.4,
+                                      ),
                                     ),
-                                  ),
-                                  Image.asset("res/images/glass.png")
-                                ])),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Today",
-                          style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 16,
-                              color: Colors.black.withOpacity(0.5)),
-                        ),
-                      ],
+                                    Image.asset("res/images/glass.png")
+                                  ])),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "Today",
+                            style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 16,
+                                color: Colors.black.withOpacity(0.5)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
