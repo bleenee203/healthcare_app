@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/ImageSliderWithDots.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -735,19 +736,22 @@ class _HomePage extends State<HomePage> {
             const CarouselSliderWithDots(),
             Padding(
               padding: const EdgeInsets.only(left: 18, top: 20),
-              child: Row(
-                key: _targetWidgetKey,
-                children: const <Widget>[
-                  Text(
-                    'Personality',
-                    //textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xff010911),
-                        fontFamily: 'SourceSans3',
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
+              child: GestureDetector(
+                onTap: () => GoRouter.of(context).pushNamed('personality'),
+                child: Row(
+                  key: _targetWidgetKey,
+                  children: const <Widget>[
+                    Text(
+                      'Personality',
+                      //textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xff010911),
+                          fontFamily: 'SourceSans3',
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -1106,22 +1110,20 @@ class _HomePage extends State<HomePage> {
                                   height: 20,
                                 )),
                             SizedBox(
-                                height: 64,
                                 child: Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      CircularPercentIndicator(
-                                        radius: 40,
-                                        lineWidth: 6,
-                                        backgroundColor: HexColor("F3F4F7"),
-                                        progressColor: HexColor("FDBCA5"),
-                                        circularStrokeCap:
-                                            CircularStrokeCap.round,
-                                        percent: 0.4,
-                                      ),
-                                    ])),
+                                  CircularPercentIndicator(
+                                    radius: 40,
+                                    lineWidth: 6,
+                                    backgroundColor: HexColor("F3F4F7"),
+                                    progressColor: HexColor("FDBCA5"),
+                                    circularStrokeCap: CircularStrokeCap.round,
+                                    percent: 0.4,
+                                  ),
+                                ])),
                             Padding(
-                              padding: const EdgeInsets.only(left: 9, top: 37),
+                              padding: const EdgeInsets.only(left: 9, top: 20),
                               child: Row(
                                 children: [
                                   const Text(
