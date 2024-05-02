@@ -9,16 +9,16 @@ import 'package:http/http.dart' as http;
 import 'package:velocity_x/velocity_x.dart';
 import 'config.dart';
 
-class Verify extends StatefulWidget {
-  const Verify({super.key, this.password, this.mail});
+class Verify2 extends StatefulWidget {
+  const Verify2({super.key, this.mail});
   final mail;
-  final password;
+
 
   @override
-  _VerifyState createState() => _VerifyState();
+  _Verify2State createState() => _Verify2State();
 }
 
-class _VerifyState extends State<Verify> {
+class _Verify2State extends State<Verify2> {
   int _remainingSeconds = 60;
   bool resendButtonEnabled = false;
   List<String> otpValues = List.generate(6, (index) => "");
@@ -26,21 +26,20 @@ class _VerifyState extends State<Verify> {
   void verifyUser() async {
     String otp = otpValues.join();
     int otpInt = int.parse(otp);
+    String email = widget.mail.toString();
     var regBody = {
-      "email": widget.mail.toString(),
-      "password": widget.password.toString(),
+      "email": email,
       "otp": otpInt,
-      "confirmedPassword": widget.password.toString()
     };
-    var response = await http.post(Uri.parse("${url}user/signup"),
-        headers: {"Content-Type": "application/json"},
+    var response = await http.post(Uri.parse("${url}user/verifyotp"),
+        headers: {"Content-Type":"application/json"},
         body: jsonEncode(regBody)
     );
     var jsonResponse = jsonDecode(response.body);
     print(jsonEncode(regBody));
     print(jsonResponse['success']);
     if (jsonResponse['success']) {
-      context.push('/success');
+      context.push('/resetpass/$email');
     } else {
       print("SomeThing Went Wrong");
     }
@@ -92,7 +91,7 @@ class _VerifyState extends State<Verify> {
               Align(
                 alignment: Alignment.topLeft,
                 child: GestureDetector(
-                  onTap: () => context.goNamed('signup'),
+                  onTap: () => Navigator.pop(context),
                   child: const Icon(
                     Icons.arrow_back,
                     size: 32,
@@ -202,11 +201,11 @@ class _VerifyState extends State<Verify> {
                         },
                         style: ButtonStyle(
                           foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
+                          MaterialStateProperty.all<Color>(Colors.white),
                           backgroundColor: MaterialStateProperty.all<Color>(
                               Color(0xFFFF8C74)),
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                          MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                             ),

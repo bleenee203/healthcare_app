@@ -7,18 +7,19 @@ import 'package:healthcare_app/src/presentation/pages/resetPassword_screen.dart'
 import 'package:healthcare_app/src/presentation/pages/signup_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
+import 'package:healthcare_app/src/presentation/pages/verify2_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
 
 import '../presentation/pages/register_screen.dart';
 
 class RouterCustom{
   static final GoRouter router = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   routes: <RouteBase>[
     GoRoute(
       path: '/', // Path cho giao diện splash
       name: 'splash',
-      builder: (BuildContext context, GoRouterState state) => const ResetPassword(), // Hiển thị LoginPage
+      builder: (BuildContext context, GoRouterState state) => const LoginPage(), // Hiển thị LoginPage
     ),
     GoRoute(
       path: '/login', // Path cho giao diện đăng nhập
@@ -36,9 +37,21 @@ class RouterCustom{
       builder: (BuildContext context, GoRouterState state) => const MyTabs(), // Hiển thị LoginPage
     ),
     GoRoute(
-    path: '/verify', // Path cho giao diện splash
+    path: '/verify/:mail/:password', // Path cho giao diện splash
     name: 'verify',
-    builder: (BuildContext context, GoRouterState state) => const Verify(), // Hiển thị LoginPage
+    builder: (BuildContext context, GoRouterState state) {
+        String? mail = state.pathParameters['mail'];
+        String? password = state.pathParameters['password'];
+        return Verify(mail: mail ,password: password,);
+      }  // Hiển thị LoginPage
+    ),
+    GoRoute(
+        path: '/verify2/:mail', // Path cho giao diện splash
+        name: 'verify2',
+        builder: (BuildContext context, GoRouterState state) {
+          String? mail = state.pathParameters['mail'];
+          return Verify2(mail: mail);
+        }  // Hiển thị LoginPage
     ),
     GoRoute(
       path: '/success', // Path cho giao diện splash
@@ -49,6 +62,14 @@ class RouterCustom{
       path: '/register', // Path cho giao diện splash
       name: 'register',
       builder: (BuildContext context, GoRouterState state) => const Register(), // Hiển thị LoginPage
+    ),
+    GoRoute(
+        path: '/resetpass/:email', // Path cho giao diện splash
+        name: 'resetpass',
+        builder: (BuildContext context, GoRouterState state) {
+          String? email = state.pathParameters['email'];
+          return ResetPassword(email: email);
+        }  // H
     ),
   ],
 );
