@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
-import 'package:healthcare_app/src/presentation/pages/home_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/change-password.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/personality_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/profile_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/resetPassword_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/signup_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
@@ -12,7 +14,7 @@ import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
 
 import '../presentation/pages/register_screen.dart';
 
-class RouterCustom{
+class RouterCustom {
   static final GoRouter router = GoRouter(
   initialLocation: '/',
   routes: <RouteBase>[
@@ -71,6 +73,22 @@ class RouterCustom{
           return ResetPassword(email: email);
         }  // H
     ),
+    GoRoute(
+      path: '/profile',
+      name: 'profile',
+      builder: (BuildContext context, GoRouterState state) =>const ProfilePage()
+    ),
+    GoRoute(
+      path: '/change-password',
+      name: 'change-password',
+      builder: (BuildContext context, GoRouterState state) => const ChangePasswordPage()),
+    GoRoute(
+        path: '/personality',
+        name: 'personality',
+        builder: (BuildContext context, GoRouterState state) => const PersonalityPage()
+    ),
   ],
 );
 }
+
+
