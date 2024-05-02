@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -11,6 +12,7 @@ import 'package:healthcare_app/src/presentation/pages/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'cookie_manager.dart';
+import 'overlay.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -45,23 +47,33 @@ class _LoginPageState extends State<LoginPage> {
         "password": passController.value.text
       };
 
-      var response = await http.post(Uri.parse('http://192.168.1.6:4000/api/user/login'),
+      var response = await http.post(Uri.parse('${url}user/login'),
           headers: {"Content-Type":"application/json"},
           body: jsonEncode(reqBody)
       );
       var jsonResponse = jsonDecode(response.body);
       print(reqBody);
       print(jsonResponse);
-      if(jsonResponse['success']){
-        if (response.headers['set-cookie'] != null) {
-          var refreshToken = response.headers['set-cookie']![0];
-          prefs.setString('refreshToken', refreshToken);
+      if (jsonResponse['success'] != null){
+        if(jsonResponse['success']){
+          if (response.headers['set-cookie'] != null) {
+            var refreshToken = response.headers['set-cookie'];
+             prefs.setString('refreshToken', refreshToken!);
+          }
+          prefs.setString('accessToken', jsonResponse['accessToken']);
+          prefs.setString('email', jsonResponse['loginuser']['email']);
+          print(prefs.getString('refreshToken'));
+          // Sử dụng:
+          LoadingOverlay.show(context);
+          context.pushNamed('tabs');
+          LoadingOverlay.hide();
+        }else{
+          print('Something went wrong');
         }
-        prefs.setString('accessToken', jsonResponse['accessToken']);
-        prefs.setString('email', jsonResponse['loginuser']['email']);
-        context.pushNamed('tabs');
-      }else{
-        print('Something went wrong');
+      } else {
+        String mess = jsonResponse['feedback'];
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(mess)));
       }
     }
   }
@@ -145,6 +157,16 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           child: TextFormField(
                             decoration: InputDecoration(
+                              errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
+                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
                               prefixIcon: Image.asset('res/images/user-icon.png'),
                               hintText: "Email",
                               hintStyle: const TextStyle(
@@ -169,6 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               return null; // Email hợp lệ
                             },
+
                           ),
                         ),
                       ),
@@ -187,7 +210,16 @@ class _LoginPageState extends State<LoginPage> {
                             obscureText: passToggle,
                             controller: passController,
                             decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.fromLTRB(0, 10, 20, 0),
+                              errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
+                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
                               prefixIcon: Image.asset('res/images/key-icon.png'),
                               hintText: "Password",
                               hintStyle: const TextStyle(
@@ -304,11 +336,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Đăng nhập thành công')),
-                                  );
                                   loginUser();
-                                  print(prefs.getString('refreshToken'));
                                 }
                               },
                               style: ElevatedButton.styleFrom(

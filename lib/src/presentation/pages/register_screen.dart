@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
 import 'config.dart';
+import 'overlay.dart';
 import 'verify_screen.dart';
 
 class Register extends StatefulWidget {
@@ -35,7 +36,10 @@ class _RegisterState extends State<Register> {
         print(jsonResponse);
         print(jsonResponse['succes']);
         if (jsonResponse['succes']) {
+          // Sử dụng:
+          LoadingOverlay.show(context);
           context.push('/verify2/$mail');
+          LoadingOverlay.hide();
         } else {
           print("SomeThing Went Wrong");
         }
