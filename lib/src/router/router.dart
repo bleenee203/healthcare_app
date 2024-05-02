@@ -11,6 +11,7 @@ import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
 import 'package:healthcare_app/src/presentation/pages/verify2_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
 
 import '../presentation/pages/register_screen.dart';
 
@@ -21,7 +22,7 @@ class RouterCustom {
     GoRoute(
       path: '/', // Path cho giao diện splash
       name: 'splash',
-      builder: (BuildContext context, GoRouterState state) => const LoginPage(), // Hiển thị LoginPage
+      builder: (BuildContext context, GoRouterState state) => const splash(), // Hiển thị LoginPage
     ),
     GoRoute(
       path: '/login', // Path cho giao diện đăng nhập
@@ -86,6 +87,11 @@ class RouterCustom {
         path: '/personality',
         name: 'personality',
         builder: (BuildContext context, GoRouterState state) => const PersonalityPage()
+    ),
+    GoRoute(
+        path: '/water',
+        name: 'water',
+        builder: (BuildContext context, GoRouterState state) => const WaterPage()
     ),
   ],
 );
