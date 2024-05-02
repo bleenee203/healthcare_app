@@ -1,9 +1,17 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
+import 'package:healthcare_app/src/presentation/pages/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'cookie_manager.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,6 +25,46 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passController = TextEditingController();
   bool passToggle = true;
+  late SharedPreferences prefs ;
+  final dio = Dio();
+
+
+  void initSharedPref() async{
+    prefs = await SharedPreferences.getInstance();
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initSharedPref();
+  }
+  void loginUser() async{
+    if(emailController.value.text.isNotEmpty && passController.value.text.isNotEmpty){
+      var reqBody = {
+        "email": emailController.value.text,
+        "password": passController.value.text
+      };
+
+      var response = await http.post(Uri.parse('http://192.168.1.6:4000/api/user/login'),
+          headers: {"Content-Type":"application/json"},
+          body: jsonEncode(reqBody)
+      );
+      var jsonResponse = jsonDecode(response.body);
+      print(reqBody);
+      print(jsonResponse);
+      if(jsonResponse['success']){
+        if (response.headers['set-cookie'] != null) {
+          var refreshToken = response.headers['set-cookie']![0];
+          prefs.setString('refreshToken', refreshToken);
+        }
+        prefs.setString('accessToken', jsonResponse['accessToken']);
+        prefs.setString('email', jsonResponse['loginuser']['email']);
+        context.pushNamed('tabs');
+      }else{
+        print('Something went wrong');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +209,18 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             keyboardType: TextInputType.emailAddress,
-
+                            validator: (value){
+                              bool isPasswordValid = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
+                                  .hasMatch(value ?? '');
+                              if (value!.isEmpty) {
+                                return "Chưa nhập mật khẩu";
+                              }
+                              if (!isPasswordValid) {
+                                // Nếu mật khẩu không hợp lệ, hiển thị thông báo và không thực hiện đăng nhập.
+                                return "Mật khẩu cần phải có tối thiểu 8 kí tự, phải gồm chữ in hoa và ký tự đặc biệt";
+                              }
+                              return null;
+                            },
                           ),
                         ),
                       ),
@@ -243,14 +302,14 @@ class _LoginPageState extends State<LoginPage> {
                           width: 350,
                           height: 56,
                           child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(content: Text('Đăng nhập thành công')),
                                   );
-                                  context.goNamed('tabs');
+                                  loginUser();
+                                  print(prefs.getString('refreshToken'));
                                 }
-
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF77258B),
@@ -273,7 +332,9 @@ class _LoginPageState extends State<LoginPage> {
                       FadeAnimation(
                         2,
                         TextButton(
-                          onPressed: () {} //Tính sau nhen
+                          onPressed: () {
+                            context.pushNamed('register');
+                          } //Tính sau nhen
                           ,
                           child: const Text(
                             "Forget Password?",

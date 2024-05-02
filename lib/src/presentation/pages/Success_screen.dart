@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
 
@@ -15,15 +16,31 @@ class Success extends StatefulWidget{
 
 class _SuccessState extends State<Success>{
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    Future.delayed(const Duration(milliseconds: 3000,), () {
+      context.goNamed('login');
+    });
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+    super.dispose();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           const SizedBox(height: 100,),
-          Lottie.network('https://lottie.host/6d5b4958-4205-42ec-9b4b-9a712e8ac677/hh4R3Is3eQ.json'),
+          Lottie.asset('./res/images/success.json'),
           const SizedBox(height: 50,),
           FadeAnimation(2,
-            const Text("Phone number registered",
+            const Text("Email registered",
               style: TextStyle(
                 fontSize: 20,
                 fontFamily: 'SourceSans3',
@@ -42,5 +59,4 @@ class _SuccessState extends State<Success>{
       ),
     );
   }
-
 }
