@@ -47,7 +47,6 @@ class _VerifyState extends State<Verify> {
             SnackBar(content: Text(mess)));
       }
     }
-
   }
 
   @override
