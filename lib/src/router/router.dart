@@ -11,6 +11,8 @@ import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
 import 'package:healthcare_app/src/presentation/pages/verify2_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/water-log_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/water_goal_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
 
 import '../presentation/pages/register_screen.dart';
@@ -103,6 +105,16 @@ class RouterCustom {
           name: 'water',
           builder: (BuildContext context, GoRouterState state) =>
               const WaterPage()),
+      GoRoute(
+          path: '/water-log',
+          name: 'water-log',
+          builder: (BuildContext context, GoRouterState state) =>
+              const WaterLogPage()),
+              GoRoute(
+          path: '/water-goal',
+          name: 'water-goal',
+          builder: (BuildContext context, GoRouterState state) =>
+              const WaterGoalPage()),
     ],
   );
 }
