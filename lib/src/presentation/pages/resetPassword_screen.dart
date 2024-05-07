@@ -115,6 +115,15 @@ class _ResetPasswordState extends State<ResetPassword> {
                           obscureText: passToggle,
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
+                            errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
                             hintText: "New password",
                             hintStyle: const TextStyle(
                               fontFamily: 'SourceSans3',
@@ -175,6 +184,15 @@ class _ResetPasswordState extends State<ResetPassword> {
                           controller: confirmController,
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
+                            errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
                             hintText: "Confirm Neww Password",
                             hintStyle: const TextStyle(
                               fontFamily: 'SourceSans3',

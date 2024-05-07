@@ -33,46 +33,49 @@ class _VerifyState extends State<Verify> {
     };
     var response = await http.post(Uri.parse("${url}user/signup"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(regBody)
-    );
+        body: jsonEncode(regBody));
     var jsonResponse = jsonDecode(response.body);
     print(jsonEncode(regBody));
     print(jsonResponse['success']);
-    if (jsonResponse['success'] != null){
+    if (jsonResponse['success'] != null) {
       if (jsonResponse['success']) {
         context.push('/success');
       } else {
         String mess = jsonResponse['message'];
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(mess)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(mess)));
       }
     }
-
   }
+
   @override
   void dispose() {
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
-    startCountdown(); // Bắt đầu đếm ngược ngay khi widget được khởi tạo
+    startCountdown();
   }
+
   void startCountdown() {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds == 0) {
         timer.cancel();
         setState(() {
-          resendButtonEnabled = true; // Khi đếm về 0, enable nút "Resend New Code"
+          resendButtonEnabled =
+              true; // Khi đếm về 0, enable nút "Resend New Code"
         });
       } else {
-        if(mounted)
-        setState(() {
-          _remainingSeconds--;
-        });
+        if (mounted)
+          setState(() {
+            _remainingSeconds--;
+          });
       }
     });
   }
+
   String _remainingSecondsToString() {
     final minutes = _remainingSeconds ~/ 60;
     final seconds = _remainingSeconds % 60;
@@ -81,7 +84,8 @@ class _VerifyState extends State<Verify> {
 
   void restartCountdown() {
     setState(() {
-      _remainingSeconds = 60; // Thiết lập lại thời gian đếm ngược về giá trị ban đầu
+      _remainingSeconds =
+          60; // Thiết lập lại thời gian đếm ngược về giá trị ban đầu
       resendButtonEnabled = false; // Vô hiệu hóa nút "Resend New Code"
     });
     startCountdown(); // Bắt đầu lại bộ đếm
@@ -138,8 +142,8 @@ class _VerifyState extends State<Verify> {
               const SizedBox(
                 height: 10,
               ),
-              const Text(
-                "We have sent an OTP on your email Maibaoxt1@gmail.com",
+               Text(
+                "We have sent an OTP on your email" + widget.mail,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
@@ -162,11 +166,14 @@ class _VerifyState extends State<Verify> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  Text(_remainingSecondsToString(), style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                    color: Color(0xFF77258B),
-                  ),),
+                  Text(
+                    _remainingSecondsToString(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF77258B),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(
@@ -185,17 +192,35 @@ class _VerifyState extends State<Verify> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _textFieldOTP(
-                            first: true, last: false, index: 0 ,context: context),
+                            first: true,
+                            last: false,
+                            index: 0,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, index: 1, context: context),
+                            first: false,
+                            last: false,
+                            index: 1,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, index: 2, context: context),
+                            first: false,
+                            last: false,
+                            index: 2,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, index: 3, context: context),
+                            first: false,
+                            last: false,
+                            index: 3,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, index: 4, context: context),
+                            first: false,
+                            last: false,
+                            index: 4,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: true, index: 5, context: context),
+                            first: false,
+                            last: true,
+                            index: 5,
+                            context: context),
                       ],
                     ),
                     const SizedBox(
@@ -250,7 +275,7 @@ class _VerifyState extends State<Verify> {
               Visibility(
                 visible: resendButtonEnabled,
                 child: TextButton(
-                  onPressed:  () {
+                  onPressed: () {
                     restartCountdown();
                     verifyUser();
                   },
