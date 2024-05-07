@@ -3,12 +3,6 @@ import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    home: WaterLogPage(),
-  ));
-}
-
 class WaterLogPage extends StatefulWidget {
   const WaterLogPage({super.key});
 
