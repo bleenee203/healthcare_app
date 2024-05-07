@@ -563,7 +563,7 @@ class _PersonalityPage extends State<PersonalityPage> {
     );
     String? selectedDate;
     DateTime today = DateTime.now();
-    DateTime yesterday = today.subtract(Duration(days: 1));
+    DateTime yesterday = today.subtract(const Duration(days: 1));
     if (picked != null) {
       selectedDate = DateFormat('dd/MM/yyyy').format(picked);
       if (picked.day == today.day &&
@@ -584,19 +584,19 @@ class _PersonalityPage extends State<PersonalityPage> {
 
   void _moveToPreviousDay(BuildContext context) {
     DateTime currentDate;
-    DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+    DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
     if (_datevalue == "Today") {
       currentDate = (DateTime.now());
     } else if (_datevalue == "Yesterday") {
-      currentDate = (DateTime.now().subtract(Duration(days: 1)));
+      currentDate = (DateTime.now().subtract(const Duration(days: 1)));
     } else {
       currentDate = DateFormat('dd/MM/yyyy').parse(_datevalue);
     }
     String previousDate = DateFormat('dd/MM/yyyy')
-        .format(currentDate.subtract(Duration(days: 1)));
-    if (currentDate.subtract(Duration(days: 1)).day == yesterday.day &&
-        currentDate.subtract(Duration(days: 1)).month == yesterday.month &&
-        currentDate.subtract(Duration(days: 1)).year == yesterday.year) {
+        .format(currentDate.subtract(const Duration(days: 1)));
+    if (currentDate.subtract(const Duration(days: 1)).day == yesterday.day &&
+        currentDate.subtract(const Duration(days: 1)).month == yesterday.month &&
+        currentDate.subtract(const Duration(days: 1)).year == yesterday.year) {
       previousDate = "Yesterday";
     }
     setState(() {
@@ -606,19 +606,19 @@ class _PersonalityPage extends State<PersonalityPage> {
 
   void _moveToNextDay(BuildContext context) {
     DateTime currentDate;
-    DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+    DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
     if (_datevalue == "Today") {
       currentDate = (DateTime.now());
     } else if (_datevalue == "Yesterday") {
-      currentDate = (DateTime.now().subtract(Duration(days: 1)));
+      currentDate = (DateTime.now().subtract(const Duration(days: 1)));
     } else {
       currentDate = DateFormat('dd/MM/yyyy').parse(_datevalue);
     }
     String nextDate =
-        DateFormat('dd/MM/yyyy').format(currentDate.add(Duration(days: 1)));
-    if (currentDate.add(Duration(days: 1)).day == yesterday.day &&
-        currentDate.add(Duration(days: 1)).month == yesterday.month &&
-        currentDate.add(Duration(days: 1)).year == yesterday.year) {
+        DateFormat('dd/MM/yyyy').format(currentDate.add(const Duration(days: 1)));
+    if (currentDate.add(const Duration(days: 1)).day == yesterday.day &&
+        currentDate.add(const Duration(days: 1)).month == yesterday.month &&
+        currentDate.add(const Duration(days: 1)).year == yesterday.year) {
       nextDate = "Yesterday";
     }
     if (currentDate.day == yesterday.day &&

@@ -14,7 +14,6 @@ import 'package:http/http.dart' as http;
 import 'cookie_manager.dart';
 import 'overlay.dart';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -27,53 +26,54 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passController = TextEditingController();
   bool passToggle = true;
-  late SharedPreferences prefs ;
+  late SharedPreferences prefs;
   final dio = Dio();
 
-
-  void initSharedPref() async{
+  void initSharedPref() async {
     prefs = await SharedPreferences.getInstance();
   }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     initSharedPref();
   }
-  void loginUser() async{
-    if(emailController.value.text.isNotEmpty && passController.value.text.isNotEmpty){
+
+  void loginUser() async {
+    if (emailController.value.text.isNotEmpty &&
+        passController.value.text.isNotEmpty) {
       var reqBody = {
         "email": emailController.value.text,
         "password": passController.value.text
       };
 
       var response = await http.post(Uri.parse('${url}user/login'),
-          headers: {"Content-Type":"application/json"},
-          body: jsonEncode(reqBody)
-      );
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(reqBody));
       var jsonResponse = jsonDecode(response.body);
       print(reqBody);
       print(jsonResponse);
-      if (jsonResponse['success'] != null){
-        if(jsonResponse['success']){
+      if (jsonResponse['success'] != null) {
+        if (jsonResponse['success']) {
           if (response.headers['set-cookie'] != null) {
             var refreshToken = response.headers['set-cookie'];
-             prefs.setString('refreshToken', refreshToken!);
+            prefs.setString('refreshToken', refreshToken!);
           }
           prefs.setString('accessToken', jsonResponse['accessToken']);
           prefs.setString('email', jsonResponse['loginuser']['email']);
           print(prefs.getString('refreshToken'));
           // Sử dụng:
-          LoadingOverlay.show(context);
+          //LoadingOverlay.show(context);
           context.pushNamed('tabs');
-          LoadingOverlay.hide();
-        }else{
+          //LoadingOverlay.hide();
+        } else {
           print('Something went wrong');
         }
       } else {
         String mess = jsonResponse['feedback'];
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(mess)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(mess)));
       }
     }
   }
@@ -166,8 +166,10 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               errorMaxLines: 2,
-                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
-                              prefixIcon: Image.asset('res/images/user-icon.png'),
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(10, 10, 20, 0),
+                              prefixIcon:
+                                  Image.asset('res/images/user-icon.png'),
                               hintText: "Email",
                               hintStyle: const TextStyle(
                                 fontFamily: 'SourceSans3',
@@ -183,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                               bool _isEmailValid = RegExp(
                                       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value ?? '');
-                              if (value!.isEmpty){
+                              if (value!.isEmpty) {
                                 return "Enter Email";
                               }
                               if (!_isEmailValid) {
@@ -191,7 +193,6 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               return null; // Email hợp lệ
                             },
-
                           ),
                         ),
                       ),
@@ -219,8 +220,10 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               errorMaxLines: 2,
-                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
-                              prefixIcon: Image.asset('res/images/key-icon.png'),
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(10, 10, 20, 0),
+                              prefixIcon:
+                                  Image.asset('res/images/key-icon.png'),
                               hintText: "Password",
                               hintStyle: const TextStyle(
                                 fontFamily: 'SourceSans3',
@@ -230,26 +233,29 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               border: InputBorder.none,
                               suffixIcon: InkWell(
-                                onTap: (){
+                                onTap: () {
                                   setState(() {
                                     passToggle = !passToggle;
                                   });
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.only(top: 0),
-                                    child: Icon(passToggle ? Icons.visibility : Icons.visibility_off)),
+                                    child: Icon(passToggle
+                                        ? Icons.visibility
+                                        : Icons.visibility_off)),
                               ),
                             ),
                             keyboardType: TextInputType.emailAddress,
-                            validator: (value){
-                              bool isPasswordValid = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
+                            validator: (value) {
+                              bool isPasswordValid = RegExp(
+                                      r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
                                   .hasMatch(value ?? '');
                               if (value!.isEmpty) {
-                                return "Chưa nhập mật khẩu";
+                                return "Require password!";
                               }
                               if (!isPasswordValid) {
                                 // Nếu mật khẩu không hợp lệ, hiển thị thông báo và không thực hiện đăng nhập.
-                                return "Mật khẩu cần phải có tối thiểu 8 kí tự, phải gồm chữ in hoa và ký tự đặc biệt";
+                                return "Passwords must be at least 8 characters long, include uppercase letters and special characters.";
                               }
                               return null;
                             },
@@ -271,11 +277,12 @@ class _LoginPageState extends State<LoginPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF3B5999),
                                     foregroundColor: Colors.white,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 10, 10, 10),
                                   ),
                                   child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Image.asset('res/images/facebook.png'),
                                         const SizedBox(
@@ -303,11 +310,12 @@ class _LoginPageState extends State<LoginPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFDE4B39),
                                     foregroundColor: Colors.white,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 10, 10, 10),
                                   ),
                                   child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Image.asset('res/images/google.png'),
                                         const SizedBox(
