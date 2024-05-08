@@ -9,7 +9,7 @@ import 'package:healthcare_app/Animation/FadeAnimation.dart';
 import 'package:http/http.dart' as http;
 
 import 'config.dart';
-import 'overlay.dart';
+import '../widgets/overlay.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});

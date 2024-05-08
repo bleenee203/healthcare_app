@@ -12,7 +12,7 @@ import 'package:healthcare_app/src/presentation/pages/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'cookie_manager.dart';
-import 'overlay.dart';
+import '../widgets/overlay.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:intl/intl.dart';
+
 void main() {
-  runApp(const MaterialApp(
-    home: WaterGoalPage(),
-  ));
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MaterialApp(home: WaterGoalPage()));
 }
 
 class WaterGoalPage extends StatefulWidget {
@@ -22,224 +22,110 @@ class _WaterGoalPage extends State<WaterGoalPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: Container(
-          color: HexColor("fbedec"),
+          color: HexColor("FBEDEC"),
           height: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16, left: 20, right: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (RouterCustom.router.canPop()) {
-                          RouterCustom.router.pop();
-                        }
-                      },
-                      child: Image.asset('res/images/go-back.png'),
-                    ),
-                    Text(
-                      "WATER",
-                      style: TextStyle(
-                        color: HexColor("474672"),
-                        fontFamily: "SourceSans3",
-                        fontSize: 36,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const Text(
-                      "SAVE",
-                      style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.black.withOpacity(0.5))),
-                            contentPadding: const EdgeInsets.only(bottom: 17),
-                            hintStyle: TextStyle(
-                                fontFamily: "SourceSans3",
-                                color: Colors.black.withOpacity(0.5)),
-                            hintText: "How much did you drink?"),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 50,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        "ml",
-                        style: TextStyle(
-                            color: Colors.black.withOpacity(0.75),
-                            fontFamily: "SourceSans3"),
-                      ),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 21,
-                ),
-                const Text(
-                  "Quick Add",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      fontFamily: "SourceSans3"),
-                ),
-                SizedBox(
-                  height: 24,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        Image.asset("res/images/glass-of-water.png"),
-                        const SizedBox(
-                          height: 13,
-                        ),
-                        const Text(
-                          "1 glass",
-                          style: TextStyle(
-                            fontFamily: "SourceSans3",
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          "(250 ml)",
-                          style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 14,
-                              color: Colors.black.withOpacity(0.75)),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Image.asset("res/images/bottle.png"),
-                        const SizedBox(
-                          height: 13,
-                        ),
-                        const Text(
-                          "1 bottle",
-                          style: TextStyle(
-                            fontFamily: "SourceSans3",
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          "(500 ml)",
-                          style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 14,
-                              color: Colors.black.withOpacity(0.75)),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Image.asset("res/images/super_bottle.png"),
-                        const SizedBox(
-                          height: 13,
-                        ),
-                        const Text(
-                          "1 super bottle",
-                          style: TextStyle(
-                            fontFamily: "SourceSans3",
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          "(750 ml)",
-                          style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 14,
-                              color: Colors.black.withOpacity(0.75)),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 28,
-                ),
-                const Divider(
-                  thickness: 1,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Container(
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+              image: AssetImage("res/images/image-removebg-preview.png"),
+            )),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16, left: 20, right: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Expanded(
-                        child: Text(
-                          "Date",
-                          style: TextStyle(
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () {
+                              if (RouterCustom.router.canPop()) {
+                                RouterCustom.router.pop();
+                              }
+                            },
+                            child: Image.asset('res/images/go-back.png'),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            "WATER",
+                            style: TextStyle(
+                              color: HexColor("474672"),
                               fontFamily: "SourceSans3",
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600),
+                              fontSize: 36,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
                         ),
                       ),
-                      Text(
-                        _datelog,
-                        style: const TextStyle(
-                          fontFamily: "SourceSans3",
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 18,
-                      ),
-                      GestureDetector(
-                          onTap: () => _showDatePicker(context),
-                          child: Image.asset("res/images/sort-down.png"))
+                      const Expanded(
+                          child: Align(
+                        alignment: Alignment.centerRight,
+                      ))
                     ],
                   ),
-                ),
-                const Divider(
-                  thickness: 1,
-                ),
-              ],
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Text(
+                    "WATER GOAL",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 24,
+                        color: HexColor("474672"),
+                        fontFamily: "SourceSans3"),
+                  ),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  GestureDetector(
+                    onTap: () =>
+                        RouterCustom.router.pushNamed('set-water-goal'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Daily Water Goal",
+                          style: TextStyle(
+                              fontSize: 20, fontFamily: "SourceSans3"),
+                        ),
+                        Text(
+                          "2000 ml",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black.withOpacity(0.75),
+                              fontFamily: "SourceSans3"),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Divider(
+                      thickness: 1,
+                    ),
+                  ),
+                  Text(
+                    textAlign: TextAlign.justify,
+                    "Water is essential to good health and helps prevent  dehydration. While water needs vary from person to person, we often need at least 2000ml of water a day.",
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black.withOpacity(0.75),
+                        fontFamily: "SourceSans3",
+                        fontWeight: FontWeight.w300),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
-  }
-
-  String _datelog = DateFormat('dd/MM/yyyy').format(DateTime.now());
-  void _showDatePicker(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1800),
-      lastDate: DateTime.now(),
-    );
-    String? selectedDate;
-    if (picked != null) {
-      selectedDate = DateFormat('dd/MM/yyyy').format(picked);
-    }
-    setState(() {
-      _datelog = selectedDate ?? _datelog;
-    });
   }
 }

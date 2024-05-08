@@ -110,9 +110,14 @@ class RouterCustom {
           name: 'water-log',
           builder: (BuildContext context, GoRouterState state) =>
               const WaterLogPage()),
-              GoRoute(
+      GoRoute(
           path: '/water-goal',
           name: 'water-goal',
+          builder: (BuildContext context, GoRouterState state) =>
+              const WaterGoalPage()),
+      GoRoute(
+          path: '/set-water-goal',
+          name: 'set-water-goal',
           builder: (BuildContext context, GoRouterState state) =>
               const WaterGoalPage()),
     ],
