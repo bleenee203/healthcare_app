@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:healthcare_app/src/router/router.dart';
 
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:hexcolor/hexcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'config.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -104,6 +104,7 @@ class _UserProfilePage extends State<UserProfilePage> {
       // }
     try {
       // Gửi yêu cầu POST tới endpoint logout
+      var url = dotenv.env['URL'];
       String? accessToken = prefs.getString('accessToken');
       http.Response response = await http.post(
         Uri.parse('${url}user/logout'),

@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 
 import '../../../Animation/FadeAnimation.dart';
-import 'config.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key, required this.email});
@@ -28,7 +28,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   void resetPass() async {
     if (passController.text.isNotEmpty) {
       final mail = widget.email;
-
+      var url = dotenv.env['URL'];
       var regBody = {
         "email": mail,
         "password": passController.value.text
