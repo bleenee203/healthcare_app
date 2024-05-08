@@ -275,9 +275,15 @@ class _VerifyState extends State<Verify> {
               Visibility(
                 visible: resendButtonEnabled,
                 child: TextButton(
-                  onPressed: () {
+                  onPressed:  () async {
+                    var regBody = {
+                      "email": widget.mail,
+                    };
+                    var response = await http.post(Uri.parse("${url}user/sendotp"),
+                        headers: {"Content-Type":"application/json"},
+                        body: jsonEncode(regBody)
+                    );
                     restartCountdown();
-                    verifyUser();
                   },
                   child: const Text(
                     "Resend New Code",

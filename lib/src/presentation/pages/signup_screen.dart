@@ -41,16 +41,22 @@ class _SignupPageState extends State<SignupPage> {
           headers: {"Content-Type": "application/json"},
           body: jsonEncode(regBody));
       var jsonResponse = jsonDecode(response.body);
-      print(jsonResponse['success']);
-
-      if (jsonResponse['success']) {
-        // Sử dụng:
-        //LoadingOverlay.show(context);
-        context.go('/verify/$mail/$pass');
-        //LoadingOverlay.hide();
-      } else {
+      if (jsonResponse['success'] != null){
+        print(jsonResponse['success']);
+        if(jsonResponse['success']){
+          // Sử dụng:
+          LoadingOverlay.show(context);
+          context.go('/verify/$mail/$pass');
+          LoadingOverlay.hide();
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(jsonResponse['message'])),
+          );
+        }
+      }
+      else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(jsonResponse['message'])),
+            SnackBar(content: Text('Error')),
         );
       }
     } else {
