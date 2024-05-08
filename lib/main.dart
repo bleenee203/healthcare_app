@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/app.dart';
 import 'package:healthcare_app/src/presentation/pages/cookie_manager.dart';
@@ -11,4 +10,3 @@ Future<void> main() async {
   await dotenv.load(fileName: "lib/.env");
   runApp(const MyApp());
 }
-

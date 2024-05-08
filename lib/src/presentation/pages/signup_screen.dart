@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
 import 'package:http/http.dart' as http;
 
-
 import 'config.dart';
 import 'overlay.dart';
 
@@ -29,17 +28,18 @@ class _SignupPageState extends State<SignupPage> {
   bool passToggle = true;
   bool confirmPassToggle = true;
 
-  void registerUser() async{
-    if(emailController.text.isNotEmpty && passController.text.isNotEmpty && confirmPassController.text.isNotEmpty){
+  void registerUser() async {
+    if (emailController.text.isNotEmpty &&
+        passController.text.isNotEmpty &&
+        confirmPassController.text.isNotEmpty) {
       final pass = passController.value.text;
       final mail = emailController.value.text;
       var regBody = {
         "email": emailController.value.text,
       };
       var response = await http.post(Uri.parse("${url}user/sendotp"),
-          headers: {"Content-Type":"application/json"},
-          body: jsonEncode(regBody)
-      );
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(regBody));
       var jsonResponse = jsonDecode(response.body);
       if (jsonResponse['success'] != null){
         print(jsonResponse['success']);
@@ -59,7 +59,7 @@ class _SignupPageState extends State<SignupPage> {
             SnackBar(content: Text('Error')),
         );
       }
-    }else{
+    } else {
       setState(() {
         _isNotValidate = true;
       });
@@ -76,28 +76,31 @@ class _SignupPageState extends State<SignupPage> {
           height: double.infinity,
           width: double.infinity,
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                colors: [
-                  Color(0xFFFBEDEC),
-                  Color(0xFFD37FE0),
-                ]),
+            gradient: LinearGradient(begin: Alignment.topCenter, colors: [
+              Color(0xFFFBEDEC),
+              Color(0xFFD37FE0),
+            ]),
           ),
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                FadeAnimation(2,
+                FadeAnimation(
+                  2,
                   Container(
                     margin: const EdgeInsets.all(20),
                     child: Image.asset('res/images/login-img.png'),
                   ),
                 ),
-                const SizedBox(height: 5,),
+                const SizedBox(
+                  height: 5,
+                ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    FadeAnimation(2,
-                      const Text("Hi There!",
+                    FadeAnimation(
+                      2,
+                      const Text(
+                        "Hi There!",
                         style: TextStyle(
                           fontFamily: 'SourceSans3',
                           fontSize: 20,
@@ -106,9 +109,13 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 5,),
-                    FadeAnimation(2,
-                      const Text("Let's Get Started",
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    FadeAnimation(
+                      2,
+                      const Text(
+                        "Let's Get Started",
                         style: TextStyle(
                           fontFamily: 'SourceSans3',
                           fontSize: 40,
@@ -119,20 +126,23 @@ class _SignupPageState extends State<SignupPage> {
                     )
                   ],
                 ),
-                const SizedBox(height:40,),
+                const SizedBox(
+                  height: 40,
+                ),
                 SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      FadeAnimation(2,
+                      FadeAnimation(
+                        2,
                         Container(
                           width: 350,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0 , 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           child: TextFormField(
                             decoration: InputDecoration(
                               errorStyle: const TextStyle(
@@ -144,7 +154,8 @@ class _SignupPageState extends State<SignupPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               errorMaxLines: 2,
-                              prefixIcon: Image.asset('res/images/user-icon.png'),
+                              prefixIcon:
+                                  Image.asset('res/images/user-icon.png'),
                               hintText: "Email",
                               hintStyle: const TextStyle(
                                 fontFamily: 'SourceSans3',
@@ -158,9 +169,9 @@ class _SignupPageState extends State<SignupPage> {
                             controller: emailController,
                             validator: (value) {
                               bool _isEmailValid = RegExp(
-                                  r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value ?? '');
-                              if (value!.isEmpty){
+                              if (value!.isEmpty) {
                                 return "Enter Email";
                               }
                               if (!_isEmailValid) {
@@ -171,15 +182,18 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20,),
-                      FadeAnimation(2,
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      FadeAnimation(
+                        2,
                         Container(
                           width: 350,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0 , 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           child: TextFormField(
                             controller: passController,
                             decoration: InputDecoration(
@@ -192,8 +206,10 @@ class _SignupPageState extends State<SignupPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               errorMaxLines: 2,
-                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
-                              prefixIcon: Image.asset('res/images/key-icon.png'),
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(10, 10, 20, 0),
+                              prefixIcon:
+                                  Image.asset('res/images/key-icon.png'),
                               hintText: "Password",
                               hintStyle: const TextStyle(
                                 fontFamily: 'SourceSans3',
@@ -203,20 +219,23 @@ class _SignupPageState extends State<SignupPage> {
                               ),
                               border: InputBorder.none,
                               suffixIcon: InkWell(
-                                onTap: (){
+                                onTap: () {
                                   setState(() {
                                     passToggle = !passToggle;
                                   });
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.only(top: 0),
-                                    child: Icon(passToggle ? Icons.visibility : Icons.visibility_off)),
+                                    child: Icon(passToggle
+                                        ? Icons.visibility
+                                        : Icons.visibility_off)),
                               ),
                             ),
                             keyboardType: TextInputType.text,
                             obscureText: passToggle,
-                            validator: (value){
-                              bool isPasswordValid = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
+                            validator: (value) {
+                              bool isPasswordValid = RegExp(
+                                      r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
                                   .hasMatch(value ?? '');
                               if (value!.isEmpty) {
                                 return "Chưa nhập mật khẩu";
@@ -230,15 +249,18 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20,),
-                      FadeAnimation(2,
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      FadeAnimation(
+                        2,
                         Container(
                           width: 350,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.white,
                           ),
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0 , 0),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           child: TextFormField(
                             controller: confirmPassController,
                             obscureText: confirmPassToggle,
@@ -252,8 +274,10 @@ class _SignupPageState extends State<SignupPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               errorMaxLines: 2,
-                              contentPadding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
-                              prefixIcon: Image.asset('res/images/key-icon.png'),
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(10, 10, 20, 0),
+                              prefixIcon:
+                                  Image.asset('res/images/key-icon.png'),
                               hintText: "Confirm Password",
                               hintStyle: const TextStyle(
                                 fontFamily: 'SourceSans3',
@@ -263,18 +287,20 @@ class _SignupPageState extends State<SignupPage> {
                               ),
                               border: InputBorder.none,
                               suffixIcon: InkWell(
-                                onTap: (){
+                                onTap: () {
                                   setState(() {
                                     confirmPassToggle = !confirmPassToggle;
                                   });
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.only(top: 0),
-                                    child: Icon(confirmPassToggle ? Icons.visibility : Icons.visibility_off)),
+                                    child: Icon(confirmPassToggle
+                                        ? Icons.visibility
+                                        : Icons.visibility_off)),
                               ),
                             ),
                             keyboardType: TextInputType.emailAddress,
-                            validator: (value){
+                            validator: (value) {
                               if (value != passController.value.text) {
                                 return "Mật khẩu không trùng khớp!";
                               }
@@ -283,82 +309,96 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20,),
+                      const SizedBox(
+                        height: 20,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          FadeAnimation(2,
+                          FadeAnimation(
+                            2,
                             SizedBox(
                               width: 162,
-                              child: ElevatedButton(onPressed: (){}, //Để đây sử sau
+                              child: ElevatedButton(
+                                  onPressed: () {}, //Để đây sử sau
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF3B5999),
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 10, 10, 10),
                                   ),
                                   child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Image.asset('res/images/facebook.png'),
-                                        const SizedBox(width: 10,),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
                                         const Text(
                                           "Facebook",
                                           style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w600,
-                                              fontFamily: 'SourceSans3'
-                                          ),
+                                              fontFamily: 'SourceSans3'),
                                         ),
-                                      ]
-                                  )
-                              ),
+                                      ])),
                             ),
                           ),
-                          const SizedBox(width: 20,),
-                          FadeAnimation(2,
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          FadeAnimation(
+                            2,
                             SizedBox(
                               width: 162,
-                              child: ElevatedButton(onPressed: (){}, //Để đây sử sau
+                              child: ElevatedButton(
+                                  onPressed: () {}, //Để đây sử sau
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFDE4B39),
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 10, 10, 10),
                                   ),
                                   child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Image.asset('res/images/google.png'),
-                                        const SizedBox(width: 10,),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
                                         const Text(
                                           "Google",
                                           style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w600,
-                                              fontFamily: 'SourceSans3'
-                                          ),
+                                              fontFamily: 'SourceSans3'),
                                         ),
-                                      ]
-                                  )
-                              ),
+                                      ])),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20,),
-                      FadeAnimation(2,
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      FadeAnimation(
+                        2,
                         SizedBox(
                           width: 350,
                           height: 56,
-                          child: ElevatedButton(onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-
-                              registerUser();
-                            }
-                          }, //Để đây sử sau
+                          child: ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  registerUser();
+                                }
+                              }, //Để đây sử sau
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF77258B),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 10, 10, 10),
                               ),
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -368,35 +408,41 @@ class _SignupPageState extends State<SignupPage> {
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
-                                        fontFamily: 'SourceSans3'
-                                    ),
+                                        fontFamily: 'SourceSans3'),
                                   ),
-                                  SizedBox(width: 5,),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
                                   Icon(Icons.chevron_right),
                                 ],
-                              )
-                          ),
+                              )),
                         ),
                       ),
-                      const SizedBox(height: 10,),
+                      const SizedBox(
+                        height: 10,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children:<Widget>[
+                        children: <Widget>[
                           Container(
                             width: 150,
                             height: 1, // Chiều cao 1 pixel
                             color: Colors.white, child: null, // Màu xám
                           ),
-                          const SizedBox(width: 5,),
-                          const Text("Or",
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          const Text(
+                            "Or",
                             style: TextStyle(
                               fontFamily: 'SourceSans3',
                               color: Colors.white,
                               fontSize: 20,
-
                             ),
                           ),
-                          const SizedBox(width: 5,),
+                          const SizedBox(
+                            width: 5,
+                          ),
                           Container(
                             width: 150,
                             height: 1, // Chiều cao 1 pixel
@@ -404,35 +450,39 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10,),
-                      FadeAnimation(2,
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      FadeAnimation(
+                        2,
                         Container(
                           width: 350,
                           height: 68,
                           decoration: const BoxDecoration(
-                            boxShadow: [BoxShadow(
-                                color: Color(0xFF77258B),
-                                blurRadius: 20,
-                                offset: Offset(0, 8)
-                            ),],
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Color(0xFF77258B),
+                                  blurRadius: 20,
+                                  offset: Offset(0, 8)),
+                            ],
                           ),
-                          child: ElevatedButton(onPressed: (){
-                            context.goNamed('login');
-                          }, //Để đây sử sau
+                          child: ElevatedButton(
+                              onPressed: () {
+                                context.goNamed('login');
+                              }, //Để đây sử sau
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFD19ADB),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 10, 10, 10),
                               ),
                               child: const Text(
                                 "Login",
                                 style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
-                                    fontFamily: 'SourceSans3'
-                                ),
-                              )
-                          ),
+                                    fontFamily: 'SourceSans3'),
+                              )),
                         ),
                       ),
                     ],
@@ -446,5 +496,3 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 }
-
-

@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/presentation/widgets/nested_tab.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -67,11 +67,17 @@ class _WaterPageState extends State<WaterPage> with TickerProviderStateMixin {
                         ),
                         Row(
                           children: [
-                            Image.asset("res/images/settings.png"),
+                            GestureDetector(
+                                onTap: () => RouterCustom.router
+                                    .pushNamed('water-goal'),
+                                child: Image.asset("res/images/settings.png")),
                             const SizedBox(
                               width: 23,
                             ),
-                            Image.asset("res/images/plus.png"),
+                            GestureDetector(
+                                onTap: () =>
+                                    RouterCustom.router.pushNamed('water-log'),
+                                child: Image.asset("res/images/plus.png")),
                           ],
                         ),
                       ],
