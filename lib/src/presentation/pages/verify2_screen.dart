@@ -3,10 +3,11 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
-import 'config.dart';
+
 
 class Verify2 extends StatefulWidget {
   const Verify2({super.key, this.mail});
@@ -26,6 +27,7 @@ class _Verify2State extends State<Verify2> {
     String otp = otpValues.join();
     int otpInt = int.parse(otp);
     String email = widget.mail.toString();
+    var url = dotenv.env['URL'];
     var regBody = {
       "email": email,
       "otp": otpInt,
@@ -244,6 +246,7 @@ class _Verify2State extends State<Verify2> {
                     var regBody = {
                       "email": widget.mail,
                     };
+                    var url = dotenv.env['URL'];
                     var response = await http.post(Uri.parse("${url}user/forgotpass"),
                         headers: {"Content-Type":"application/json"},
                         body: jsonEncode(regBody)
