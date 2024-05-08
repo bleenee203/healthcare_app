@@ -38,6 +38,7 @@ dependencies:
   go_router: ^14.0.1
   simple_animations: ^5.0.2
   intl: ^0.19.0
+  fl_chart: ^0.67.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -50,6 +51,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   flutter_slidable: ^3.1.0
   dio: ^5.4.3+1
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -133,3 +135,5 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
   assets:
    - res/images/
+   - lib/.env
+

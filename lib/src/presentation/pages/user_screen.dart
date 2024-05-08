@@ -5,7 +5,11 @@ import 'package:healthcare_app/src/router/router.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/thum_shape.dart';
+import 'package:http/http.dart' as http;
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'config.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -15,9 +19,20 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePage extends State<UserProfilePage> {
+  late SharedPreferences prefs;
   double _currentWeightValue = 53;
   double _lastWeightValue = 49.2;
   double _targetWeightValue = 55;
+
+  void initSharedPref() async{
+    prefs = await SharedPreferences.getInstance();
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initSharedPref();
+  }
 
   Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
     return showDialog<void>(
@@ -25,8 +40,8 @@ class _UserProfilePage extends State<UserProfilePage> {
       barrierDismissible: false, // User must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Logout'),
-          content: SingleChildScrollView(
+          title: const Text('Logout'),
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text('Are you sure you want to log out?'),
@@ -53,6 +68,60 @@ class _UserProfilePage extends State<UserProfilePage> {
         );
       },
     );
+  }
+
+  void logoutUser() async{
+      // var reqBody = {
+      //   "email": emailController.value.text,
+      //   "password": passController.value.text
+      // };
+      //
+      // var response = await http.post(Uri.parse('${url}user/login'),
+      //     headers: {"Content-Type":"application/json"},
+      //     body: jsonEncode(reqBody)
+      // );
+      // var jsonResponse = jsonDecode(response.body);
+      // print(reqBody);
+      // print(jsonResponse);
+      // if (jsonResponse['success'] != null){
+      //   if(jsonResponse['success']){
+      //     if (response.headers['set-cookie'] != null) {
+      //       var refreshToken = response.headers['set-cookie'];
+      //       prefs.setString('refreshToken', refreshToken!);
+      //     }
+      //     prefs.setString('accessToken', jsonResponse['accessToken']);
+      //     prefs.setString('email', jsonResponse['loginuser']['email']);
+      //     print(prefs.getString('refreshToken'));
+      //     print(prefs.getString('accessToken'));
+      //     context.pushNamed('tabs');
+      //   }else{
+      //     print('Something went wrong');
+      //   }
+      // } else {
+      //   String mess = jsonResponse['feedback'];
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(content: Text(mess)));
+      // }
+    try {
+      // Gửi yêu cầu POST tới endpoint logout
+      String? accessToken = prefs.getString('accessToken');
+      http.Response response = await http.post(
+        Uri.parse('${url}user/logout'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      // Kiểm tra mã trạng thái của phản hồi
+      if (response.statusCode == 205) {
+        print('Logout success');
+        _showLogoutConfirmationDialog(context);
+      } else {
+        print('Logout fail: ${response.body}');
+      }
+    } catch (error) {
+      print('logout error: $error');
+    }
   }
 
   @override
@@ -232,7 +301,7 @@ class _UserProfilePage extends State<UserProfilePage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => _showLogoutConfirmationDialog(context),
+                    onTap: () => logoutUser(),
                     child: Padding(
                       padding: const EdgeInsets.only(top: 22, bottom: 22),
                       child: Row(

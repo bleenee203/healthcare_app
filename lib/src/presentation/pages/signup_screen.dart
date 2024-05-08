@@ -41,14 +41,23 @@ class _SignupPageState extends State<SignupPage> {
           body: jsonEncode(regBody)
       );
       var jsonResponse = jsonDecode(response.body);
-      print(jsonResponse['succes']);
-      if(jsonResponse['succes']){
-        // Sử dụng:
-        LoadingOverlay.show(context);
-        context.go('/verify/$mail/$pass');
-        LoadingOverlay.hide();
-      }else{
-        print("SomeThing Went Wrong");
+      if (jsonResponse['success'] != null){
+        print(jsonResponse['success']);
+        if(jsonResponse['success']){
+          // Sử dụng:
+          LoadingOverlay.show(context);
+          context.go('/verify/$mail/$pass');
+          LoadingOverlay.hide();
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(jsonResponse['message'])),
+          );
+        }
+      }
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error')),
+        );
       }
     }else{
       setState(() {
@@ -342,9 +351,7 @@ class _SignupPageState extends State<SignupPage> {
                           height: 56,
                           child: ElevatedButton(onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Thông tin hợp lệ')),
-                              );
+
                               registerUser();
                             }
                           }, //Để đây sử sau

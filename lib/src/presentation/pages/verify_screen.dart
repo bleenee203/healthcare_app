@@ -48,7 +48,10 @@ class _VerifyState extends State<Verify> {
       }
     }
   }
-
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
@@ -62,6 +65,7 @@ class _VerifyState extends State<Verify> {
           resendButtonEnabled = true; // Khi đếm về 0, enable nút "Resend New Code"
         });
       } else {
+        if(mounted)
         setState(() {
           _remainingSeconds--;
         });
@@ -245,9 +249,15 @@ class _VerifyState extends State<Verify> {
               Visibility(
                 visible: resendButtonEnabled,
                 child: TextButton(
-                  onPressed:  () {
+                  onPressed:  () async {
+                    var regBody = {
+                      "email": widget.mail,
+                    };
+                    var response = await http.post(Uri.parse("${url}user/sendotp"),
+                        headers: {"Content-Type":"application/json"},
+                        body: jsonEncode(regBody)
+                    );
                     restartCountdown();
-                    verifyUser();
                   },
                   child: const Text(
                     "Resend New Code",

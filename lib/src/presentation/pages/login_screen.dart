@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passController = TextEditingController();
   bool passToggle = true;
-  late SharedPreferences prefs ;
+  late SharedPreferences prefs;
   final dio = Dio();
 
 
@@ -63,10 +63,8 @@ class _LoginPageState extends State<LoginPage> {
           prefs.setString('accessToken', jsonResponse['accessToken']);
           prefs.setString('email', jsonResponse['loginuser']['email']);
           print(prefs.getString('refreshToken'));
-          // Sử dụng:
-          LoadingOverlay.show(context);
+          print(prefs.getString('accessToken'));
           context.pushNamed('tabs');
-          LoadingOverlay.hide();
         }else{
           print('Something went wrong');
         }
