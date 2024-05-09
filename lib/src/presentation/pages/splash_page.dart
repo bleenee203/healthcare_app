@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/navigator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/pages/home_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../Animation/FadeAnimation.dart';
 
@@ -26,6 +27,11 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
       });
   }
 
+  Future getValidationData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    var obtained = prefs.getString('refreshToken');
+
+  }
 
   @override
   void dispose() {
