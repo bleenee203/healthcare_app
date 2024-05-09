@@ -3,10 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MaterialApp(home: WaterGoalPage()));
-}
 
 class WaterGoalPage extends StatefulWidget {
   const WaterGoalPage({super.key});

@@ -8,11 +8,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
-import 'package:healthcare_app/src/presentation/pages/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'cookie_manager.dart';
-import '../widgets/overlay.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         "email": emailController.value.text,
         "password": passController.value.text
       };
-
+      var url = dotenv.env['URL'];
       var response = await http.post(Uri.parse('${url}user/login'),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode(reqBody));

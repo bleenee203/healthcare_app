@@ -3,10 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
-import 'config.dart';
 
 class Verify extends StatefulWidget {
   const Verify({super.key, this.password, this.mail});
@@ -25,6 +25,7 @@ class _VerifyState extends State<Verify> {
   void verifyUser() async {
     String otp = otpValues.join();
     int otpInt = int.parse(otp);
+    var url = dotenv.env['URL'];
     var regBody = {
       "email": widget.mail.toString(),
       "password": widget.password.toString(),
@@ -279,6 +280,7 @@ class _VerifyState extends State<Verify> {
                     var regBody = {
                       "email": widget.mail,
                     };
+                    var url = dotenv.env['URL'];
                     var response = await http.post(Uri.parse("${url}user/sendotp"),
                         headers: {"Content-Type":"application/json"},
                         body: jsonEncode(regBody)

@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-
-import 'config.dart';
-import '../widgets/overlay.dart';
 import 'verify_screen.dart';
 
 class Register extends StatefulWidget {
@@ -22,7 +20,7 @@ class _RegisterState extends State<Register> {
   void forgotPass() async {
     if (emailController.text.isNotEmpty ) {
       final mail = emailController.value.text;
-
+      var url = dotenv.env['URL'];
       var regBody = {
         "email": emailController.value.text,
       };
@@ -37,9 +35,7 @@ class _RegisterState extends State<Register> {
         print(jsonResponse['succes']);
         if (jsonResponse['succes']) {
           // Sử dụng:
-          LoadingOverlay.show(context);
           context.push('/verify2/$mail');
-          LoadingOverlay.hide();
         } else {
           print("SomeThing Went Wrong");
         }

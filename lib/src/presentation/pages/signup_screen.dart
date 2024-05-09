@@ -4,12 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
 import 'package:http/http.dart' as http;
 
-import 'config.dart';
-import '../widgets/overlay.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -34,6 +33,7 @@ class _SignupPageState extends State<SignupPage> {
         confirmPassController.text.isNotEmpty) {
       final pass = passController.value.text;
       final mail = emailController.value.text;
+      var url = dotenv.env['URL'];
       var regBody = {
         "email": emailController.value.text,
       };
@@ -45,9 +45,7 @@ class _SignupPageState extends State<SignupPage> {
         print(jsonResponse['success']);
         if(jsonResponse['success']){
           // Sử dụng:
-          LoadingOverlay.show(context);
           context.go('/verify/$mail/$pass');
-          LoadingOverlay.hide();
         }else{
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(jsonResponse['message'])),
