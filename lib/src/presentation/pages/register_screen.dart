@@ -32,9 +32,8 @@ class _RegisterState extends State<Register> {
         var jsonResponse = jsonDecode(response.body);
         print(jsonEncode(regBody));
         print(jsonResponse);
-        print(jsonResponse['succes']);
-        if (jsonResponse['succes']) {
-          // Sử dụng:
+        print(jsonResponse['success']);
+        if (jsonResponse['success']) {
           context.push('/verify2/$mail');
         } else {
           print("SomeThing Went Wrong");

@@ -31,10 +31,10 @@ void loginUser(final emailController, final passController, BuildContext context
         prefs.setString('accessToken', jsonResponse['accessToken']);
         prefs.setString('email', jsonResponse['loginuser']['email']);
         print(prefs.getString('refreshToken'));
-        // Sử dụng:
-        //LoadingOverlay.show(context);
+        print(prefs.getString('email'));
+
         context.pushNamed('tabs');
-        //LoadingOverlay.hide();
+
       } else {
         print('Something went wrong');
       }
