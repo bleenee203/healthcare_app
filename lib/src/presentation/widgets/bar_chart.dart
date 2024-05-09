@@ -4,7 +4,7 @@ import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class BarChartWidget extends StatefulWidget {
-  const BarChartWidget({Key? key, required this.points}) : super(key: key);
+  const BarChartWidget({super.key, required this.points});
 
   final List<WaterPoint> points;
 

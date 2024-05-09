@@ -1,17 +1,30 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-
-class WaterGoalPage extends StatefulWidget {
-  const WaterGoalPage({super.key});
+class WaterSetGoalPage extends StatefulWidget {
+  const WaterSetGoalPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _WaterGoalPage();
+  State<StatefulWidget> createState() => _WaterSetGoalPage();
 }
 
-class _WaterGoalPage extends State<WaterGoalPage> {
+class _WaterSetGoalPage extends State<WaterSetGoalPage> {
+  int _water_goal = 2000;
+  void _incrementCounter() {
+    setState(() {
+      _water_goal++;
+    });
+  }
+
+  void _decrementCounter() {
+    setState(() {
+      _water_goal--;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -29,7 +42,7 @@ class _WaterGoalPage extends State<WaterGoalPage> {
               padding: const EdgeInsets.only(top: 16, left: 20, right: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     children: [
@@ -67,55 +80,36 @@ class _WaterGoalPage extends State<WaterGoalPage> {
                     ],
                   ),
                   const SizedBox(
-                    height: 40,
+                    height: 100,
                   ),
                   Text(
-                    "WATER GOAL",
+                    '$_water_goal',
                     style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 24,
-                        color: HexColor("474672"),
-                        fontFamily: "SourceSans3"),
+                        fontFamily: "SourceSans3",
+                        fontWeight: FontWeight.w900,
+                        fontSize: 60),
+                  ),
+                  Text(
+                    "ml per day",
+                    style: TextStyle(fontFamily: "SourceSans3", fontSize: 20),
                   ),
                   const SizedBox(
-                    height: 25,
+                    height: 50,
                   ),
-                  GestureDetector(
-                    onTap: () =>
-                        RouterCustom.router.pushNamed('set-water-goal'),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Daily Water Goal",
-                          style: TextStyle(
-                              fontSize: 20, fontFamily: "SourceSans3"),
-                        ),
-                        Text(
-                          "2000 ml",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black.withOpacity(0.75),
-                              fontFamily: "SourceSans3"),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Divider(
-                      thickness: 1,
-                    ),
-                  ),
-                  Text(
-                    textAlign: TextAlign.justify,
-                    "Water is essential to good health and helps prevent  dehydration. While water needs vary from person to person, we often need at least 2000ml of water a day.",
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black.withOpacity(0.75),
-                        fontFamily: "SourceSans3",
-                        fontWeight: FontWeight.w300),
-                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                            onPressed: _incrementCounter,
+                            child: Icon(Icons.add)),
+                      ),
+                      Expanded(
+                        child: ElevatedButton(
+                            onPressed: _decrementCounter,
+                            child: Icon(Icons.remove)),
+                      )
+                    ],
+                  )
                 ],
               ),
             ),
