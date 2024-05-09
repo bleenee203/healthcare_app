@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/ImageSliderWithDots.dart';
+import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -479,23 +480,27 @@ class _HomePage extends State<HomePage> {
                           child: SizedBox(
                             width: constraint.maxWidth /
                                 4, // Chia đều không gian cho 4 cột
-                            child: Column(
-                              children: [
-                                Image.asset("res/images/image2_3434.png"),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 5),
-                                  child: Text(
-                                    'Nutrition',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                      fontFamily: 'SourceSans3',
-                                      fontWeight: FontWeight.w600,
+                            child: GestureDetector(
+                              onTap: () =>
+                                  RouterCustom.router.pushNamed("nutrition"),
+                              child: Column(
+                                children: [
+                                  Image.asset("res/images/image2_3434.png"),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 5),
+                                    child: Text(
+                                      'Nutrition',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color.fromARGB(255, 0, 0, 0),
+                                        fontFamily: 'SourceSans3',
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
