@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
+import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/nutrition_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/personality_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/profile_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/resetPassword_screen.dart';
@@ -121,6 +123,16 @@ class RouterCustom {
           name: 'set-water-goal',
           builder: (BuildContext context, GoRouterState state) =>
               const WaterSetGoalPage()),
+      GoRoute(
+          path: '/nutrition',
+          name: 'nutrition',
+          builder: (BuildContext context, GoRouterState state) =>
+              const NutritionPage()),
+      GoRoute(
+          path: '/foods',
+          name: 'foods',
+          builder: (BuildContext context, GoRouterState state) =>
+              const FoodsPage()),
     ],
   );
 }

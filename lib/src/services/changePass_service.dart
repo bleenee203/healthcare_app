@@ -41,6 +41,7 @@ void changePass (
       var regBody = {"email": mail, "oldPassword": current, "newPassword": pass};
       var response = await http.patch(Uri.parse("${url}user/changepass"),
           headers: {
+            'Content-Type':'application/json',
             'Authorization': 'Bearer $accessToken',
             'Cookie': refreshToken
           },
