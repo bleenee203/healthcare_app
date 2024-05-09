@@ -48,8 +48,7 @@ void verifyUser(List<String> otpValues, String email, String password,BuildConte
       context.push('/success');
     } else {
       String mess = jsonResponse['message'];
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(mess)));
+      print(mess);
     }
   }
 }

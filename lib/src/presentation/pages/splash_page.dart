@@ -9,7 +9,7 @@ import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../Animation/FadeAnimation.dart';
-
+String? finalToken;
 class splash extends StatefulWidget {
   const splash({super.key});
 
@@ -22,29 +22,33 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    getValidationData().whenComplete(() async {
       Future.delayed(const Duration(milliseconds: 3000,), () {
-        context.go('/login');
+        context.go(finalToken == null ? '/login' : '/tabs');
       });
+    });
   }
 
   Future getValidationData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var obtained = prefs.getString('refreshToken');
-
+    setState(() {
+      finalToken = obtained!;
+    });
+    print(finalToken);
   }
+    @override
+    void dispose() {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+          overlays: SystemUiOverlay.values);
+      super.dispose();
+    }
 
-  @override
-  void dispose() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Container(
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Container(
             height: double.infinity,
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -57,16 +61,16 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                  Container(
-                    width: 400,
-                    height: 400,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                    child: Image.asset(
-                      'res/images/GEN-Z.png',
-                    ),
+                Container(
+                  width: 400,
+                  height: 400,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
                   ),
+                  child: Image.asset(
+                    'res/images/GEN-Z.png',
+                  ),
+                ),
                 const SizedBox(
                   height: 0,
                 ),
@@ -90,5 +94,5 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
               ],
             )),
       );
+    }
   }
-}

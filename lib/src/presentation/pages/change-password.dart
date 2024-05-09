@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -288,9 +289,12 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         final mail = prefs.getString('email');
-                        String currentPass = currentController.value.text;
-                        String pass = passController.value.text;
-                        changePass(mail!, currentPass, pass, context);
+                        if (mail == null) {
+                          print('Missing access mail');
+                          return;
+                        }
+
+                        changePass(mail, currentController, passController, context);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -312,7 +316,9 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                     height: 10,
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/tabs');
+                    },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: HexColor("FCD4D1")),
                     child: const Padding(
@@ -331,14 +337,19 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Text(
-                    textAlign: TextAlign.center,
-                    "Forgot Password?",
-                    style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: HexColor("FE7B60")),
+                  TextButton(
+                    onPressed: () {
+                      context.pushNamed('register');
+                    },
+                    child: Text(
+                      textAlign: TextAlign.center,
+                      "Forgot Password?",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: HexColor("FE7B60")),
+                    ),
                   ),
                 ],
               ),
