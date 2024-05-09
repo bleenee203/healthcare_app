@@ -4,8 +4,9 @@ import 'package:healthcare_app/src/presentation/widgets/nested_tab.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
+
 class WaterPage extends StatefulWidget {
-  const WaterPage({Key? key}) : super(key: key);
+  const WaterPage({super.key});
 
   @override
   State<StatefulWidget> createState() => _WaterPageState();
@@ -34,65 +35,64 @@ class _WaterPageState extends State<WaterPage> with TickerProviderStateMixin {
         body: Container(
           height: double.infinity,
           color: const Color(0xfffbedec),
-          child: SingleChildScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 16, bottom: 32, left: 20, right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (RouterCustom.router.canPop()) {
-                              RouterCustom.router.pop();
-                            }
-                          },
-                          child: Image.asset('res/images/go-back.png'),
+
+          //physics: AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 16, bottom: 32, left: 20, right: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (RouterCustom.router.canPop()) {
+                            RouterCustom.router.pop();
+                          }
+                        },
+                        child: Image.asset('res/images/go-back.png'),
+                      ),
+                      Text(
+                        "WATER",
+                        style: TextStyle(
+                          color: HexColor("474672"),
+                          fontFamily: "SourceSans3",
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
                         ),
-                        Text(
-                          "WATER",
-                          style: TextStyle(
-                            color: HexColor("474672"),
-                            fontFamily: "SourceSans3",
-                            fontSize: 36,
-                            fontWeight: FontWeight.w900,
+                      ),
+                      Row(
+                        children: [
+                          GestureDetector(
+                              onTap: () =>
+                                  RouterCustom.router.pushNamed('water-goal'),
+                              child: Image.asset("res/images/settings.png")),
+                          const SizedBox(
+                            width: 23,
                           ),
-                        ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                                onTap: () => RouterCustom.router
-                                    .pushNamed('water-goal'),
-                                child: Image.asset("res/images/settings.png")),
-                            const SizedBox(
-                              width: 23,
-                            ),
-                            GestureDetector(
-                                onTap: () =>
-                                    RouterCustom.router.pushNamed('water-log'),
-                                child: Image.asset("res/images/plus.png")),
-                          ],
-                        ),
-                      ],
-                    ),
+                          GestureDetector(
+                              onTap: () =>
+                                  RouterCustom.router.pushNamed('water-log'),
+                              child: Image.asset("res/images/plus.png")),
+                        ],
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: TabBarView(
-                      children: <Widget>[
-                        NestedTabBar(),
-                      ],
-                      controller: _tabController,
-                    ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: <Widget>[
+                      NestedTabBar(),
+                    ],
+                    controller: _tabController,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
