@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:healthcare_app/src/presentation/widgets/custome_snackBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-void loginUser(final emailController, final passController, BuildContext context) async {
+void loginUser(
+    final emailController, final passController, BuildContext context) async {
   if (emailController.value.text.isNotEmpty &&
       passController.value.text.isNotEmpty) {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -32,16 +34,14 @@ void loginUser(final emailController, final passController, BuildContext context
         prefs.setString('email', jsonResponse['loginuser']['email']);
         print(prefs.getString('refreshToken'));
         print(prefs.getString('email'));
-
+        showSuccessSnackBar('SUCCES', 'Login success', context);
         context.pushNamed('tabs');
-
       } else {
         print('Something went wrong');
       }
     } else {
       String mess = jsonResponse['feedback'];
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(mess)));
+      showErrorSnackBar('ERROR!', mess, context);
     }
   }
 }

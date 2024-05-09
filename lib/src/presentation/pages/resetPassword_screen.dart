@@ -205,10 +205,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                   child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Thay đổi thành công')),
-                          );
                           final mail = widget.email;
                           String pass = passController.value.text;
                           resetPass(mail, pass, context);
