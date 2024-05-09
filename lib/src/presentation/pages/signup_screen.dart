@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
 import 'package:http/http.dart' as http;
 
+import '../../services/signup_service.dart';
 import 'overlay.dart';
 
 class SignupPage extends StatefulWidget {
@@ -28,44 +29,6 @@ class _SignupPageState extends State<SignupPage> {
   bool passToggle = true;
   bool confirmPassToggle = true;
 
-  void registerUser() async {
-    if (emailController.text.isNotEmpty &&
-        passController.text.isNotEmpty &&
-        confirmPassController.text.isNotEmpty) {
-      final pass = passController.value.text;
-      final mail = emailController.value.text;
-      var url = dotenv.env['URL'];
-      var regBody = {
-        "email": emailController.value.text,
-      };
-      var response = await http.post(Uri.parse("${url}user/sendotp"),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode(regBody));
-      var jsonResponse = jsonDecode(response.body);
-      if (jsonResponse['success'] != null){
-        print(jsonResponse['success']);
-        if(jsonResponse['success']){
-          // Sử dụng:
-          LoadingOverlay.show(context);
-          context.go('/verify/$mail/$pass');
-          LoadingOverlay.hide();
-        }else{
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(jsonResponse['message'])),
-          );
-        }
-      }
-      else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error')),
-        );
-      }
-    } else {
-      setState(() {
-        _isNotValidate = true;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -239,11 +202,11 @@ class _SignupPageState extends State<SignupPage> {
                                       r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
                                   .hasMatch(value ?? '');
                               if (value!.isEmpty) {
-                                return "Chưa nhập mật khẩu";
+                                return "Not entered password";
                               }
                               if (!isPasswordValid) {
                                 // Nếu mật khẩu không hợp lệ, hiển thị thông báo và không thực hiện đăng nhập.
-                                return "Mật khẩu cần phải có tối thiểu 8 kí tự, phải gồm chữ in hoa và ký tự đặc biệt";
+                                return "The password must be at least 8 characters long, contain uppercase letters, and special characters";
                               }
                               return null;
                             },
@@ -303,7 +266,7 @@ class _SignupPageState extends State<SignupPage> {
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               if (value != passController.value.text) {
-                                return "Mật khẩu không trùng khớp!";
+                                return "Passwords do not match!";
                               }
                               return null;
                             },
@@ -392,7 +355,7 @@ class _SignupPageState extends State<SignupPage> {
                           child: ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  registerUser();
+                                  registerUser(emailController, passController, confirmPassController, context);
                                 }
                               }, //Để đây sử sau
                               style: ElevatedButton.styleFrom(

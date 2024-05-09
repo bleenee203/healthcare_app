@@ -1,15 +1,14 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:healthcare_app/src/router/router.dart';
-
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/thum_shape.dart';
 import 'package:http/http.dart' as http;
 import 'package:hexcolor/hexcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -24,9 +23,10 @@ class _UserProfilePage extends State<UserProfilePage> {
   double _lastWeightValue = 49.2;
   double _targetWeightValue = 55;
 
-  void initSharedPref() async{
+  void initSharedPref() async {
     prefs = await SharedPreferences.getInstance();
   }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -58,10 +58,9 @@ class _UserProfilePage extends State<UserProfilePage> {
             TextButton(
               child: Text('Logout'),
               onPressed: () {
-                // Perform logout actions here
-                // For example:
-                Navigator.of(context).pop(); // Close dialog
-                RouterCustom.router.go('/login'); // Navigate to login page
+                logoutUser();
+                Navigator.of(context).pop();
+                RouterCustom.router.push('/login');
               },
             ),
           ],
@@ -70,60 +69,59 @@ class _UserProfilePage extends State<UserProfilePage> {
     );
   }
 
-  void logoutUser() async{
-      // var reqBody = {
-      //   "email": emailController.value.text,
-      //   "password": passController.value.text
-      // };
-      //
-      // var response = await http.post(Uri.parse('${url}user/login'),
-      //     headers: {"Content-Type":"application/json"},
-      //     body: jsonEncode(reqBody)
-      // );
-      // var jsonResponse = jsonDecode(response.body);
-      // print(reqBody);
-      // print(jsonResponse);
-      // if (jsonResponse['success'] != null){
-      //   if(jsonResponse['success']){
-      //     if (response.headers['set-cookie'] != null) {
-      //       var refreshToken = response.headers['set-cookie'];
-      //       prefs.setString('refreshToken', refreshToken!);
-      //     }
-      //     prefs.setString('accessToken', jsonResponse['accessToken']);
-      //     prefs.setString('email', jsonResponse['loginuser']['email']);
-      //     print(prefs.getString('refreshToken'));
-      //     print(prefs.getString('accessToken'));
-      //     context.pushNamed('tabs');
-      //   }else{
-      //     print('Something went wrong');
-      //   }
-      // } else {
-      //   String mess = jsonResponse['feedback'];
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text(mess)));
-      // }
+  void logoutUser() async {
     try {
-      // Gửi yêu cầu POST tới endpoint logout
       var url = dotenv.env['URL'];
       String? accessToken = prefs.getString('accessToken');
-      http.Response response = await http.post(
+      String? refreshToken = prefs.getString('refreshToken');
+
+      if (accessToken == null || refreshToken == null) {
+        print('Missing access token or refresh token');
+        return;
+      }
+
+      bool isExpired = JwtDecoder.isExpired(accessToken);
+
+      if (isExpired) {
+        print('Access token expired, refreshing...');
+        http.Response response = await http.post(
+          Uri.parse('${url}user/reauth'),
+          headers: {'Cookie': refreshToken},
+        );
+
+        if (response.statusCode == 201) {
+          var jsonResponse = jsonDecode(response.body);
+          prefs.setString('accessToken', jsonResponse['accessToken']);
+          accessToken = prefs.getString('accessToken');
+          print('Refreshed access token successfully');
+        } else {
+          print('Failed to refresh access token');
+          return;
+        }
+      }
+
+      // Logout using the refreshed access token
+      http.Response logoutResponse = await http.post(
         Uri.parse('${url}user/logout'),
         headers: {
           'Authorization': 'Bearer $accessToken',
+          'Cookie': refreshToken
         },
       );
 
-      // Kiểm tra mã trạng thái của phản hồi
-      if (response.statusCode == 205) {
+      if (logoutResponse.statusCode == 205) {
+        prefs.remove('accessToken');
+        prefs.remove('refreshToken');
+        prefs.remove('email');
         print('Logout success');
-        _showLogoutConfirmationDialog(context);
       } else {
-        print('Logout fail: ${response.body}');
+        print('Logout failed: ${logoutResponse.body}');
       }
     } catch (error) {
-      print('logout error: $error');
+      print('Logout error: $error');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -141,9 +139,7 @@ class _UserProfilePage extends State<UserProfilePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
-                            onTap: () {
-
-                            },
+                            onTap: () {},
                             child: Image.asset('res/images/go-back.png')),
                         Text(
                           "USER",
@@ -302,7 +298,7 @@ class _UserProfilePage extends State<UserProfilePage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => logoutUser(),
+                    onTap: () => _showLogoutConfirmationDialog(context),
                     child: Padding(
                       padding: const EdgeInsets.only(top: 22, bottom: 22),
                       child: Row(

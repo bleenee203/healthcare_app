@@ -1,18 +1,8 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'cookie_manager.dart';
-import 'overlay.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/login_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,7 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   final passController = TextEditingController();
   bool passToggle = true;
   late SharedPreferences prefs;
-  final dio = Dio();
 
   void initSharedPref() async {
     prefs = await SharedPreferences.getInstance();
@@ -38,44 +27,8 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
     super.initState();
     initSharedPref();
-  }
-
-  void loginUser() async {
-    if (emailController.value.text.isNotEmpty &&
-        passController.value.text.isNotEmpty) {
-      var reqBody = {
-        "email": emailController.value.text,
-        "password": passController.value.text
-      };
-      var url = dotenv.env['URL'];
-      var response = await http.post(Uri.parse('${url}user/login'),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode(reqBody));
-      var jsonResponse = jsonDecode(response.body);
-      print(reqBody);
-      print(jsonResponse);
-      if (jsonResponse['success'] != null) {
-        if (jsonResponse['success']) {
-          if (response.headers['set-cookie'] != null) {
-            var refreshToken = response.headers['set-cookie'];
-            prefs.setString('refreshToken', refreshToken!);
-          }
-          prefs.setString('accessToken', jsonResponse['accessToken']);
-          prefs.setString('email', jsonResponse['loginuser']['email']);
-          print(prefs.getString('refreshToken'));
-          // Sử dụng:
-          //LoadingOverlay.show(context);
-          context.pushNamed('tabs');
-          //LoadingOverlay.hide();
-        } else {
-          print('Something went wrong');
-        }
-      } else {
-        String mess = jsonResponse['feedback'];
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(mess)));
-      }
-    }
+    emailController.clear();
+    passController.clear();
   }
 
   @override
@@ -344,7 +297,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  loginUser();
+                                  loginUser(emailController, passController, context);
                                 }
                               },
                               style: ElevatedButton.styleFrom(
