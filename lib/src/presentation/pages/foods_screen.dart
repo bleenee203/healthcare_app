@@ -15,7 +15,14 @@ class FoodsPage extends StatefulWidget {
 }
 
 class _FoodsPage extends State<FoodsPage> {
+  late TabController _tabController;
+
   TextEditingController _searchController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -37,7 +44,7 @@ class _FoodsPage extends State<FoodsPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 16, bottom: 35),
+                        padding: const EdgeInsets.only(top: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -63,22 +70,45 @@ class _FoodsPage extends State<FoodsPage> {
                         ),
                       ),
                       const SizedBox(
-                        height: 38,
+                        height: 35,
                       ),
                       TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          hintText: "Find some food...",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide:
-                                  BorderSide(color: HexColor("FBAE9E"))),
-                        ),
+                            hintText: "Find some food...",
+                            hintStyle: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 18,
+                                color: Colors.black.withOpacity(0.5)),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              size: 28,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                    color: HexColor("FBAE9A"), width: 1)),
+                            contentPadding: const EdgeInsets.only(
+                              top: 15,
+                              bottom: 15,
+                            )),
                         onChanged: (value) {
                           print('Search query: $value');
                         },
-                      )
+                      ),
+                      DefaultTabController(
+                        length: 2, // Số lượng tab
+                        child: Expanded(
+                          child: TabBarView(
+                            children: [
+                              // Nội dung của tab 1
+                              Center(child: Text('Content for Tab 1')),
+                              // Nội dung của tab 2
+                              Center(child: Text('Content for Tab 2')),
+                            ],
+                          ),
+                        ),
+                      ),
                     ])))));
   }
 }
