@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 
+import '../../services/verify_service.dart';
+
 class Verify extends StatefulWidget {
   const Verify({super.key, this.password, this.mail});
   final mail;
@@ -22,32 +24,6 @@ class _VerifyState extends State<Verify> {
   bool resendButtonEnabled = false;
   List<String> otpValues = List.generate(6, (index) => "");
 
-  void verifyUser() async {
-    String otp = otpValues.join();
-    int otpInt = int.parse(otp);
-    var url = dotenv.env['URL'];
-    var regBody = {
-      "email": widget.mail.toString(),
-      "password": widget.password.toString(),
-      "otp": otpInt,
-      "confirmedPassword": widget.password.toString()
-    };
-    var response = await http.post(Uri.parse("${url}user/signup"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(regBody));
-    var jsonResponse = jsonDecode(response.body);
-    print(jsonEncode(regBody));
-    print(jsonResponse['success']);
-    if (jsonResponse['success'] != null) {
-      if (jsonResponse['success']) {
-        context.push('/success');
-      } else {
-        String mess = jsonResponse['message'];
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(mess)));
-      }
-    }
-  }
 
   @override
   void dispose() {
@@ -232,7 +208,9 @@ class _VerifyState extends State<Verify> {
                       height: 56,
                       child: ElevatedButton(
                         onPressed: () async {
-                          verifyUser();
+                          String email = widget.mail.toString();
+                          String password = widget.password.toString();
+                          verifyUser(otpValues, email, password, context);
                         },
                         style: ButtonStyle(
                           foregroundColor:

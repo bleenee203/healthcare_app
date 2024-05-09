@@ -4,14 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 
 import '../../../Animation/FadeAnimation.dart';
+import '../../services/resetPass_service.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key, required this.email});
-
   final email;
 
   @override
@@ -25,32 +24,6 @@ class _ResetPasswordState extends State<ResetPassword> {
   bool passToggle = true;
   bool confirmToggle = true;
 
-  void resetPass() async {
-    if (passController.text.isNotEmpty) {
-      final mail = widget.email;
-      var url = dotenv.env['URL'];
-      var regBody = {
-        "email": mail,
-        "password": passController.value.text
-      };
-      try {
-        var response = await http.patch(Uri.parse("${url}user/resetpass"),
-            headers: {"Content-Type": "application/json"},
-            body: jsonEncode(regBody));
-        var jsonResponse = jsonDecode(response.body);
-        print(jsonEncode(regBody));
-        print(jsonResponse);
-        print(jsonResponse['success']);
-        if (jsonResponse['success']) {
-          context.go('/success');
-        } else {
-          print("SomeThing Went Wrong");
-        }
-      } catch (e) {
-        print("Lỗi: $e");
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,11 +122,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                             bool isPasswordValid = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
                                 .hasMatch(value ?? '');
                             if (value!.isEmpty) {
-                              return "Chưa nhập mật khẩu";
+                              return "Not entered password";
                             }
                             if (!isPasswordValid) {
                               // Nếu mật khẩu không hợp lệ, hiển thị thông báo và không thực hiện đăng nhập.
-                              return "Mật khẩu cần phải có tối thiểu 8 kí tự, phải gồm chữ in hoa và ký tự đặc biệt";
+                              return "The password must be at least 8 characters long, contain uppercase letters, and special characters";
                             }
                             return null;
                           },
@@ -214,7 +187,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                           ),
                           validator: (value){
                             if (value != passController.value.text) {
-                              return "Mật khẩu không trùng khớp!";
+                              return "Password does not match!";
                             }
                             return null;
                           },
@@ -236,7 +209,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                             const SnackBar(
                                 content: Text('Thay đổi thành công')),
                           );
-                          resetPass();
+                          final mail = widget.email;
+                          String pass = passController.value.text;
+                          resetPass(mail, pass, context);
                         }
                       }, //Để đây sử sau
                       style: ElevatedButton.styleFrom(

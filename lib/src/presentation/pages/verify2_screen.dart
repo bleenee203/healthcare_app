@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 
+import '../../services/verify_service.dart';
+
 
 class Verify2 extends StatefulWidget {
   const Verify2({super.key, this.mail});
@@ -23,28 +25,6 @@ class _Verify2State extends State<Verify2> {
   bool resendButtonEnabled = false;
   List<String> otpValues = List.generate(6, (index) => "");
 
-  void verifyUser() async {
-    String otp = otpValues.join();
-    int otpInt = int.parse(otp);
-    String email = widget.mail.toString();
-    var url = dotenv.env['URL'];
-    var regBody = {
-      "email": email,
-      "otp": otpInt,
-    };
-    var response = await http.post(Uri.parse("${url}user/verifyotp"),
-        headers: {"Content-Type":"application/json"},
-        body: jsonEncode(regBody)
-    );
-    var jsonResponse = jsonDecode(response.body);
-    print(jsonEncode(regBody));
-    print(jsonResponse['success']);
-    if (jsonResponse['success']) {
-      context.push('/resetpass/$email');
-    } else {
-      print("SomeThing Went Wrong");
-    }
-  }
 
   @override
   void initState() {
@@ -198,7 +178,8 @@ class _Verify2State extends State<Verify2> {
                       height: 56,
                       child: ElevatedButton(
                         onPressed: () async {
-                          verifyUser();
+                          String email = widget.mail.toString();
+                          verifyUser2(otpValues, email, context);
                         },
                         style: ButtonStyle(
                           foregroundColor:
