@@ -33,7 +33,10 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var obtained = prefs.getString('refreshToken');
     setState(() {
-      finalToken = obtained!;
+      if (obtained != null){
+        finalToken = obtained;
+       }
+  
     });
     print(finalToken);
   }

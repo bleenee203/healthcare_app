@@ -1,8 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -65,7 +61,7 @@ class _NutritionPage extends State<NutritionPage> {
                         ),
                       ),
                       GestureDetector(
-                          onTap: () => RouterCustom.router.pushNamed("foods"),
+                          onTap: () => RouterCustom.router.pushNamed('foods'),
                           child: Image.asset("res/images/plus.png")),
                     ],
                   ),
@@ -74,10 +70,10 @@ class _NutritionPage extends State<NutritionPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                        //onTap: () => _moveToPreviousDay(context),
+                        onTap: () => _moveToPreviousDay(context),
                         child: Image.asset("res/images/left.png")),
                     Text(
-                      DateFormat('dd/MM/yyyy').format(_datevalue),
+                      getDisplayText(_datevalue),
                       style: const TextStyle(
                         fontFamily: "SourceSans3",
                         fontSize: 16,
@@ -85,12 +81,7 @@ class _NutritionPage extends State<NutritionPage> {
                       ),
                     ),
                     GestureDetector(
-                      // onTap: () => {
-                      //   if (_datevalue == "Today")
-                      //     {_showDatePicker(context)}
-                      //   else
-                      //     {_moveToNextDay(context)}
-                      // },
+                      onTap: () => _moveToNextDay(context),
                       child: Image.asset("res/images/right.png"),
                     )
                   ],
@@ -104,7 +95,7 @@ class _NutritionPage extends State<NutritionPage> {
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(color: HexColor("FBAE9E"), width: 2)),
                   child: Padding(
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(30),
                     child: Column(
                       children: [
                         Row(
@@ -117,6 +108,7 @@ class _NutritionPage extends State<NutritionPage> {
                                 const Text(
                                   '5460',
                                   style: TextStyle(
+                                    fontFamily: 'SourceSans3',
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700),
                                 ),
@@ -194,12 +186,12 @@ class _NutritionPage extends State<NutritionPage> {
                         const SizedBox(
                           height: 30,
                         ),
-                        const Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Column(
                               children: [
-                                Text(
+                                const Text(
                                   'Carbs',
                                   style: TextStyle(
                                       fontSize: 16,
@@ -211,16 +203,17 @@ class _NutritionPage extends State<NutritionPage> {
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontFamily: "SourceSans3",
+                                      color: HexColor("F06244"),
                                       fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
-                            SizedBox(
-                              width: 40,
+                            const SizedBox(
+                              width: 60,
                             ),
                             Column(
                               children: [
-                                Text(
+                                const Text(
                                   'Protein',
                                   style: TextStyle(
                                       fontSize: 16,
@@ -231,17 +224,18 @@ class _NutritionPage extends State<NutritionPage> {
                                   '69g',
                                   style: TextStyle(
                                       fontSize: 16,
+                                      color: HexColor("F06244"),
                                       fontFamily: "SourceSans3",
                                       fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
-                            SizedBox(
-                              width: 40,
+                            const SizedBox(
+                              width: 60,
                             ),
                             Column(
                               children: [
-                                Text(
+                                const Text(
                                   'Fat',
                                   style: TextStyle(
                                       fontSize: 16,
@@ -251,6 +245,7 @@ class _NutritionPage extends State<NutritionPage> {
                                 Text(
                                   '69g',
                                   style: TextStyle(
+                                      color: HexColor("F06244"),
                                       fontFamily: "SourceSans3",
                                       fontWeight: FontWeight.w600),
                                 ),
@@ -413,5 +408,43 @@ class _NutritionPage extends State<NutritionPage> {
         ),
       ),
     );
+  }
+
+  String getDisplayText(DateTime date) {
+    DateTime today = DateTime.now();
+    DateTime yesterday = today.subtract(const Duration(days: 1));
+
+    if (date.day == today.day &&
+        date.month == today.month &&
+        date.year == today.year) {
+      return "Today";
+    } else if (date.day == yesterday.day &&
+        date.month == yesterday.month &&
+        date.year == yesterday.year) {
+      return "Yesterday";
+    } else {
+      return DateFormat('dd/MM/yyyy').format(date);
+    }
+  }
+
+  void _moveToPreviousDay(BuildContext context) {
+    DateTime previousDate = _datevalue.subtract(const Duration(days: 1));
+    setState(() {
+      _datevalue = previousDate;
+    });
+  }
+
+  void _moveToNextDay(BuildContext context) {
+    DateTime now = DateTime.now();
+    DateTime nextDate = DateTime.now();
+    _datevalue;
+    if (!(_datevalue.year == now.year &&
+        _datevalue.month == now.month &&
+        _datevalue.day == now.day)) {
+      nextDate = _datevalue.add(const Duration(days: 1));
+    }
+    setState(() {
+      _datevalue = nextDate;
+    });
   }
 }
