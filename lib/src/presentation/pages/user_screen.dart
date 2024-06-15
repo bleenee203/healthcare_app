@@ -1,6 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:healthcare_app/src/models/userModel.dart';
+import 'package:healthcare_app/src/router/router.dart';
+import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/thum_shape.dart';
+import 'package:healthcare_app/src/services/userService.dart';
+import 'package:http/http.dart' as http;
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+
+import '../../services/logout_service.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -10,9 +22,71 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePage extends State<UserProfilePage> {
+  late SharedPreferences prefs;
+  User? userData;
+  late int age = 0;
+  final UserService userService = UserService();
   double _currentWeightValue = 53;
   double _lastWeightValue = 49.2;
   double _targetWeightValue = 55;
+
+  void initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initSharedPref();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    final user = await userService.fetchUserData();
+    setState(() {
+      userData = user;
+      if (userData != null && userData!.birthday != null) {
+        int birthYear = userData!.birthday?.year ?? DateTime.now().year;
+        age = DateTime.now().year - birthYear;
+      }
+    });
+  }
+
+  Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to log out?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Logout'),
+              onPressed: () {
+                logoutUser();
+                Navigator.of(context).pop();
+                RouterCustom.router.push('/login');
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(children: <Widget>[
@@ -28,7 +102,9 @@ class _UserProfilePage extends State<UserProfilePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Image.asset('res/images/go-back.png'),
+                        GestureDetector(
+                            onTap: () {},
+                            child: Image.asset('res/images/go-back.png')),
                         Text(
                           "USER",
                           style: TextStyle(
@@ -63,21 +139,21 @@ class _UserProfilePage extends State<UserProfilePage> {
                             padding: const EdgeInsets.only(left: 32),
                             child: Container(
                               height: 102,
-                              child: const Column(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Bích Ly",
-                                    style: TextStyle(
+                                    '${userData?.fullname}',
+                                    style: const TextStyle(
                                         fontFamily: "SourceSans3",
                                         fontWeight: FontWeight.w700,
                                         fontSize: 18),
                                   ),
                                   Row(
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Age: ",
                                         style: TextStyle(
                                             fontFamily: "SourceSans3",
@@ -85,8 +161,8 @@ class _UserProfilePage extends State<UserProfilePage> {
                                             fontStyle: FontStyle.italic),
                                       ),
                                       Text(
-                                        "20",
-                                        style: TextStyle(
+                                        '$age',
+                                        style: const TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontWeight: FontWeight.w700,
                                             fontSize: 14),
@@ -95,7 +171,7 @@ class _UserProfilePage extends State<UserProfilePage> {
                                   ),
                                   Row(
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Gender: ",
                                         style: TextStyle(
                                             fontFamily: "SourceSans3",
@@ -103,8 +179,8 @@ class _UserProfilePage extends State<UserProfilePage> {
                                             fontSize: 14),
                                       ),
                                       Text(
-                                        "Nữ",
-                                        style: TextStyle(
+                                        '${userData?.gender}',
+                                        style: const TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontWeight: FontWeight.w700,
                                             fontSize: 14),
@@ -113,7 +189,7 @@ class _UserProfilePage extends State<UserProfilePage> {
                                   ),
                                   Row(
                                     children: [
-                                      Text(
+                                      const Text(
                                         "Phone: ",
                                         style: TextStyle(
                                             fontFamily: "SourceSans3",
@@ -121,8 +197,8 @@ class _UserProfilePage extends State<UserProfilePage> {
                                             fontSize: 14),
                                       ),
                                       Text(
-                                        "0819713627",
-                                        style: TextStyle(
+                                        '${userData?.phone}',
+                                        style: const TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontWeight: FontWeight.w700,
                                             fontSize: 14),
@@ -139,15 +215,41 @@ class _UserProfilePage extends State<UserProfilePage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 22, bottom: 22),
+                    child: GestureDetector(
+                      onTap: () => GoRouter.of(context).pushNamed('profile'),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Image.asset("res/images/circle-user-solid.png"),
+                          const Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 17),
+                              child: Text(
+                                "Profile",
+                                style: TextStyle(
+                                    fontFamily: "SourceSans3",
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14),
+                              ),
+                            ),
+                          ),
+                          Image.asset("res/images/right.png")
+                        ],
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () =>
+                        GoRouter.of(context).pushNamed('change-password'),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Image.asset("res/images/circle-user-solid.png"),
+                        Image.asset("res/images/key-solid.png"),
                         const Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(left: 17),
                             child: Text(
-                              "Profile",
+                              "Change password",
                               style: TextStyle(
                                   fontFamily: "SourceSans3",
                                   fontWeight: FontWeight.w700,
@@ -159,24 +261,29 @@ class _UserProfilePage extends State<UserProfilePage> {
                       ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset("res/images/key-solid.png"),
-                      const Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 17),
-                          child: Text(
-                            "Change password",
-                            style: TextStyle(
-                                fontFamily: "SourceSans3",
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14),
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: () => _showLogoutConfirmationDialog(context),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 22, bottom: 22),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Image.asset("res/images/logout.png"),
+                          const Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 17),
+                              child: Text(
+                                "Logout",
+                                style: TextStyle(
+                                    fontFamily: "SourceSans3",
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14),
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                      Image.asset("res/images/right.png")
-                    ],
+                    ),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 50, bottom: 8),

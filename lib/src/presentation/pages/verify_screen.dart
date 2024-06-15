@@ -1,14 +1,73 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:http/http.dart' as http;
+
+import '../../services/verify_service.dart';
 
 class Verify extends StatefulWidget {
-  const Verify({super.key});
+  const Verify({super.key, this.password, this.mail});
+  final mail;
+  final password;
 
   @override
   _VerifyState createState() => _VerifyState();
 }
 
 class _VerifyState extends State<Verify> {
+  int _remainingSeconds = 60;
+  bool resendButtonEnabled = false;
+  List<String> otpValues = List.generate(6, (index) => "");
+
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    startCountdown();
+  }
+
+  void startCountdown() {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds == 0) {
+        timer.cancel();
+        setState(() {
+          resendButtonEnabled =
+              true; // Khi đếm về 0, enable nút "Resend New Code"
+        });
+      } else {
+        if (mounted)
+          setState(() {
+            _remainingSeconds--;
+          });
+      }
+    });
+  }
+
+  String _remainingSecondsToString() {
+    final minutes = _remainingSeconds ~/ 60;
+    final seconds = _remainingSeconds % 60;
+    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+  }
+
+  void restartCountdown() {
+    setState(() {
+      _remainingSeconds =
+          60; // Thiết lập lại thời gian đếm ngược về giá trị ban đầu
+      resendButtonEnabled = false; // Vô hiệu hóa nút "Resend New Code"
+    });
+    startCountdown(); // Bắt đầu lại bộ đếm
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +81,7 @@ class _VerifyState extends State<Verify> {
               Align(
                 alignment: Alignment.topLeft,
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => context.goNamed('signup'),
                   child: const Icon(
                     Icons.arrow_back,
                     size: 32,
@@ -60,8 +119,8 @@ class _VerifyState extends State<Verify> {
               const SizedBox(
                 height: 10,
               ),
-              const Text(
-                "We have sent an OTP on your number 039536681",
+               Text(
+                "We have sent an OTP on your email" + widget.mail,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
@@ -72,14 +131,27 @@ class _VerifyState extends State<Verify> {
               const SizedBox(
                 height: 28,
               ),
-              const Text(
-                "Resend code in 0:20",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFF77258B),
-                ),
-                textAlign: TextAlign.center,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    "Resend code in ",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF77258B),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    _remainingSecondsToString(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF77258B),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(
                 height: 10,
@@ -97,17 +169,35 @@ class _VerifyState extends State<Verify> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _textFieldOTP(
-                            first: true, last: false, context: context),
+                            first: true,
+                            last: false,
+                            index: 0,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, context: context),
+                            first: false,
+                            last: false,
+                            index: 1,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, context: context),
+                            first: false,
+                            last: false,
+                            index: 2,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, context: context),
+                            first: false,
+                            last: false,
+                            index: 3,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: false, context: context),
+                            first: false,
+                            last: false,
+                            index: 4,
+                            context: context),
                         _textFieldOTP(
-                            first: false, last: true, context: context),
+                            first: false,
+                            last: true,
+                            index: 5,
+                            context: context),
                       ],
                     ),
                     const SizedBox(
@@ -117,7 +207,11 @@ class _VerifyState extends State<Verify> {
                       width: 242,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          String email = widget.mail.toString();
+                          String password = widget.password.toString();
+                          verifyUser(otpValues, email, password, context);
+                        },
                         style: ButtonStyle(
                           foregroundColor:
                               MaterialStateProperty.all<Color>(Colors.white),
@@ -157,16 +251,29 @@ class _VerifyState extends State<Verify> {
               const SizedBox(
                 height: 18,
               ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "Resend New Code",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.purple,
+              Visibility(
+                visible: resendButtonEnabled,
+                child: TextButton(
+                  onPressed:  () async {
+                    var regBody = {
+                      "email": widget.mail,
+                    };
+                    var url = dotenv.env['URL'];
+                    var response = await http.post(Uri.parse("${url}user/sendotp"),
+                        headers: {"Content-Type":"application/json"},
+                        body: jsonEncode(regBody)
+                    );
+                    restartCountdown();
+                  },
+                  child: const Text(
+                    "Resend New Code",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ],
@@ -177,13 +284,14 @@ class _VerifyState extends State<Verify> {
   }
 
   Widget _textFieldOTP(
-      {required bool first, last, required BuildContext context}) {
+      {required bool first, last, index, required BuildContext context}) {
     return SizedBox(
       height: 45,
       width: 40,
       child: TextField(
         autofocus: true,
         onChanged: (value) {
+          otpValues[index] = value;
           if (value.length == 1 && last == false) {
             FocusScope.of(context).nextFocus();
           }

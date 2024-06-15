@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/ImageSliderWithDots.dart';
+import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -12,9 +15,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
+  final GlobalKey _targetWidgetKey = GlobalKey();
+  final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    return ListView(children: <Widget>[
+    return ListView(controller: _scrollController, children: <Widget>[
       Container(
         color: Colors.white,
         child: Container(
@@ -424,23 +429,43 @@ class _HomePage extends State<HomePage> {
                           child: SizedBox(
                             width: constraint.maxWidth /
                                 4, // Chia đều không gian cho 4 cột
-                            child: Column(
-                              children: [
-                                Image.asset("res/images/image1_3370.png"),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 5),
-                                  child: Text(
-                                    'Personality',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                      fontFamily: 'SourceSans3',
-                                      fontWeight: FontWeight.w600,
+                            child: GestureDetector(
+                              onTap: () {
+                                // Lấy vị trí của widget cần cuộn đến trên màn hình
+                                RenderBox? renderBox;
+                                if (_targetWidgetKey.currentContext != null) {
+                                  renderBox = _targetWidgetKey.currentContext!
+                                      .findRenderObject() as RenderBox?;
+                                }
+                                double targetPosition =
+                                    renderBox?.localToGlobal(Offset.zero).dy ??
+                                        0.0;
+
+                                // Cuộn đến vị trí của widget cần cuộn đến
+                                _scrollController.animateTo(
+                                  targetPosition,
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                              child: Column(
+                                children: [
+                                  Image.asset("res/images/image1_3370.png"),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 5),
+                                    child: Text(
+                                      'Personality',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color.fromARGB(255, 0, 0, 0),
+                                        fontFamily: 'SourceSans3',
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -455,23 +480,27 @@ class _HomePage extends State<HomePage> {
                           child: SizedBox(
                             width: constraint.maxWidth /
                                 4, // Chia đều không gian cho 4 cột
-                            child: Column(
-                              children: [
-                                Image.asset("res/images/image2_3434.png"),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 5),
-                                  child: Text(
-                                    'Nutrition',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                      fontFamily: 'SourceSans3',
-                                      fontWeight: FontWeight.w600,
+                            child: GestureDetector(
+                              onTap: () =>
+                                  RouterCustom.router.pushNamed("nutrition"),
+                              child: Column(
+                                children: [
+                                  Image.asset("res/images/image2_3434.png"),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 5),
+                                    child: Text(
+                                      'Nutrition',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color.fromARGB(255, 0, 0, 0),
+                                        fontFamily: 'SourceSans3',
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -710,20 +739,24 @@ class _HomePage extends State<HomePage> {
               height: 12,
             ),
             const CarouselSliderWithDots(),
-            const Padding(
-              padding: EdgeInsets.only(left: 18, top: 20),
-              child: Row(
-                children: [
-                  Text(
-                    'Personality',
-                    //textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xff010911),
-                        fontFamily: 'SourceSans3',
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.only(left: 18, top: 20),
+              child: GestureDetector(
+                onTap: () => GoRouter.of(context).pushNamed('personality'),
+                child: Row(
+                  key: _targetWidgetKey,
+                  children: const <Widget>[
+                    Text(
+                      'Personality',
+                      //textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xff010911),
+                          fontFamily: 'SourceSans3',
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -749,23 +782,299 @@ class _HomePage extends State<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               const Padding(
-                                padding: EdgeInsets.only(
-                                    left: 12, top: 14, bottom: 35),
+                                padding: EdgeInsets.only(left: 12, top: 14),
                                 child: Text(
-                                  "Emotion",
+                                  "Nutrion",
                                   style: TextStyle(
                                       fontFamily: "SourceSans3",
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700),
                                 ),
                               ),
-                              Image.asset(
-                                "res/images/sad.png",
-                                height: 64,
+                              const SizedBox(
+                                height: 9,
                               ),
-                              const Padding(
-                                padding: EdgeInsets.only(left: 12, top: 40),
-                                child: Text("I'm sad"),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  physics: AlwaysScrollableScrollPhysics(),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12),
+                                        child: Card.filled(
+                                          elevation: 0,
+                                          color: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(6.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Breakfast",
+                                                  style: TextStyle(
+                                                      fontFamily: "SourceSans3",
+                                                      fontSize: 12,
+                                                      color:
+                                                          HexColor("F18872")),
+                                                ),
+                                                const SizedBox(
+                                                  height: 8,
+                                                ),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Táo",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "95kcal",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Táo",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "95kcal",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 11,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12),
+                                        child: Card.filled(
+                                          elevation: 0,
+                                          color: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(6.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Lunch",
+                                                  style: TextStyle(
+                                                      fontFamily: "SourceSans3",
+                                                      fontSize: 12,
+                                                      color:
+                                                          HexColor("F18872")),
+                                                ),
+                                                const SizedBox(
+                                                  height: 8,
+                                                ),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Táo",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "95kcal",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Táo",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "95kcal",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 11,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12),
+                                        child: Card.filled(
+                                          elevation: 0,
+                                          color: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(6.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Dinner",
+                                                  style: TextStyle(
+                                                      fontFamily: "SourceSans3",
+                                                      fontSize: 12,
+                                                      color:
+                                                          HexColor("F18872")),
+                                                ),
+                                                const SizedBox(
+                                                  height: 8,
+                                                ),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Táo",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "95kcal",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Táo",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "95kcal",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              "SourceSans3",
+                                                          fontSize: 12,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 14,
                               )
                             ]),
                       ),
@@ -806,22 +1115,20 @@ class _HomePage extends State<HomePage> {
                                   height: 20,
                                 )),
                             SizedBox(
-                                height: 64,
                                 child: Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      CircularPercentIndicator(
-                                        radius: 32,
-                                        lineWidth: 6,
-                                        backgroundColor: HexColor("F3F4F7"),
-                                        progressColor: HexColor("FDBCA5"),
-                                        circularStrokeCap:
-                                            CircularStrokeCap.round,
-                                        percent: 0.4,
-                                      ),
-                                    ])),
+                                  CircularPercentIndicator(
+                                    radius: 40,
+                                    lineWidth: 6,
+                                    backgroundColor: HexColor("F3F4F7"),
+                                    progressColor: HexColor("FDBCA5"),
+                                    circularStrokeCap: CircularStrokeCap.round,
+                                    percent: 0.4,
+                                  ),
+                                ])),
                             Padding(
-                              padding: const EdgeInsets.only(left: 9, top: 37),
+                              padding: const EdgeInsets.only(left: 9, top: 20),
                               child: Row(
                                 children: [
                                   const Text(
@@ -1035,38 +1342,95 @@ class _HomePage extends State<HomePage> {
                                   width: 16,
                                   height: 20,
                                 )),
-                            // Image.asset(
-                            //   "res/images/Wateriluss.png",
-                            //   width: 50,
-                            //   height: 64,
-                            // ),
+                            SizedBox(
+                                width: 50,
+                                //height: 64,
+                                child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      CircularPercentIndicator(
+                                        radius: 40,
+                                        lineWidth: 6,
+                                        backgroundColor: HexColor("F3F4F7"),
+                                        progressColor: HexColor("BBB7EA"),
+                                        circularStrokeCap:
+                                            CircularStrokeCap.round,
+                                        percent: 0.4,
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            '5460',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          Text(
+                                            'needed',
+                                            style: TextStyle(
+                                                fontFamily: 'SourceSans3',
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                color: Colors.black
+                                                    .withOpacity(0.5)),
+                                          ),
+                                        ],
+                                      ),
+                                    ])),
                             const SizedBox(
-                              width: 50,
-                              height: 64,
+                              height: 38,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12, top: 97),
-                              child: Row(
-                                children: [
-                                  const Text(
-                                    "550",
-                                    style: TextStyle(
-                                        fontFamily: "SourceSans3",
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                  const SizedBox(
-                                    width: 4,
-                                  ),
-                                  Text(
-                                    "kcal",
-                                    style: TextStyle(
-                                        fontFamily: "SourceSans3",
-                                        fontSize: 12,
-                                        color: Colors.black.withOpacity(0.5)),
-                                  ),
-                                ],
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      '5460',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    Text(
+                                      'in',
+                                      style: TextStyle(
+                                          fontFamily: 'SourceSans3',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black.withOpacity(0.5)),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  width: 25,
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      '5460',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    Text(
+                                      'out',
+                                      style: TextStyle(
+                                          fontFamily: 'SourceSans3',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black.withOpacity(0.5)),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             )
                           ],
                         ),

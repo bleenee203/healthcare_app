@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../services/login_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,6 +17,20 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passController = TextEditingController();
   bool passToggle = true;
+  late SharedPreferences prefs;
+
+  void initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initSharedPref();
+    emailController.clear();
+    passController.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +111,19 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           child: TextFormField(
                             decoration: InputDecoration(
-                              prefixIcon: Image.asset('res/images/user-icon.png'),
+                              errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(10, 10, 20, 0),
+                              prefixIcon:
+                                  Image.asset('res/images/user-icon.png'),
                               hintText: "Email",
                               hintStyle: const TextStyle(
                                 fontFamily: 'SourceSans3',
@@ -113,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                               bool _isEmailValid = RegExp(
                                       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value ?? '');
-                              if (value!.isEmpty){
+                              if (value!.isEmpty) {
                                 return "Enter Email";
                               }
                               if (!_isEmailValid) {
@@ -139,8 +165,19 @@ class _LoginPageState extends State<LoginPage> {
                             obscureText: passToggle,
                             controller: passController,
                             decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.fromLTRB(0, 10, 20, 0),
-                              prefixIcon: Image.asset('res/images/key-icon.png'),
+                              errorStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorMaxLines: 2,
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(10, 10, 20, 0),
+                              prefixIcon:
+                                  Image.asset('res/images/key-icon.png'),
                               hintText: "Password",
                               hintStyle: const TextStyle(
                                 fontFamily: 'SourceSans3',
@@ -150,18 +187,32 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               border: InputBorder.none,
                               suffixIcon: InkWell(
-                                onTap: (){
+                                onTap: () {
                                   setState(() {
                                     passToggle = !passToggle;
                                   });
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.only(top: 0),
-                                    child: Icon(passToggle ? Icons.visibility : Icons.visibility_off)),
+                                    child: Icon(passToggle
+                                        ? Icons.visibility
+                                        : Icons.visibility_off)),
                               ),
                             ),
                             keyboardType: TextInputType.emailAddress,
-
+                            validator: (value) {
+                              bool isPasswordValid = RegExp(
+                                      r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#_\\$&*~]).{8,}$')
+                                  .hasMatch(value ?? '');
+                              if (value!.isEmpty) {
+                                return "Require password!";
+                              }
+                              if (!isPasswordValid) {
+                                // Nếu mật khẩu không hợp lệ, hiển thị thông báo và không thực hiện đăng nhập.
+                                return "Passwords must be at least 8 characters long, include uppercase letters and special characters.";
+                              }
+                              return null;
+                            },
                           ),
                         ),
                       ),
@@ -180,11 +231,12 @@ class _LoginPageState extends State<LoginPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF3B5999),
                                     foregroundColor: Colors.white,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 10, 10, 10),
                                   ),
                                   child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Image.asset('res/images/facebook.png'),
                                         const SizedBox(
@@ -212,11 +264,12 @@ class _LoginPageState extends State<LoginPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFDE4B39),
                                     foregroundColor: Colors.white,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 10, 10, 10),
                                   ),
                                   child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Image.asset('res/images/google.png'),
                                         const SizedBox(
@@ -243,14 +296,10 @@ class _LoginPageState extends State<LoginPage> {
                           width: 350,
                           height: 56,
                           child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Đăng nhập thành công')),
-                                  );
-                                  context.goNamed('tabs');
+                                  loginUser(emailController, passController, context);
                                 }
-
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF77258B),
@@ -273,7 +322,9 @@ class _LoginPageState extends State<LoginPage> {
                       FadeAnimation(
                         2,
                         TextButton(
-                          onPressed: () {} //Tính sau nhen
+                          onPressed: () {
+                            context.pushNamed('register');
+                          } //Tính sau nhen
                           ,
                           child: const Text(
                             "Forget Password?",
