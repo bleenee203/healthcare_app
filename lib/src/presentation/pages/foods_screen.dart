@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/presentation/widgets/food_tab.dart';
-import 'package:intl/intl.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class FoodsPage extends StatefulWidget {
-  const FoodsPage({Key? key}) : super(key: key);
+  const FoodsPage({super.key});
 
   @override
   State<StatefulWidget> createState() => _FoodsPageState();
@@ -15,9 +13,8 @@ class FoodsPage extends StatefulWidget {
 class _FoodsPageState extends State<FoodsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  TextEditingController _searchController = TextEditingController();
-  Offset _floatingButtonOffset =
-      Offset(300, 780); // Vị trí ban đầu của FloatingActionButton
+  final TextEditingController _searchController = TextEditingController();
+  Offset _floatingButtonOffset = const Offset(300, 780);
 
   @override
   void initState() {
@@ -103,7 +100,7 @@ class _FoodsPageState extends State<FoodsPage>
                         print('Search query: $value');
                       },
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 14,
                     ),
                     DefaultTabController(
@@ -112,12 +109,12 @@ class _FoodsPageState extends State<FoodsPage>
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           TabBar(
-                            tabs: [
+                            tabs: const [
                               Tab(text: 'Your food'),
                               Tab(text: 'Recommend'),
                             ],
                             controller: _tabController,
-                            labelStyle: TextStyle(
+                            labelStyle: const TextStyle(
                                 fontFamily: 'SourceSans3', fontSize: 20),
                             labelColor: Colors.black,
                             unselectedLabelColor: HexColor("474672"),
@@ -125,14 +122,14 @@ class _FoodsPageState extends State<FoodsPage>
                             indicatorWeight: 3,
                             indicatorSize: TabBarIndicatorSize.tab,
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 17,
                           ),
                           SizedBox(
                             height: MediaQuery.of(context).size.height - 200,
                             child: TabBarView(
                               controller: _tabController,
-                              children: [
+                              children: const [
                                 FoodsTab(),
                                 FoodsTab(),
                               ],
@@ -163,19 +160,21 @@ class _FoodsPageState extends State<FoodsPage>
                       // Nếu nút di chuyển ra ngoài kích thước màn hình thì ẩn nút đi
                       setState(() {
                         _floatingButtonOffset =
-                            Offset(0, 0); // Đặt lại vị trí ban đầu
+                            const Offset(0, 0); // Đặt lại vị trí ban đầu
                       });
                     }
                   },
                   child: FloatingActionButton(
-                    onPressed: () {},
-                    shape: CircleBorder(),
-                    child: Icon(
+                    onPressed: () {
+                      RouterCustom.router.pushNamed('food-detail');
+                    },
+                    shape: const CircleBorder(),
+                    backgroundColor: HexColor("BBB7EA"),
+                    child: const Icon(
                       Icons.add,
                       color: Colors.white,
                       size: 32,
                     ),
-                    backgroundColor: HexColor("BBB7EA"),
                   ),
                 ),
               ),
