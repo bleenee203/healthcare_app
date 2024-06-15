@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/add_food_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
 import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
@@ -17,6 +18,7 @@ import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water-log_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_goal_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
+import 'package:healthcare_app/src/presentation/widgets/food_detail.dart';
 
 import '../presentation/pages/register_screen.dart';
 
@@ -133,6 +135,16 @@ class RouterCustom {
           name: 'foods',
           builder: (BuildContext context, GoRouterState state) =>
               const FoodsPage()),
+      GoRoute(
+          path: '/add-food',
+          name: 'add-food',
+          builder: (BuildContext context, GoRouterState state) =>
+              const AddFoodPage()),
+      GoRoute(
+          path: '/food-detail',
+          name: 'food-detail',
+          builder: (BuildContext context, GoRouterState state) =>
+              const FoodDetail()),
     ],
   );
 }
