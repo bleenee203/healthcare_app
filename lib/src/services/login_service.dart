@@ -7,7 +7,6 @@ import 'package:healthcare_app/src/presentation/widgets/custome_snackBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 void loginUser(
     final emailController, final passController, BuildContext context) async {
   if (emailController.value.text.isNotEmpty &&
@@ -32,8 +31,10 @@ void loginUser(
         }
         prefs.setString('accessToken', jsonResponse['accessToken']);
         prefs.setString('email', jsonResponse['loginuser']['email']);
+        prefs.setString('userId', jsonResponse['loginuser']['_id']);
         print(prefs.getString('refreshToken'));
         print(prefs.getString('email'));
+        print(prefs.getString('userId'));
         showSuccessSnackBar('SUCCES', 'Login success', context);
         context.pushNamed('tabs');
       } else {
