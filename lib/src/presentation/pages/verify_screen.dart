@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 
-import '../../services/verify_service.dart';
+import '../../services/auth_services.dart';
 
 class Verify extends StatefulWidget {
   const Verify({super.key, this.password, this.mail});

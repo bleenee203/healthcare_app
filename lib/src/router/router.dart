@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
-import 'package:healthcare_app/src/presentation/pages/add_food_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
 import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
@@ -14,6 +13,7 @@ import 'package:healthcare_app/src/presentation/pages/profile_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/resetPassword_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/set-water-goal.dart';
 import 'package:healthcare_app/src/presentation/pages/signup_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/sleep_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
 import 'package:healthcare_app/src/presentation/pages/verify2_screen.dart';
@@ -21,7 +21,6 @@ import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water-log_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_goal_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
-import 'package:healthcare_app/src/presentation/widgets/food_detail.dart';
 
 import '../presentation/pages/register_screen.dart';
 
@@ -146,15 +145,10 @@ class RouterCustom {
           builder: (BuildContext context, GoRouterState state) =>
               const FoodsPage()),
       GoRoute(
-          path: '/add-food',
-          name: 'add-food',
+          path: '/sleep',
+          name: 'sleep',
           builder: (BuildContext context, GoRouterState state) =>
-              const AddFoodPage()),
-      GoRoute(
-          path: '/food-detail',
-          name: 'food-detail',
-          builder: (BuildContext context, GoRouterState state) =>
-              const FoodDetail()),
+            const SleepPage()),
     ],
   );
 }
