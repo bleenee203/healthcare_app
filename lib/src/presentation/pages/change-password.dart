@@ -4,7 +4,7 @@ import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../services/changePass_service.dart';
+import '../../services/authentication.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});

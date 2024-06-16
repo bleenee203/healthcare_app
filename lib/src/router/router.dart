@@ -10,6 +10,7 @@ import 'package:healthcare_app/src/presentation/pages/profile_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/resetPassword_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/set-water-goal.dart';
 import 'package:healthcare_app/src/presentation/pages/signup_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/sleep_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
 import 'package:healthcare_app/src/presentation/pages/verify2_screen.dart';
@@ -133,6 +134,11 @@ class RouterCustom {
           name: 'foods',
           builder: (BuildContext context, GoRouterState state) =>
               const FoodsPage()),
+      GoRoute(
+          path: '/sleep',
+          name: 'sleep',
+          builder: (BuildContext context, GoRouterState state) =>
+            const SleepPage()),
     ],
   );
 }
