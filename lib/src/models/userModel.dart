@@ -15,6 +15,37 @@ class User {
       this.career,
       this.cccd,
       this.blood_type});
+  Map<String, dynamic> toJson() {
+    return {
+      'fullname': fullname,
+      'gender': gender,
+      'phone': phone,
+      'career': career,
+      'cccd': cccd,
+      'birth': birthday,
+      'blood_type': blood_type
+    };
+  }
+
+  static DateTime? _parseDate(String dateStr) {
+    try {
+      if (dateStr.isEmpty) return null;
+
+      // Assuming dateStr is in "dd/MM/yyyy" format
+      final parts = dateStr.split('/');
+      if (parts.length == 3) {
+        final day = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+        final year = int.parse(parts[2]);
+        return DateTime(year, month, day);
+      } else {
+        throw FormatException("Invalid date format: $dateStr");
+      }
+    } catch (e) {
+      print('Error parsing date: $e');
+      return null;
+    }
+  }
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -22,9 +53,9 @@ class User {
         fullname: json['fullname'] ?? '',
         gender: json['gender'] ?? '',
         career: json['career'] ?? '',
-        birthday: json['birthday'] != null
-            ? DateTime.parse(json['birthday'])
-            : null, // Parse birthday if not null
+        birthday: json['birthday'] != null && json['birthday'].isNotEmpty
+            ? _parseDate(json['birthday'])
+            : null,
         cccd: json['cccd'] ?? '',
         blood_type: json['blood_type'] ?? '');
   }

@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
 import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
@@ -92,8 +95,15 @@ class RouterCustom {
       GoRoute(
           path: '/profile',
           name: 'profile',
-          builder: (BuildContext context, GoRouterState state) =>
-              const ProfilePage()),
+          builder: (BuildContext context, GoRouterState state) {
+            // final Map<String, dynamic> queryParams = state.pathParameters ?? {};
+            // final User? userData = queryParams.containsKey('userData')
+            //     ? User.fromJson(queryParams['userData'])
+            //     : null;
+            final userData = state.extra as User?;
+            log("userdata ${userData}");
+            return ProfilePage(userData: userData);
+          }),
       GoRoute(
           path: '/change-password',
           name: 'change-password',
