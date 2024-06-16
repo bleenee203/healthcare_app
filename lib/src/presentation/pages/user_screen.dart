@@ -12,7 +12,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
-import '../../services/logout_service.dart';
+import '../../services/auth_services.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});

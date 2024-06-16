@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/Animation/FadeAnimation.dart';
 
-import '../../services/signup_service.dart';
+import '../../services/auth_services.dart';
 
 
 class SignupPage extends StatefulWidget {
