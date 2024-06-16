@@ -1,16 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:healthcare_app/src/models/userModel.dart';
+import 'package:healthcare_app/src/services/userService.dart';
 import 'package:intl/intl.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
-
+  User? userData;
+  ProfilePage({super.key, this.userData});
   @override
   State<StatefulWidget> createState() => _ProfilePage();
 }
 
 class _ProfilePage extends State<ProfilePage> {
+  final UserService userService = UserService();
+  TextEditingController _fullname = TextEditingController();
+  TextEditingController _gender = TextEditingController();
+  TextEditingController _phone = TextEditingController();
+  TextEditingController _career = TextEditingController();
+  TextEditingController _idnum = TextEditingController();
+  TextEditingController _bloodtype = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fullname.text = widget.userData?.fullname ?? "";
+    _gender.text = widget.userData?.gender ?? "";
+    _phone.text = widget.userData?.phone ?? "";
+    _career.text = widget.userData?.career ?? "";
+    _idnum.text = widget.userData?.cccd ?? "";
+    _bloodtype.text = widget.userData?.blood_type ?? "";
+  }
+
+  Future<User?> _updateUserData(newData) async {
+    final user = await userService.updateUserData(newData);
+    setState(() {
+      widget.userData = user;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -92,7 +120,8 @@ class _ProfilePage extends State<ProfilePage> {
                         const SizedBox(
                           height: 25,
                         ),
-                        _buildInfoRow("Full Name", "Bích Ly"),
+                        _buildInfoRow(
+                            "Full Name", widget.userData?.fullname ?? ""),
                         const SizedBox(
                           height: 10,
                         ),
@@ -102,7 +131,12 @@ class _ProfilePage extends State<ProfilePage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        _buildInfoRow("Birthday", "24/10/2003"),
+                        _buildInfoRow(
+                            "Birthday",
+                            widget.userData?.birthday != null
+                                ? DateFormat('dd/MM/yyyy')
+                                    .format(widget.userData!.birthday!)
+                                : ""),
                         const SizedBox(
                           height: 10,
                         ),
@@ -112,7 +146,7 @@ class _ProfilePage extends State<ProfilePage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        _buildInfoRow("Gender", "Nữ"),
+                        _buildInfoRow("Gender", widget.userData?.gender ?? ""),
                         const SizedBox(
                           height: 10,
                         ),
@@ -122,24 +156,14 @@ class _ProfilePage extends State<ProfilePage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        _buildInfoRow("Phone", "0819713627"),
+                        _buildInfoRow("Phone", widget.userData?.phone ?? ""),
                         Divider(
                           color: Colors.black.withOpacity(0.1),
                         ),
                         const SizedBox(
                           height: 10,
                         ),
-                        _buildInfoRow("Career", "Sinh viên"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Divider(
-                          color: Colors.black.withOpacity(0.1),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        _buildInfoRow("ID Number", "054303000163"),
+                        _buildInfoRow("Career", widget.userData?.career ?? ""),
                         const SizedBox(
                           height: 10,
                         ),
@@ -149,7 +173,18 @@ class _ProfilePage extends State<ProfilePage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        _buildInfoRow("Blood Type", "B"),
+                        _buildInfoRow("ID Number", widget.userData?.cccd ?? ""),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(
+                          color: Colors.black.withOpacity(0.1),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        _buildInfoRow(
+                            "Blood Type", widget.userData?.blood_type ?? ""),
                       ],
                     ),
                   ),
@@ -228,8 +263,9 @@ class _ProfilePage extends State<ProfilePage> {
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: _fullname,
+                  decoration: const InputDecoration(
                       labelText: 'Full Name',
                       labelStyle: TextStyle(
                         fontFamily: "SourceSans3",
@@ -247,40 +283,45 @@ class _ProfilePage extends State<ProfilePage> {
                         fontSize: 18,
                       )),
                 ),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: _gender,
+                  decoration: const InputDecoration(
                       labelText: 'Gender',
                       labelStyle: TextStyle(
                         fontFamily: "SourceSans3",
                         fontSize: 18,
                       )),
                 ),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: _phone,
+                  decoration: const InputDecoration(
                       labelText: 'Phone',
                       labelStyle: TextStyle(
                         fontFamily: "SourceSans3",
                         fontSize: 18,
                       )),
                 ),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: _career,
+                  decoration: const InputDecoration(
                       labelText: 'Career',
                       labelStyle: TextStyle(
                         fontFamily: "SourceSans3",
                         fontSize: 18,
                       )),
                 ),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: _idnum,
+                  decoration: const InputDecoration(
                       labelText: 'ID Number',
                       labelStyle: TextStyle(
                         fontFamily: "SourceSans3",
                         fontSize: 18,
                       )),
                 ),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: _bloodtype,
+                  decoration: const InputDecoration(
                       labelText: 'Blood Type',
                       labelStyle: TextStyle(
                         fontFamily: "SourceSans3",
@@ -300,8 +341,18 @@ class _ProfilePage extends State<ProfilePage> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Handle update logic here
-                // You can access the input field values and update the user information
+                Map<String, dynamic> jsonData = {
+                  'phone': _phone.text,
+                  'fullname': _fullname.text,
+                  'gender': _gender.text,
+                  'career': _career.text,
+                  'birthday': _dateController.text,
+                  'cccd': _idnum.text,
+                  'blood_type': _bloodtype.text
+                };
+                final newData = User.fromJson(jsonData);
+                // print(newData.birthday);
+                _updateUserData(newData);
               },
               child: const Text('Update'),
             ),
@@ -313,6 +364,9 @@ class _ProfilePage extends State<ProfilePage> {
 
   final TextEditingController _dateController = TextEditingController();
   void _showDatePicker(BuildContext context) async {
+    _dateController.text = widget.userData?.birthday != null
+        ? DateFormat('dd/MM/yyyy').format(widget.userData!.birthday!)
+        : "";
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
