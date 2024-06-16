@@ -387,7 +387,14 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
   void _moveToNextMonth(BuildContext context) {
     int currentMonth = _datevalue.month;
     int currentYear = _datevalue.year;
+    int systemMonth = DateTime.now().month;
+    int systemQuarter = ((systemMonth - 1) / 3).floor() + 1;
+    int appQuarter = ((currentMonth - 1) / 3).floor() + 1;
 
+    // Kiểm tra nếu tháng hiện tại của ứng dụng thuộc quý hiện tại của hệ thống
+    if (appQuarter == systemQuarter) {
+      return; // Không làm gì nếu tháng hiện tại thuộc quý hiện tại
+    }
     int startMonth;
     if (currentMonth >= 10) {
       startMonth = 1; // Tháng 10 năm trước

@@ -4,7 +4,7 @@ import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../services/authentication.dart';
+import '../../services/userService.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -294,7 +294,8 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                           return;
                         }
 
-                        changePass(mail, currentController, passController, context);
+                        UserService().changePass(
+                            mail, currentController, passController, context);
                       }
                     },
                     style: ElevatedButton.styleFrom(

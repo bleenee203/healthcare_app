@@ -597,7 +597,8 @@ class _PersonalityPage extends State<PersonalityPage> {
     String previousDate = DateFormat('dd/MM/yyyy')
         .format(currentDate.subtract(const Duration(days: 1)));
     if (currentDate.subtract(const Duration(days: 1)).day == yesterday.day &&
-        currentDate.subtract(const Duration(days: 1)).month == yesterday.month &&
+        currentDate.subtract(const Duration(days: 1)).month ==
+            yesterday.month &&
         currentDate.subtract(const Duration(days: 1)).year == yesterday.year) {
       previousDate = "Yesterday";
     }
@@ -616,8 +617,8 @@ class _PersonalityPage extends State<PersonalityPage> {
     } else {
       currentDate = DateFormat('dd/MM/yyyy').parse(_datevalue);
     }
-    String nextDate =
-        DateFormat('dd/MM/yyyy').format(currentDate.add(const Duration(days: 1)));
+    String nextDate = DateFormat('dd/MM/yyyy')
+        .format(currentDate.add(const Duration(days: 1)));
     if (currentDate.add(const Duration(days: 1)).day == yesterday.day &&
         currentDate.add(const Duration(days: 1)).month == yesterday.month &&
         currentDate.add(const Duration(days: 1)).year == yesterday.year) {
