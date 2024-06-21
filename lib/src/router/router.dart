@@ -144,11 +144,11 @@ class RouterCustom {
           name: 'foods',
           builder: (BuildContext context, GoRouterState state) =>
               const FoodsPage()),
-      GoRoute(
-          path: '/sleep',
-          name: 'sleep',
-          builder: (BuildContext context, GoRouterState state) =>
-            const SleepPage()),
+      // GoRoute(
+      //     path: '/sleep',
+      //     name: 'sleep',
+      //     builder: (BuildContext context, GoRouterState state) =>
+      //         const SleepPage()),
     ],
   );
 }
