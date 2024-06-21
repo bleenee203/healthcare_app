@@ -46,8 +46,9 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
     final user = await userService.fetchUserData();
     //setState(() {
     //userData = user;
-    if (userData != null && userData!.birthday != null) {
-      int birthYear = userData!.birthday?.year ?? DateTime.now().year;
+    if (user != null && user.birthday != null) {
+      int birthYear = user.birthday?.year ?? DateTime.now().year;
+      print("birthyear ${birthYear}");
       age = DateTime.now().year - birthYear;
     }
     return user;
@@ -95,7 +96,6 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
       onPopInvoked: (didPop) {
         // Refresh data when returning to this page
         _userDataFuture = _fetchUserData();
-        print('chjeck');
       },
       child: FutureBuilder<User?>(
           future: _userDataFuture,
@@ -204,7 +204,11 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                                     fontSize: 14),
                                               ),
                                               Text(
-                                                '${userData?.gender}',
+                                                userData?.gender == true
+                                                    ? "Female"
+                                                    : (userData?.gender == false
+                                                        ? "Male"
+                                                        : "Unknown"),
                                                 style: const TextStyle(
                                                     fontFamily: "SourceSans3",
                                                     fontWeight: FontWeight.w700,

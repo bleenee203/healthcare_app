@@ -105,7 +105,7 @@ class UserService {
       print(jsonEncode({'userId': userId, 'newData': newData}));
       if (response.statusCode == 200) {
         final Map<String?, dynamic> jsonResponse = jsonDecode(response.body);
-        print("result ${User.fromJson(jsonResponse['data'])}");
+        print("result ${jsonResponse['success']}");
         return User.fromJson(jsonResponse['data']);
       } else {
         throw Exception('Failed to update user data');
