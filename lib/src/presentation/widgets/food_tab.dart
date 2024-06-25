@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:http/http.dart';
 
 import '../bloc/log_meal_bloc.dart';
 
 class FoodsTab extends StatefulWidget {
-  const FoodsTab({super.key});
+  final List<Food>? foods;
+  const FoodsTab({super.key, required this.foods});
 
   @override
   _FoodsTabState createState() => _FoodsTabState();
@@ -16,13 +18,21 @@ class _FoodsTabState extends State<FoodsTab> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildFoodCard(context, 'Táo', '120g - 95 calo'),
-          const SizedBox(height: 18),
-          _buildFoodCard(context, 'Táo', '120g - 95 calo'),
-        ],
-      ),
+      child: Column(children: [
+        if (widget.foods != null)
+          ...widget.foods!.asMap().entries.map((entry) {
+            int index = entry.key;
+            Food food = entry.value;
+            return Column(
+              children: [
+                _buildFoodCard(context, food.food_name, '${food.kcal} kcal'),
+                if (index != widget.foods!.length - 1)
+                  const SizedBox(height: 18),
+              ],
+            );
+          }),
+        const SizedBox(height: 80),
+      ]),
     );
   }
 

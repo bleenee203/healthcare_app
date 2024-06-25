@@ -23,7 +23,7 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePage extends State<UserProfilePage> with RouteAware {
-  late SharedPreferences prefs;
+  // late SharedPreferences prefs;
   User? userData;
   late int? age = -1;
   final UserService userService = UserService();
@@ -31,14 +31,14 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
   double _lastWeightValue = 49.2;
   double _targetWeightValue = 55;
   late Future<User?> _userDataFuture;
-  void initSharedPref() async {
-    prefs = await SharedPreferences.getInstance();
-  }
+  // void initSharedPref() async {
+  //   prefs = await SharedPreferences.getInstance();
+  // }
 
   @override
   void initState() {
     super.initState();
-    initSharedPref();
+    // initSharedPref();
     _userDataFuture = _fetchUserData();
   }
 

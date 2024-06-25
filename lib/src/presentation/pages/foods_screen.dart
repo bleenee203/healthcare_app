@@ -1,7 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/presentation/widgets/food_tab.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/foodService.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FoodsPage extends StatefulWidget {
   const FoodsPage({super.key});
@@ -12,9 +17,11 @@ class FoodsPage extends StatefulWidget {
 
 class _FoodsPageState extends State<FoodsPage>
     with SingleTickerProviderStateMixin {
+  // late SharedPreferences prefs;
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   Offset _floatingButtonOffset = const Offset(300, 780);
+  FoodService foodService = FoodService();
 
   @override
   void initState() {
@@ -27,6 +34,18 @@ class _FoodsPageState extends State<FoodsPage>
     _searchController.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<List<Food>?> _fetchFood() async {
+    final foods = await foodService.fetchFood();
+    print(foods);
+    return foods;
+  }
+
+  Future<List<Food>?> _fetchUserFood() async {
+    final foods = await foodService.fetchUserFood();
+    print(foods);
+    return foods;
   }
 
   @override
@@ -129,15 +148,76 @@ class _FoodsPageState extends State<FoodsPage>
                             height: MediaQuery.of(context).size.height - 200,
                             child: TabBarView(
                               controller: _tabController,
-                              children: const [
-                                FoodsTab(),
-                                FoodsTab(),
+                              children: [
+                                FutureBuilder<List<Food>?>(
+                                    future: _fetchUserFood(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      } else if (snapshot.hasError) {
+                                        return Center(
+                                            child: Text(
+                                          'Error: ${snapshot.error}',
+                                          style: const TextStyle(
+                                              fontFamily: 'SourceSans3',
+                                              fontSize: 24),
+                                        ));
+                                      } else if (!snapshot.hasData ||
+                                          snapshot.data!.isEmpty) {
+                                        return const Center(
+                                            child: Text(
+                                          'No foods available.',
+                                          style: TextStyle(
+                                              fontFamily: 'SourceSans3',
+                                              fontSize: 24),
+                                        ));
+                                      } else {
+                                        return FoodsTab(
+                                          foods: snapshot.data!,
+                                        );
+                                      }
+                                    }),
+                                FutureBuilder(
+                                    future: _fetchFood(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      } else if (snapshot.hasError) {
+                                        return Center(
+                                            child: Text(
+                                          'Error: ${snapshot.error}',
+                                          style: const TextStyle(
+                                              fontFamily: 'SourceSans3',
+                                              fontSize: 24),
+                                        ));
+                                      } else if (!snapshot.hasData ||
+                                          snapshot.data!.isEmpty) {
+                                        return const Center(
+                                            child: Text(
+                                          'No foods available.',
+                                          style: TextStyle(
+                                              fontFamily: 'SourceSans3',
+                                              fontSize: 24),
+                                        ));
+                                      } else {
+                                        return FoodsTab(
+                                          foods: snapshot.data,
+                                        );
+                                      }
+                                    }),
                               ],
                             ),
                           ),
                         ],
                       ),
                     ),
+                    // const SizedBox(
+                    //   height: 200,
+                    // )
                   ],
                 ),
               ),
@@ -166,7 +246,9 @@ class _FoodsPageState extends State<FoodsPage>
                   },
                   child: FloatingActionButton(
                     onPressed: () {
-                      RouterCustom.router.pushNamed('food-detail');
+                      RouterCustom.router
+                          .pushNamed('add-food')
+                          .then((_) => setState(() {}));
                     },
                     shape: const CircleBorder(),
                     backgroundColor: HexColor("BBB7EA"),
