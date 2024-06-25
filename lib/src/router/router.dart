@@ -21,6 +21,7 @@ import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water-log_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_goal_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/add_food_screen.dart';
 
 import '../presentation/pages/register_screen.dart';
 
@@ -144,6 +145,11 @@ class RouterCustom {
           name: 'foods',
           builder: (BuildContext context, GoRouterState state) =>
               const FoodsPage()),
+      GoRoute(
+          path: '/add-food',
+          name: 'add-food',
+          builder: (BuildContext context, GoRouterState state) =>
+              const AddFoodPage()),
       // GoRoute(
       //     path: '/sleep',
       //     name: 'sleep',
