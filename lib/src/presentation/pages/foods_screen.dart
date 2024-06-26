@@ -1,12 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/presentation/widgets/food_tab.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:healthcare_app/src/services/foodService.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FoodsPage extends StatefulWidget {
   const FoodsPage({super.key});
@@ -22,10 +19,13 @@ class _FoodsPageState extends State<FoodsPage>
   final TextEditingController _searchController = TextEditingController();
   Offset _floatingButtonOffset = const Offset(300, 780);
   FoodService foodService = FoodService();
-
+  late Future<List<Food>?> _foods;
+  late Future<List<Food>?> _userFoods;
   @override
   void initState() {
     super.initState();
+    _foods = _fetchFood();
+    _userFoods = _fetchUserFood();
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -46,6 +46,22 @@ class _FoodsPageState extends State<FoodsPage>
     final foods = await foodService.fetchUserFood();
     print(foods);
     return foods;
+  }
+
+  void _searchFood(String name) async {
+    if (name.isNotEmpty) {
+      try {
+        setState(() {
+          _foods = foodService.searchFood(name);
+          _userFoods = foodService.searchUserFood(name);
+        });
+      } catch (e) {}
+    } else {
+      setState(() {
+        _foods = foodService.fetchFood();
+        _userFoods = foodService.fetchUserFood();
+      });
+    }
   }
 
   @override
@@ -116,7 +132,7 @@ class _FoodsPageState extends State<FoodsPage>
                         ),
                       ),
                       onChanged: (value) {
-                        print('Search query: $value');
+                        _searchFood(value);
                       },
                     ),
                     const SizedBox(
@@ -150,7 +166,7 @@ class _FoodsPageState extends State<FoodsPage>
                               controller: _tabController,
                               children: [
                                 FutureBuilder<List<Food>?>(
-                                    future: _fetchUserFood(),
+                                    future: _userFoods,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {
@@ -175,12 +191,13 @@ class _FoodsPageState extends State<FoodsPage>
                                         ));
                                       } else {
                                         return FoodsTab(
+                                          isUser: true,
                                           foods: snapshot.data!,
                                         );
                                       }
                                     }),
                                 FutureBuilder(
-                                    future: _fetchFood(),
+                                    future: _foods,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {
@@ -205,6 +222,7 @@ class _FoodsPageState extends State<FoodsPage>
                                         ));
                                       } else {
                                         return FoodsTab(
+                                          isUser: false,
                                           foods: snapshot.data,
                                         );
                                       }
@@ -240,7 +258,7 @@ class _FoodsPageState extends State<FoodsPage>
                       // Nếu nút di chuyển ra ngoài kích thước màn hình thì ẩn nút đi
                       setState(() {
                         _floatingButtonOffset =
-                            const Offset(0, 0); // Đặt lại vị trí ban đầu
+                            const Offset(300, 780); // Đặt lại vị trí ban đầu
                       });
                     }
                   },

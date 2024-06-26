@@ -1,4 +1,5 @@
 class Food {
+  final String? id;
   final String food_name;
   final double kcal;
   final double? carbs;
@@ -9,7 +10,8 @@ class Food {
   final double avg_above;
   final String? user_id;
   Food(
-      {required this.food_name,
+      {this.id,
+        required this.food_name,
       required this.kcal,
       this.carbs,
       this.protein,
@@ -34,6 +36,7 @@ class Food {
 
   factory Food.fromJson(Map<String, dynamic> json) {
     return Food(
+        id:json['id'],
         food_name: json['food_name'],
         kcal: (json['kcal']).toDouble(),
         carbs: (json['carbs'] ?? 0).toDouble(),

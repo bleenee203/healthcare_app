@@ -1,20 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/foodService.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:http/http.dart';
 
 import '../bloc/log_meal_bloc.dart';
 
 class FoodsTab extends StatefulWidget {
   final List<Food>? foods;
-  const FoodsTab({super.key, required this.foods});
-
+  final bool isUser;
+  FoodsTab({super.key, required this.foods, required this.isUser});
   @override
   _FoodsTabState createState() => _FoodsTabState();
 }
 
 class _FoodsTabState extends State<FoodsTab> {
+  final FoodService foodService = FoodService();
+
+  Future<void> _deleteFood(String? id) async {
+    try {
+      bool? isDeleted = await foodService.deleteFood(id);
+      if (isDeleted == true) {
+        // Show a toast notification
+        Fluttertoast.showToast(
+          msg: "Food item deleted successfully.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+        setState(() {
+          widget.foods?.removeWhere((element) => element.id == id);
+        });
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -25,7 +49,8 @@ class _FoodsTabState extends State<FoodsTab> {
             Food food = entry.value;
             return Column(
               children: [
-                _buildFoodCard(context, food.food_name, '${food.kcal} kcal'),
+                _buildFoodCard(
+                    context, food.food_name, '${food.kcal} kcal', food.id),
                 if (index != widget.foods!.length - 1)
                   const SizedBox(height: 18),
               ],
@@ -36,7 +61,8 @@ class _FoodsTabState extends State<FoodsTab> {
     );
   }
 
-  Widget _buildFoodCard(BuildContext context, String title, String subtitle) {
+  Widget _buildFoodCard(
+      BuildContext context, String title, String subtitle, String? id) {
     return GestureDetector(
       onTap: () {
         RouterCustom.router.pushNamed('add-food');
@@ -69,7 +95,11 @@ class _FoodsTabState extends State<FoodsTab> {
               ),
               const SizedBox(width: 10),
               InkWell(
-                onTap: () {},
+                onTap: () async {
+                  if (widget.isUser) {
+                    await _deleteFood(id);
+                  }
+                },
                 child: Image.asset('res/images/delete_food.png'),
               ),
             ],

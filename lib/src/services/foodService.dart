@@ -56,7 +56,7 @@ class FoodService {
       await refreshAccessToken();
     }
     if (accessToken == null || isExpired) {
-      print('Unable to fetch food data, no valid access token');
+      print('no valid access token');
       return null;
     }
     try {
@@ -86,7 +86,7 @@ class FoodService {
       await refreshAccessToken();
     }
     if (accessToken == null || isExpired) {
-      print('Unable to fetch food data, no valid access token');
+      print('no valid access token');
       return null;
     }
     try {
@@ -116,7 +116,7 @@ class FoodService {
       await refreshAccessToken();
     }
     if (accessToken == null || isExpired) {
-      print('Unable to fetch food data, no valid access token');
+      print('no valid access token');
       return '';
     }
 
@@ -138,6 +138,79 @@ class FoodService {
     } catch (error, stackTrace) {
       print('Stack trace: $stackTrace');
       return ('Error fetching food data: $error');
+    }
+  }
+
+  Future<List<Food>?> searchFood(String name) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${url}food/search-food?name=$name'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        List<Food>? results = data.map((food) => Food.fromJson(food)).toList();
+        return results;
+      }
+      return null;
+    } catch (e) {
+      print('Error searching food: $e');
+    }
+  }
+
+  Future<List<Food>?> searchUserFood(String name) async {
+    await initVariables();
+    if (isExpired) {
+      await refreshAccessToken();
+    }
+    if (accessToken == null || isExpired) {
+      print('no valid access token');
+      return null;
+    }
+    try {
+      final response = await http.get(
+        Uri.parse('${url}food/search-user-food?name=$name&id=$userId'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        List<Food>? results = data.map((food) => Food.fromJson(food)).toList();
+        return results;
+      }
+      return null;
+    } catch (e) {
+      print('Error searching food: $e');
+    }
+  }
+
+  Future<bool?> deleteFood(String? food_id) async {
+    await initVariables();
+    if (isExpired) {
+      await refreshAccessToken();
+    }
+    if (accessToken == null || isExpired) {
+      print('no valid access token');
+      return null;
+    }
+    try {
+      final response = await http.patch(
+        Uri.parse('${url}food/delete-food/$food_id'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Error deleting food: $e');
     }
   }
 }

@@ -1,17 +1,10 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/thum_shape.dart';
 import 'package:healthcare_app/src/services/userService.dart';
-import 'package:http/http.dart' as http;
 import 'package:hexcolor/hexcolor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../../services/auth_services.dart';
 
@@ -31,28 +24,20 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
   double _lastWeightValue = 49.2;
   double _targetWeightValue = 55;
   late Future<User?> _userDataFuture;
-  // void initSharedPref() async {
-  //   prefs = await SharedPreferences.getInstance();
-  // }
-
   @override
   void initState() {
     super.initState();
-    // initSharedPref();
     _userDataFuture = _fetchUserData();
   }
 
   Future<User?> _fetchUserData() async {
     final user = await userService.fetchUserData();
-    //setState(() {
-    //userData = user;
     if (user != null && user.birthday != null) {
       int birthYear = user.birthday?.year ?? DateTime.now().year;
       print("birthyear ${birthYear}");
       age = DateTime.now().year - birthYear;
     }
     return user;
-    //});
   }
 
   Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
