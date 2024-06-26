@@ -50,7 +50,7 @@ class _FoodsTabState extends State<FoodsTab> {
             return Column(
               children: [
                 _buildFoodCard(
-                    context, food.food_name, '${food.kcal} kcal', food.id),
+                    context, food.food_name, '${food.kcal} kcal', food),
                 if (index != widget.foods!.length - 1)
                   const SizedBox(height: 18),
               ],
@@ -62,10 +62,10 @@ class _FoodsTabState extends State<FoodsTab> {
   }
 
   Widget _buildFoodCard(
-      BuildContext context, String title, String subtitle, String? id) {
+      BuildContext context, String title, String subtitle, Food food) {
     return GestureDetector(
       onTap: () {
-        RouterCustom.router.pushNamed('add-food');
+        RouterCustom.router.pushNamed('food-detail',extra: food,);
       },
       child: Card(
         elevation: 0,
@@ -97,7 +97,7 @@ class _FoodsTabState extends State<FoodsTab> {
               InkWell(
                 onTap: () async {
                   if (widget.isUser) {
-                    await _deleteFood(id);
+                    await _deleteFood(food.id);
                   }
                 },
                 child: Image.asset('res/images/delete_food.png'),
