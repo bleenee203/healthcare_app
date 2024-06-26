@@ -15,6 +15,86 @@ class ForumPost extends StatefulWidget {
 }
 
 class _ForumPost extends State<ForumPost> {
+  List<Map<String, String>> comments = [];
+  List<Map<String, String>> replies = [];
+
+  void _showCommentDialog() {
+    TextEditingController _commentController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Comment'),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: TextField(
+              controller: _commentController,
+              maxLines: null,
+              decoration: const InputDecoration(hintText: 'Enter your comment'),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  comments.add({'userId': 'User', 'comment': _commentController.text});
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showReplyDialog(String commentId) {
+    TextEditingController _replyController = TextEditingController();
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Reply'),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: TextField(
+              controller: _replyController,
+              maxLines: null,
+              decoration: const InputDecoration(hintText: 'Enter your reply'),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  replies.add({'commentId': commentId, 'userId': 'User', 'reply': _replyController.text});
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -115,8 +195,8 @@ class _ForumPost extends State<ForumPost> {
                                 ),
                               ],
                             ),
-                            GestureDetector(
-                                onTap: () {},
+                            GestureDetector( //Đây là nút comment
+                                onTap: _showCommentDialog,
                                 child: const Image(
                                   image: AssetImage("res/images/message.png"),
                                 )),
@@ -181,6 +261,13 @@ class _ForumPost extends State<ForumPost> {
                     "Đây có lẽ là bệnh ung thư. Bạn nên đi đến bệnh viện gần nhất để khám."),
                 _buildComment("lyvo13",
                     "Đây có lẽ là bệnh ung thư. Bạn nên đi đến bệnh viện gần nhất để khám."),
+                // ...comments.map((comment) => Column(
+                //   children: [
+                //     _buildComment(comment['userId']!, comment['comment']!),
+                //     ...replies.where((reply) => reply['commentId'] == comment['userId']).map((reply) =>
+                //         _buildReply(reply['userId']!, reply['reply']!)).toList(),
+                //   ],
+                // )).toList(),
               ],
             ),
           ),
@@ -202,7 +289,7 @@ class _ForumPost extends State<ForumPost> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Color(0xFFD4A7C7),
+              color: const Color(0xFFD4A7C7),
               borderRadius: BorderRadius.circular(10),
               // border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid,),
               boxShadow: const [
@@ -233,8 +320,11 @@ class _ForumPost extends State<ForumPost> {
                     const SizedBox(height: 4),
                   ],
                 ),
-                const Image(
-                  image: AssetImage("res/images/message.png"),
+                GestureDetector(
+                  onTap: () => _showReplyDialog(userId),
+                  child: const Image(
+                    image: AssetImage("res/images/message.png"),
+                  ),
                 ),
               ],
             ),
@@ -308,8 +398,13 @@ class _ForumPost extends State<ForumPost> {
                         const SizedBox(height: 4),
                       ],
                     ),
-                    const Image(
-                      image: AssetImage("res/images/message.png"),
+                    GestureDetector(
+                      onTap: (){{
+
+                      }},
+                      child: const Image(
+                        image: AssetImage("res/images/message.png"),
+                      ),
                     ),
                   ],
                 ),

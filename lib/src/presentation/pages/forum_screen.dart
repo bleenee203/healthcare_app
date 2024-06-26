@@ -19,6 +19,8 @@ class ForumPage extends StatefulWidget {
 class _ForumPage extends State<ForumPage> {
   File? _selectedImage;
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   List<Map<String, String>> data = [
@@ -101,6 +103,8 @@ class _ForumPage extends State<ForumPage> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -156,115 +160,147 @@ class _ForumPage extends State<ForumPage> {
   }
 
   void _showCreateThreadDialog() {
+    final _formKey = GlobalKey<FormState>();
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: SizedBox(
-            width: 500,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const Text(
-                        'New Topic',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 22.0,
-                          fontFamily: "SourceSans3",
+        return Form(
+          key: _formKey,
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: SizedBox(
+              width: 500,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        const Text(
+                          'New Topic',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 22.0,
+                            fontFamily: "SourceSans3",
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      const TextField(
-                        maxLines: null,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: "SourceSans3",
-                          fontWeight: FontWeight.w400,
+                        const SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _titleController,
+                          maxLines: null,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontFamily: "SourceSans3",
+                            fontWeight: FontWeight.w400,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Thread title',
+                            hintText: "Type here",
+                          ),
+                          validator: (value){
+                            if (value !.isEmpty){
+                              return "Enter your title!";
+                            }
+                            return null;                        },
                         ),
-                        decoration: InputDecoration(
-                          labelText: 'Thread title',
-                          hintText: "Type here",
+                        const SizedBox(height: 60.0),
+                        TextFormField(
+                          controller: _descriptionController,
+                          maxLines: null,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontFamily: "SourceSans3",
+                            fontWeight: FontWeight.w400,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Description',
+                            hintText: "Type here",
+                          ),
+                          validator: (value){
+                            if (value!.isEmpty){
+                              return "Please enter your problem!";
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                      const SizedBox(height: 60.0),
-                      const TextField(
-                        maxLines: null,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: "SourceSans3",
-                          fontWeight: FontWeight.w400,
+                        const SizedBox(height: 16.0),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Row(
+                            children: <Widget>[
+                              _selectedImage != null
+                                  ? Image.file(
+                                      _selectedImage!,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      "res/images/photo.png",
+                                      width: 50,
+                                      height: 50,
+                                    ),
+                              const SizedBox(width: 8.0),
+                              const Text('Image'),
+                            ],
+                          ),
                         ),
-                        decoration: InputDecoration(
-                          labelText: 'Description',
-                          hintText: "Type here",
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: Row(
+                        const SizedBox(height: 16.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            _selectedImage != null
-                                ? Image.file(
-                                    _selectedImage!,
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    "res/images/photo.png",
-                                    width: 50,
-                                    height: 50,
-                                  ),
-                            const SizedBox(width: 8.0),
-                            const Text('Image'),
+                            TextButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    data.insert(data.length, {
+                                      "user_id": "currentUser",
+                                      "title": _titleController.text,
+                                      "content": _descriptionController.text,
+                                    });
+                                    filteredData = data;
+                                    _titleController.clear();
+                                    _descriptionController.clear();
+                                    _selectedImage = null;
+                                  });
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              child: const Text(
+                                'Create Thread',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _titleController.clear();
+                                _descriptionController.clear();
+                                _selectedImage = null;
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              // Implement your create thread logic here
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text(
-                              'Create Thread',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "SourceSans3",
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              _selectedImage = null;
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "SourceSans3",
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -429,14 +465,17 @@ class _ForumPage extends State<ForumPage> {
                                         children: [
                                           Row(
                                             children: [
-                                              Text(
-                                                filteredData[index]['title']!,
-                                                style: const TextStyle(
-                                                  fontFamily: "SourceSans3",
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
+                                              Container(
+                                                width: MediaQuery.of(context).size.width *0.25,
+                                                child: Text(
+                                                  filteredData[index]['title']!,
+                                                  style: const TextStyle(
+                                                    fontFamily: "SourceSans3",
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
-                                                overflow: TextOverflow.ellipsis,
                                               ),
                                               const SizedBox(width: 10),
                                               Text(
