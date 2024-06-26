@@ -16,7 +16,7 @@ class _WeekWaterTab extends State<WeekWaterTab> {
   List<WaterPoint> points = [
     WaterPoint(0, 1600), // Điểm giá có x = 0 và y = 5
     WaterPoint(1, 1000), // Điểm giá có x = 1 và y = 8
-    WaterPoint(2),
+    WaterPoint(2, 1400),
     WaterPoint(3),
     WaterPoint(4),
     WaterPoint(5),

@@ -1,20 +1,21 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-class BarChartWidget extends StatefulWidget {
+import '../../models/char_point.dart';
+
+class BarChartWidget<T extends ChartPoint> extends StatefulWidget {
   const BarChartWidget({super.key, required this.points});
 
-  final List<WaterPoint> points;
+  final List<T> points;
 
   @override
-  State<BarChartWidget> createState() =>
-      _BarChartWidgetState(points: this.points);
+  State<BarChartWidget<T>> createState() =>
+      _BarChartWidgetState<T>(points: this.points);
 }
 
-class _BarChartWidgetState extends State<BarChartWidget> {
-  final List<WaterPoint> points;
+class _BarChartWidgetState<T extends ChartPoint> extends State<BarChartWidget<T>> {
+  final List<T> points;
 
   _BarChartWidgetState({required this.points});
 
@@ -30,11 +31,11 @@ class _BarChartWidgetState extends State<BarChartWidget> {
               show: true, horizontalInterval: 1000, drawVerticalLine: false),
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(sideTitles: _bottomTitles),
-            leftTitles: AxisTitles(
+            leftTitles: const AxisTitles(
                 sideTitles: SideTitles(
               showTitles: false,
             )),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: AxisTitles(
                 sideTitles: SideTitles(
               showTitles: true,
@@ -97,3 +98,5 @@ class _BarChartWidgetState extends State<BarChartWidget> {
         },
       );
 }
+
+//Bar char của Sleep
