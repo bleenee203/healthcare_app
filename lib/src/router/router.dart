@@ -23,7 +23,11 @@ import 'package:healthcare_app/src/presentation/pages/water_goal_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/add_food_screen.dart';
 
+import '../presentation/pages/forum_post.dart';
 import '../presentation/pages/register_screen.dart';
+import '../presentation/pages/set_sleep_goal.dart';
+import '../presentation/pages/set_sleep_start.dart';
+import '../presentation/pages/sleep_goal_screen.dart';
 
 class RouterCustom {
   static final GoRouter router = GoRouter(
@@ -150,11 +154,31 @@ class RouterCustom {
           name: 'add-food',
           builder: (BuildContext context, GoRouterState state) =>
               const AddFoodPage()),
-      // GoRoute(
-      //     path: '/sleep',
-      //     name: 'sleep',
-      //     builder: (BuildContext context, GoRouterState state) =>
-      //         const SleepPage()),
+      GoRoute(
+          path: '/sleep-goal',
+          name: 'sleep-goal',
+          builder: (BuildContext context, GoRouterState state) =>
+          const SleepGoalPage()),
+      GoRoute(
+          path: '/set-sleep-goal',
+          name: 'set-sleep-goal',
+          builder: (BuildContext context, GoRouterState state) =>
+          const SleepSetGoalPage()),
+      GoRoute(
+          path: '/set-sleep-start',
+          name: 'set-sleep-start',
+          builder: (BuildContext context, GoRouterState state) =>
+          const SleepSetStartPage()),
+      GoRoute(
+          path: '/forum-post',
+          name: 'forum-post',
+          builder: (BuildContext context, GoRouterState state) =>
+          const ForumPost()),
+      GoRoute(
+          path: '/sleep',
+          name: 'sleep',
+          builder: (BuildContext context, GoRouterState state) =>
+          const SleepPage()),
     ],
   );
 }
