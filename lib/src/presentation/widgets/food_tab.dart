@@ -8,21 +8,39 @@ import 'package:hexcolor/hexcolor.dart';
 import '../bloc/log_meal_bloc.dart';
 
 class FoodsTab extends StatefulWidget {
-  final List<Food>? foods;
   final bool isUser;
-  FoodsTab({super.key, required this.foods, required this.isUser});
+  final String searchQuery;
+  FoodsTab({super.key, required this.isUser, required this.searchQuery});
+
   @override
   _FoodsTabState createState() => _FoodsTabState();
 }
 
 class _FoodsTabState extends State<FoodsTab> {
   final FoodService foodService = FoodService();
+  List<Food>? foods;
+  late Future<List<Food>?> _foodsFuture;
+
+  Future<List<Food>?> _fetchFood() async {
+    if (widget.isUser) {
+      if (widget.searchQuery.isNotEmpty) {
+        return await foodService.searchUserFood(widget.searchQuery);
+      } else {
+        return await foodService.fetchUserFood();
+      }
+    } else {
+      if (widget.searchQuery.isNotEmpty) {
+        return await foodService.searchFood(widget.searchQuery);
+      } else {
+        return await foodService.fetchFood();
+      }
+    }
+  }
 
   Future<void> _deleteFood(String? id) async {
     try {
       bool? isDeleted = await foodService.deleteFood(id);
       if (isDeleted == true) {
-        // Show a toast notification
         Fluttertoast.showToast(
           msg: "Food item deleted successfully.",
           toastLength: Toast.LENGTH_SHORT,
@@ -30,9 +48,7 @@ class _FoodsTabState extends State<FoodsTab> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
-        setState(() {
-          widget.foods?.removeWhere((element) => element.id == id);
-        });
+        setState(() {});
       }
     } catch (error) {
       print(error);
@@ -40,24 +56,56 @@ class _FoodsTabState extends State<FoodsTab> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _foodsFuture = _fetchFood();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(children: [
-        if (widget.foods != null)
-          ...widget.foods!.asMap().entries.map((entry) {
-            int index = entry.key;
-            Food food = entry.value;
-            return Column(
-              children: [
-                _buildFoodCard(
-                    context, food.food_name, '${food.kcal} kcal', food),
-                if (index != widget.foods!.length - 1)
-                  const SizedBox(height: 18),
-              ],
-            );
-          }),
-        const SizedBox(height: 80),
-      ]),
+    // _foodsFuture = _fetchFood();
+    return FutureBuilder<List<Food>?>(
+      key: UniqueKey(),
+      future: _fetchFood(),
+      builder: (BuildContext context, AsyncSnapshot<List<Food>?> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: const TextStyle(fontFamily: 'SourceSans3', fontSize: 24),
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Text(
+              'No foods available.',
+              style: TextStyle(fontFamily: 'SourceSans3', fontSize: 24),
+            ),
+          );
+        } else {
+          foods = snapshot.data;
+          return SingleChildScrollView(
+            child: Column(children: [
+              if (foods != null)
+                ...foods!.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  Food food = entry.value;
+                  return Column(
+                    children: [
+                      _buildFoodCard(
+                          context, food.food_name, '${food.kcal} kcal', food),
+                      if (index != foods!.length - 1)
+                        const SizedBox(height: 18),
+                    ],
+                  );
+                }),
+              const SizedBox(height: 80),
+            ]),
+          );
+        }
+      },
     );
   }
 
@@ -65,7 +113,17 @@ class _FoodsTabState extends State<FoodsTab> {
       BuildContext context, String title, String subtitle, Food food) {
     return GestureDetector(
       onTap: () {
-        RouterCustom.router.pushNamed('food-detail',extra: food,);
+        RouterCustom.router
+            .pushNamed(
+          'food-detail',
+          extra: food,
+        )
+            .then((_) async {
+          List<Food>? updatedFoods = await _fetchFood();
+          setState(() {
+            foods = updatedFoods;
+          });
+        });
       },
       child: Card(
         elevation: 0,
@@ -266,9 +324,7 @@ class _FoodsTabState extends State<FoodsTab> {
         bool isSelected = snapshot.data == option;
         return GestureDetector(
           onTap: () {
-            logMealBloc
-                .selectOption(option); // Update selected option in FoodsBloc
-            // Navigator.pop(context); // Close the bottom sheet
+            logMealBloc.selectOption(option);
           },
           child: Container(
             width: 97,
@@ -297,7 +353,7 @@ class _FoodsTabState extends State<FoodsTab> {
 
   @override
   void dispose() {
-    logMealBloc.dispose(); // Dispose the FoodsBloc when the widget is disposed
+    logMealBloc.dispose();
     super.dispose();
   }
 }

@@ -8,7 +8,8 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AddFoodPage extends StatefulWidget {
-  const AddFoodPage({super.key});
+  final Food? food;
+  const AddFoodPage({super.key, this.food});
 
   @override
   State<StatefulWidget> createState() => _AddFoodPageState();
@@ -24,6 +25,44 @@ class _AddFoodPageState extends State<AddFoodPage> {
   final _carbsController = TextEditingController();
   final _proteinController = TextEditingController();
   FoodService foodService = FoodService();
+  Future<void> _updateFood(String id, newData) async {
+    try {
+      final result = await foodService.updateFood(id, newData);
+      if (result?['success'].toString() == 'true') {
+        Fluttertoast.showToast(
+          msg: result?['message'],
+          toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+          gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+          timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+          backgroundColor: Colors.green, // Màu nền của toast
+          textColor: Colors.white, // Màu chữ của toast
+          fontSize: 16.0, // Kích thước chữ của toast
+        );
+        Navigator.of(context).pop(result?['data']);
+      } else if (result?['success'].toString() == 'false') {
+        Fluttertoast.showToast(
+          msg: result?['message'],
+          toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+          gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+          timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+          backgroundColor: Colors.red, // Màu nền của toast
+          textColor: Colors.white, // Màu chữ của toast
+          fontSize: 16.0, // Kích thước chữ của toast
+        );
+      }
+    } catch (error) {
+      Fluttertoast.showToast(
+        msg: error.toString(),
+        toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+        gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+        timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+        backgroundColor: Colors.red, // Màu nền của toast
+        textColor: Colors.white, // Màu chữ của toast
+        fontSize: 16.0, // Kích thước chữ của toast
+      );
+      print(error);
+    }
+  }
 
   Future<void> _addFood(newData) async {
     try {
@@ -64,6 +103,18 @@ class _AddFoodPageState extends State<AddFoodPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _foodNameController.text = widget.food?.food_name ?? '';
+    _rationController.text = widget.food?.ration.toString() ?? '0';
+    _nutritionalValueController.text = widget.food?.avg_above.toString() ?? '0';
+    _kcalController.text = widget.food?.kcal.toString() ?? '0';
+    _carbsController.text = widget.food?.carbs.toString() ?? '0';
+    _proteinController.text = widget.food?.protein.toString() ?? '0';
+    _fatController.text = widget.food?.fat.toString() ?? '0';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
@@ -96,7 +147,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
                               ),
                               Center(
                                 child: Text(
-                                  "Add food",
+                                  widget.food?.food_name ?? "Add food",
                                   style: TextStyle(
                                     color: HexColor("474672"),
                                     fontFamily: "SourceSans3",
@@ -361,7 +412,9 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                     protein: double.tryParse(
                                         _proteinController.text),
                                     isDeleted: false);
-                                _addFood(data);
+                                widget.food != null
+                                    ? _updateFood(widget.food?.id ?? '', data)
+                                    : _addFood(data);
                               }
                             },
                             style: ButtonStyle(
@@ -369,12 +422,12 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                     HexColor("BBB7EA")),
                                 foregroundColor:
                                     MaterialStateProperty.all(Colors.white)),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 8, horizontal: 88),
                               child: Text(
-                                'Update',
-                                style: TextStyle(
+                                widget.food != null ? 'Update' : 'Add food',
+                                style: const TextStyle(
                                     fontFamily: 'SourceSans3',
                                     fontWeight: FontWeight.w600,
                                     fontSize: 20),

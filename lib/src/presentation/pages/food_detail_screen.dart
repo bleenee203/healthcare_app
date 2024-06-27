@@ -1,46 +1,73 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/presentation/bloc/log_meal_bloc.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class FoodDetailPage extends StatefulWidget {
-  final Food food;
-  const FoodDetailPage({super.key, required this.food});
+  Food food;
+  FoodDetailPage({super.key, required this.food});
 
   @override
   State<StatefulWidget> createState() => _FoodDetailPage();
 }
 
 class _FoodDetailPage extends State<FoodDetailPage> {
+  Food? food;
   final TextEditingController _quantityController = TextEditingController();
   final List<String> nutritions = ['Carbs', 'Protein', 'Fat'];
-  final List<PieChartSectionData> sections = [
-    PieChartSectionData(
+  late List<PieChartSectionData> sections;
+  List<PieChartSectionData> _buildPieChartSections() {
+    final carbs = food?.carbs ?? 0;
+    final protein = food?.protein ?? 0;
+    final fat = food?.fat ?? 0;
+    final total = carbs + protein + fat;
+    // Avoid division by zero
+    if (total == 0) {
+      return [
+        PieChartSectionData(
+          color: Colors.grey,
+          value: 100,
+          radius: 50,
+          title: '0%',
+          titleStyle: const TextStyle(fontFamily: 'SourceSans3', fontSize: 14),
+        )
+      ];
+    }
+
+    return [
+      PieChartSectionData(
         color: HexColor("FBAE9E"),
-        value: 70,
+        value: carbs / total * 100,
         radius: 50,
-        title: '70%',
-        titleStyle: const TextStyle(fontFamily: 'SourceSans3', fontSize: 14)),
-    PieChartSectionData(
+        title: '${(carbs / total * 100).toStringAsFixed(1)}%',
+        titleStyle: const TextStyle(fontFamily: 'SourceSans3', fontSize: 14),
+      ),
+      PieChartSectionData(
         color: HexColor("F06244"),
-        value: 20,
+        value: protein / total * 100,
         radius: 50,
-        title: '20%',
-        titleStyle: const TextStyle(fontFamily: 'SourceSans3', fontSize: 14)),
-    PieChartSectionData(
+        title: '${(protein / total * 100).toStringAsFixed(1)}%',
+        titleStyle: const TextStyle(fontFamily: 'SourceSans3', fontSize: 14),
+      ),
+      PieChartSectionData(
         color: HexColor("BBB7EA"),
-        value: 10,
+        value: fat / total * 100,
         radius: 50,
-        title: '10%',
-        titleStyle: const TextStyle(fontFamily: 'SourceSans3', fontSize: 14))
-  ];
+        title: '${(fat / total * 100).toStringAsFixed(1)}%',
+        titleStyle: const TextStyle(fontFamily: 'SourceSans3', fontSize: 14),
+      ),
+    ];
+  }
+
   @override
   void initState() {
-    _quantityController.text = widget.food.avg_above.toString();
     super.initState();
+    food = widget.food;
+    sections = _buildPieChartSections();
+    print(sections.length);
+    _quantityController.text = widget.food.avg_above.toString();
   }
 
   @override
@@ -74,17 +101,40 @@ class _FoodDetailPage extends State<FoodDetailPage> {
                           },
                           child: Image.asset('res/images/go-back.png'),
                         ),
-                        Text(
-                          widget.food.food_name,
-                          style: TextStyle(
-                            color: HexColor("474672"),
-                            fontFamily: "SourceSans3",
-                            fontSize: 36,
-                            fontWeight: FontWeight.w900,
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              key: UniqueKey(),
+                              food?.food_name ?? '',
+                              style: TextStyle(
+                                color: HexColor("474672"),
+                                fontFamily: "SourceSans3",
+                                fontSize: 36,
+                                fontWeight: FontWeight.w900,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
+                        const SizedBox(
+                          width: 20,
+                        ),
                         GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              RouterCustom.router
+                                  .pushNamed('update-food', extra: food)
+                                  .then((value) => setState(() {
+                                        if (value != null) {
+                                          Map<String, dynamic> foodData =
+                                              value as Map<String, dynamic>;
+                                          food = Food.fromJson(foodData);
+                                          sections = _buildPieChartSections();
+                                        }
+                                      }));
+                            },
                             child: Image.asset("res/images/edit.png")),
                       ],
                     ),
@@ -168,12 +218,12 @@ class _FoodDetailPage extends State<FoodDetailPage> {
                         child: Stack(children: [
                           PieChart(PieChartData(
                             sections: sections,
-                            centerSpaceRadius: 50,
+                            centerSpaceRadius: 60,
                           )),
-                          const Center(
+                          Center(
                             child: Text(
-                              '95 Kcal',
-                              style: TextStyle(
+                              (food?.kcal.toString() ?? '0') + ' kcal',
+                              style: const TextStyle(
                                   fontFamily: 'SourceSans3',
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700),
@@ -186,7 +236,21 @@ class _FoodDetailPage extends State<FoodDetailPage> {
                       ),
                       Column(
                           children: nutritions.map((e) {
-                            
+                        String nutritionValue = '';
+                        switch (e) {
+                          case 'Carbs':
+                            nutritionValue = '${food?.carbs}g';
+                            break;
+                          case 'Protein':
+                            nutritionValue = '${food?.protein}g';
+                            break;
+                          case 'Fat':
+                            nutritionValue = '${food?.fat}g';
+                            break;
+                          default:
+                            nutritionValue = '';
+                            break;
+                        }
                         return SizedBox(
                           width: MediaQuery.of(context).size.width - 305,
                           child: Row(
@@ -199,8 +263,11 @@ class _FoodDetailPage extends State<FoodDetailPage> {
                                     width: 16,
                                     height: 16,
                                     decoration: BoxDecoration(
-                                        color: sections[nutritions.indexOf(e)]
-                                            .color,
+                                        color: sections.length >
+                                                nutritions.indexOf(e)
+                                            ? sections[nutritions.indexOf(e)]
+                                                .color
+                                            : Colors.grey,
                                         shape: BoxShape.circle),
                                   ),
                                   title: Text(
@@ -210,7 +277,7 @@ class _FoodDetailPage extends State<FoodDetailPage> {
                                         fontSize: 20),
                                   ),
                                   subtitle: Text(
-                                    '25g',
+                                    nutritionValue,
                                     style: TextStyle(
                                         color: Colors.black.withOpacity(0.5),
                                         fontFamily: 'SourceSans3',

@@ -21,11 +21,11 @@ class _FoodsPageState extends State<FoodsPage>
   FoodService foodService = FoodService();
   late Future<List<Food>?> _foods;
   late Future<List<Food>?> _userFoods;
+  String _searchQuery = '';
   @override
   void initState() {
     super.initState();
-    _foods = _fetchFood();
-    _userFoods = _fetchUserFood();
+    _searchFood('');
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -46,6 +46,13 @@ class _FoodsPageState extends State<FoodsPage>
     final foods = await foodService.fetchUserFood();
     print(foods);
     return foods;
+  }
+
+  void _refreshFoods() {
+    setState(() {
+      _foods = foodService.fetchFood();
+      _userFoods = foodService.fetchUserFood();
+    });
   }
 
   void _searchFood(String name) async {
@@ -132,7 +139,10 @@ class _FoodsPageState extends State<FoodsPage>
                         ),
                       ),
                       onChanged: (value) {
-                        _searchFood(value);
+                        // _searchFood(value);
+                        setState(() {
+                          _searchQuery = value; // Cập nhật từ khóa tìm kiếm
+                        });
                       },
                     ),
                     const SizedBox(
@@ -165,68 +175,14 @@ class _FoodsPageState extends State<FoodsPage>
                             child: TabBarView(
                               controller: _tabController,
                               children: [
-                                FutureBuilder<List<Food>?>(
-                                    future: _userFoods,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        return Center(
-                                            child: Text(
-                                          'Error: ${snapshot.error}',
-                                          style: const TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else if (!snapshot.hasData ||
-                                          snapshot.data!.isEmpty) {
-                                        return const Center(
-                                            child: Text(
-                                          'No foods available.',
-                                          style: TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else {
-                                        return FoodsTab(
-                                          isUser: true,
-                                          foods: snapshot.data!,
-                                        );
-                                      }
-                                    }),
-                                FutureBuilder(
-                                    future: _foods,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        return Center(
-                                            child: Text(
-                                          'Error: ${snapshot.error}',
-                                          style: const TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else if (!snapshot.hasData ||
-                                          snapshot.data!.isEmpty) {
-                                        return const Center(
-                                            child: Text(
-                                          'No foods available.',
-                                          style: TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else {
-                                        return FoodsTab(
-                                          isUser: false,
-                                          foods: snapshot.data,
-                                        );
-                                      }
-                                    }),
+                                FoodsTab(
+                                  isUser: true,
+                                  searchQuery: _searchQuery,
+                                ),
+                                FoodsTab(
+                                  isUser: false,
+                                  searchQuery: _searchQuery,
+                                )
                               ],
                             ),
                           ),
@@ -266,7 +222,11 @@ class _FoodsPageState extends State<FoodsPage>
                     onPressed: () {
                       RouterCustom.router
                           .pushNamed('add-food')
-                          .then((_) => setState(() {}));
+                          .then((_) => setState(() {
+                                // _foods = _fetchFood();
+                                // _userFoods = _fetchUserFood();
+                                _refreshFoods;
+                              }));
                     },
                     shape: const CircleBorder(),
                     backgroundColor: HexColor("BBB7EA"),
