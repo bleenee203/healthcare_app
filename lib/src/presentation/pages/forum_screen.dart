@@ -19,6 +19,8 @@ class ForumPage extends StatefulWidget {
 class _ForumPage extends State<ForumPage> {
   File? _selectedImage;
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   List<Map<String, String>> data = [
@@ -101,6 +103,8 @@ class _ForumPage extends State<ForumPage> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -114,15 +118,18 @@ class _ForumPage extends State<ForumPage> {
       }).toList();
     });
   }
+
   // Kết thúc những hàm cho chức năng tìm kiếm
 
   // Hàm xu li viec cuon trang
   void _scrollListener() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent
-        && !isLoading) {
+    if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent &&
+        !isLoading) {
       _loadMoreData();
     }
   }
+
   Future<void> _loadMoreData() async {
     setState(() {
       isLoading = true;
@@ -137,127 +144,163 @@ class _ForumPage extends State<ForumPage> {
       isLoading = false;
     });
   }
+
   // Ket thuc ham xu li viec cuon trang
 
   // Hàm chọn ảnh từ máy
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
         _selectedImage = File(pickedFile.path);
       }
     });
+    print("Đã chọn được ảnh");
   }
 
   void _showCreateThreadDialog() {
+    final _formKey = GlobalKey<FormState>();
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Container(
-            width: 500,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const Text(
-                        'New Topic',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 22.0,
-                          fontFamily: "SourceSans3",
+        return Form(
+          key: _formKey,
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: SizedBox(
+              width: 500,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        const Text(
+                          'New Topic',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 22.0,
+                            fontFamily: "SourceSans3",
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      const TextField(
-                        maxLines: null,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: "SourceSans3",
-                          fontWeight: FontWeight.w400,
+                        const SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _titleController,
+                          maxLines: null,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontFamily: "SourceSans3",
+                            fontWeight: FontWeight.w400,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Thread title',
+                            hintText: "Type here",
+                          ),
+                          validator: (value){
+                            if (value !.isEmpty){
+                              return "Enter your title!";
+                            }
+                            return null;                        },
                         ),
-                        decoration: InputDecoration(
-                          labelText: 'Thread title',
-                          hintText: "Type here",
+                        const SizedBox(height: 60.0),
+                        TextFormField(
+                          controller: _descriptionController,
+                          maxLines: null,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontFamily: "SourceSans3",
+                            fontWeight: FontWeight.w400,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Description',
+                            hintText: "Type here",
+                          ),
+                          validator: (value){
+                            if (value!.isEmpty){
+                              return "Please enter your problem!";
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                      const SizedBox(height: 60.0),
-                      const TextField(
-                        maxLines: null,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: "SourceSans3",
-                          fontWeight: FontWeight.w400,
+                        const SizedBox(height: 16.0),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Row(
+                            children: <Widget>[
+                              _selectedImage != null
+                                  ? Image.file(
+                                      _selectedImage!,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      "res/images/photo.png",
+                                      width: 50,
+                                      height: 50,
+                                    ),
+                              const SizedBox(width: 8.0),
+                              const Text('Image'),
+                            ],
+                          ),
                         ),
-                        decoration: InputDecoration(
-                          labelText: 'Description',
-                          hintText: "Type here",
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: Row(
+                        const SizedBox(height: 16.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            _selectedImage != null
-                                ? Image.file(
-                              _selectedImage!,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            )
-                                : Image.asset(
-                              "res/images/photo.png",
-                              width: 50,
-                              height: 50,
+                            TextButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    data.insert(data.length, {
+                                      "user_id": "currentUser",
+                                      "title": _titleController.text,
+                                      "content": _descriptionController.text,
+                                    });
+                                    filteredData = data;
+                                    _titleController.clear();
+                                    _descriptionController.clear();
+                                    _selectedImage = null;
+                                  });
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              child: const Text(
+                                'Create Thread',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 8.0),
-                            const Text('Image'),
+                            TextButton(
+                              onPressed: () {
+                                _titleController.clear();
+                                _descriptionController.clear();
+                                _selectedImage = null;
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              // Implement your create thread logic here
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text(
-                              'Create Thread',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "SourceSans3",
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "SourceSans3",
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -267,7 +310,6 @@ class _ForumPage extends State<ForumPage> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -312,13 +354,35 @@ class _ForumPage extends State<ForumPage> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Find threads...',
+                    hintStyle: const TextStyle(
+                      fontFamily: "SourceSans3",
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                      borderSide: const BorderSide(
+                        color: Colors.orange,
+                        width: 2.0,
+                      ),
                     ),
-                    fillColor: Colors.white,
-                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(
+                        color: Color(0xFFFBAE9E),
+                        width: 2.0,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(
+                        color: Colors.orange,
+                        width: 3.0,
+                      ),
+                    ),
+                    fillColor: const Color(0xfffbedec),
+                    filled: false,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -364,11 +428,12 @@ class _ForumPage extends State<ForumPage> {
                       children: <Widget>[
                         GestureDetector(
                           onTap: () {
-                            print("Đã nhấn để xem thread + ${filteredData.length}");
+                            print(
+                                "Đã nhấn để xem thread + ${filteredData.length}");
                             RouterCustom.router.pushNamed("forum-post");
-                            },
+                          },
                           child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
+                            margin: const EdgeInsets.only(bottom: 5, top: 5),
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -376,10 +441,18 @@ class _ForumPage extends State<ForumPage> {
                             ),
                             child: Row(
                               children: [
-                                const CircleAvatar(
-                                  backgroundImage:
-                                      AssetImage('res/images/avatar.png'),
-                                  radius: 30,
+                                Container(
+                                  width: 62.0, // Chiều rộng của hình vuông
+                                  height: 62.0, // Chiều cao của hình vuông
+                                  decoration: const BoxDecoration(
+                                    image: DecorationImage(
+                                      image:
+                                          AssetImage('res/images/avatar.png'),
+                                      // Hình ảnh avatar
+                                      fit: BoxFit
+                                          .cover, // Đảm bảo hình ảnh phủ kín toàn bộ container
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
@@ -388,25 +461,44 @@ class _ForumPage extends State<ForumPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            filteredData[index]['title']!,
-                                            style: const TextStyle(
-                                              fontFamily: "SourceSans3",
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
+                                          Row(
+                                            children: [
+                                              Container(
+                                                width: MediaQuery.of(context).size.width *0.25,
+                                                child: Text(
+                                                  filteredData[index]['title']!,
+                                                  style: const TextStyle(
+                                                    fontFamily: "SourceSans3",
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                filteredData[index]['user_id']!,
+                                                style: const TextStyle(
+                                                  fontFamily: "SourceSans3",
+                                                  fontSize: 12,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w300,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            filteredData[index]['user_id']!,
-                                            style: const TextStyle(
-                                              fontFamily: "SourceSans3",
-                                              fontSize: 12,
-                                              fontStyle: FontStyle.italic,
-                                              fontWeight: FontWeight.w300,
-                                            ),
+                                          const Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text('16'),
+                                              const SizedBox(width: 5,),
+                                              Image(
+                                                  image: AssetImage(
+                                                      "res/images/message.png")),
+                                              Icon(Icons.arrow_forward_ios),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -423,15 +515,6 @@ class _ForumPage extends State<ForumPage> {
                                     ],
                                   ),
                                 ),
-                                const Column(
-                                  children: [
-                                    Text('16'),
-                                    Image(
-                                        image: AssetImage(
-                                            "res/images/message.png")),
-                                  ],
-                                ),
-                                const Icon(Icons.arrow_forward_ios),
                               ],
                             ),
                           ),
