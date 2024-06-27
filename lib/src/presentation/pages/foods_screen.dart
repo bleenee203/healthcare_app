@@ -1,12 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/presentation/widgets/food_tab.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:healthcare_app/src/services/foodService.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FoodsPage extends StatefulWidget {
   const FoodsPage({super.key});
@@ -22,10 +19,13 @@ class _FoodsPageState extends State<FoodsPage>
   final TextEditingController _searchController = TextEditingController();
   Offset _floatingButtonOffset = const Offset(300, 780);
   FoodService foodService = FoodService();
-
+  late Future<List<Food>?> _foods;
+  late Future<List<Food>?> _userFoods;
+  String _searchQuery = '';
   @override
   void initState() {
     super.initState();
+    _searchFood('');
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -46,6 +46,29 @@ class _FoodsPageState extends State<FoodsPage>
     final foods = await foodService.fetchUserFood();
     print(foods);
     return foods;
+  }
+
+  void _refreshFoods() {
+    setState(() {
+      _foods = foodService.fetchFood();
+      _userFoods = foodService.fetchUserFood();
+    });
+  }
+
+  void _searchFood(String name) async {
+    if (name.isNotEmpty) {
+      try {
+        setState(() {
+          _foods = foodService.searchFood(name);
+          _userFoods = foodService.searchUserFood(name);
+        });
+      } catch (e) {}
+    } else {
+      setState(() {
+        _foods = foodService.fetchFood();
+        _userFoods = foodService.fetchUserFood();
+      });
+    }
   }
 
   @override
@@ -116,7 +139,10 @@ class _FoodsPageState extends State<FoodsPage>
                         ),
                       ),
                       onChanged: (value) {
-                        print('Search query: $value');
+                        // _searchFood(value);
+                        setState(() {
+                          _searchQuery = value; // Cập nhật từ khóa tìm kiếm
+                        });
                       },
                     ),
                     const SizedBox(
@@ -149,66 +175,14 @@ class _FoodsPageState extends State<FoodsPage>
                             child: TabBarView(
                               controller: _tabController,
                               children: [
-                                FutureBuilder<List<Food>?>(
-                                    future: _fetchUserFood(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        return Center(
-                                            child: Text(
-                                          'Error: ${snapshot.error}',
-                                          style: const TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else if (!snapshot.hasData ||
-                                          snapshot.data!.isEmpty) {
-                                        return const Center(
-                                            child: Text(
-                                          'No foods available.',
-                                          style: TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else {
-                                        return FoodsTab(
-                                          foods: snapshot.data!,
-                                        );
-                                      }
-                                    }),
-                                FutureBuilder(
-                                    future: _fetchFood(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      } else if (snapshot.hasError) {
-                                        return Center(
-                                            child: Text(
-                                          'Error: ${snapshot.error}',
-                                          style: const TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else if (!snapshot.hasData ||
-                                          snapshot.data!.isEmpty) {
-                                        return const Center(
-                                            child: Text(
-                                          'No foods available.',
-                                          style: TextStyle(
-                                              fontFamily: 'SourceSans3',
-                                              fontSize: 24),
-                                        ));
-                                      } else {
-                                        return FoodsTab(
-                                          foods: snapshot.data,
-                                        );
-                                      }
-                                    }),
+                                FoodsTab(
+                                  isUser: true,
+                                  searchQuery: _searchQuery,
+                                ),
+                                FoodsTab(
+                                  isUser: false,
+                                  searchQuery: _searchQuery,
+                                )
                               ],
                             ),
                           ),
@@ -240,7 +214,7 @@ class _FoodsPageState extends State<FoodsPage>
                       // Nếu nút di chuyển ra ngoài kích thước màn hình thì ẩn nút đi
                       setState(() {
                         _floatingButtonOffset =
-                            const Offset(0, 0); // Đặt lại vị trí ban đầu
+                            const Offset(300, 780); // Đặt lại vị trí ban đầu
                       });
                     }
                   },
@@ -248,7 +222,11 @@ class _FoodsPageState extends State<FoodsPage>
                     onPressed: () {
                       RouterCustom.router
                           .pushNamed('add-food')
-                          .then((_) => setState(() {}));
+                          .then((_) => setState(() {
+                                // _foods = _fetchFood();
+                                // _userFoods = _fetchUserFood();
+                                _refreshFoods;
+                              }));
                     },
                     shape: const CircleBorder(),
                     backgroundColor: HexColor("BBB7EA"),

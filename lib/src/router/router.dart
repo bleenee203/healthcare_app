@@ -2,9 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
+import 'package:healthcare_app/src/presentation/pages/food_detail_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/nutrition_screen.dart';
@@ -101,10 +103,6 @@ class RouterCustom {
           path: '/profile',
           name: 'profile',
           builder: (BuildContext context, GoRouterState state) {
-            // final Map<String, dynamic> queryParams = state.pathParameters ?? {};
-            // final User? userData = queryParams.containsKey('userData')
-            //     ? User.fromJson(queryParams['userData'])
-            //     : null;
             final userData = state.extra as User?;
             log("userdata ${userData}");
             return ProfilePage(userData: userData);
@@ -154,6 +152,22 @@ class RouterCustom {
           name: 'add-food',
           builder: (BuildContext context, GoRouterState state) =>
               const AddFoodPage()),
+      GoRoute(
+          path: '/food-detail',
+          name: 'food-detail',
+          builder: (BuildContext context, GoRouterState state) {
+            final foodData = state.extra as Food;
+                          return  FoodDetailPage(food: foodData,);
+
+          }),
+           GoRoute(
+          path: '/update-food',
+          name: 'update-food',
+          builder: (BuildContext context, GoRouterState state) {
+            final foodData = state.extra as Food;
+                          return  AddFoodPage(food: foodData,);
+
+          }),
       GoRoute(
           path: '/sleep-goal',
           name: 'sleep-goal',
