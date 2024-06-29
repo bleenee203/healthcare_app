@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
+import 'package:healthcare_app/src/models/mealModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:healthcare_app/src/services/foodService.dart';
+import 'package:healthcare_app/src/services/mealServices.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 
 import '../bloc/log_meal_bloc.dart';
 
@@ -18,8 +22,9 @@ class FoodsTab extends StatefulWidget {
 
 class _FoodsTabState extends State<FoodsTab> {
   final FoodService foodService = FoodService();
+  final MealService mealService = MealService();
+
   List<Food>? foods;
-  late Future<List<Food>?> _foodsFuture;
 
   Future<List<Food>?> _fetchFood() async {
     if (widget.isUser) {
@@ -55,10 +60,54 @@ class _FoodsTabState extends State<FoodsTab> {
     }
   }
 
+  Future<void> _addfoodofmeal(
+    String? food_id,
+    String? meal_type,
+    String amount,
+    double kcal,
+    DateTime _dateValue,
+  ) async {
+    try {
+      
+      Meal data = Meal(
+          meal_type: meal_type ?? '',
+          food_id: food_id ?? '',
+          amount: int.parse(amount),
+          kcal: kcal,
+          date: _dateValue,
+          isDeleted: false);
+      final result = await mealService.addFood(data);
+      if (result == 'Add food for meal successfully') {
+        Fluttertoast.showToast(
+          msg: result,
+          toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+          gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+          timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+          backgroundColor: Colors.green, // Màu nền của toast
+          textColor: Colors.white, // Màu chữ của toast
+          fontSize: 16.0, // Kích thước chữ của toast
+        );
+        Navigator.of(context).pop();
+      } else {
+        Fluttertoast.showToast(
+          msg: result,
+          toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+          gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+          timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+          backgroundColor: Colors.red, // Màu nền của toast
+          textColor: Colors.white, // Màu chữ của toast
+          fontSize: 16.0, // Kích thước chữ của toast
+        );
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _foodsFuture = _fetchFood();
+    //  logMealBloc = LogMealBloc();
   }
 
   @override
@@ -147,7 +196,7 @@ class _FoodsTabState extends State<FoodsTab> {
             children: <Widget>[
               InkWell(
                 onTap: () {
-                  _showModalBottomSheet(context);
+                  _showModalBottomSheet(context, food);
                 },
                 child: Image.asset('res/images/plus_food.png'),
               ),
@@ -167,7 +216,12 @@ class _FoodsTabState extends State<FoodsTab> {
     );
   }
 
-  void _showModalBottomSheet(BuildContext context) {
+  DateTime _dateValue = DateTime.now();
+
+  void _showModalBottomSheet(BuildContext context, Food food) {
+    TextEditingController _quantityController = TextEditingController();
+    _quantityController.text = "1";
+    double _calKcal = food.kcal;
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -194,20 +248,50 @@ class _FoodsTabState extends State<FoodsTab> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        const Text(
-                          'Táo',
-                          style: TextStyle(
-                              fontFamily: 'SourceSans3',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              (food.food_name),
+                              style: const TextStyle(
+                                  fontFamily: 'SourceSans3',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 24),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                _showDatePicker(context);
+                              },
+                              child: StreamBuilder<DateTime?>(
+                                  stream: logMealBloc.dateStream,
+                                  builder: (context, snapshot) {
+                                    _dateValue =
+                                        snapshot.data ?? DateTime.now();
+                                    return Text(
+                                      (DateFormat('dd/MM/yyyy')
+                                          .format(_dateValue)),
+                                      style: const TextStyle(
+                                          fontFamily: 'SourceSans3',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16),
+                                    );
+                                  }),
+                            ),
+                          ],
                         ),
-                        const Text(
-                          '95 calo',
-                          style: TextStyle(
-                              fontFamily: 'SourceSans3',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16),
-                        ),
+                        StreamBuilder<double?>(
+                            stream: logMealBloc.kcalStream,
+                            builder: (context, snapshot) {
+                              _calKcal = snapshot.data ?? _calKcal;
+                              print(_calKcal);
+                              return Text(
+                                '$_calKcal kcal',
+                                style: const TextStyle(
+                                    fontFamily: 'SourceSans3',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16),
+                              );
+                            }),
                         const Divider(),
                         const Text(
                           'Meal',
@@ -252,26 +336,41 @@ class _FoodsTabState extends State<FoodsTab> {
                                   topLeft: Radius.circular(10),
                                   bottomLeft: Radius.circular(10),
                                 )),
-                            child: const Icon(
-                              Icons.remove,
-                              size: 36,
-                            ),
+                            child: IconButton(
+                                onPressed: () {
+                                  int currentValue =
+                                      int.tryParse(_quantityController.text) ??
+                                          0;
+                                  if (currentValue > 1) {
+                                    _quantityController.text =
+                                        (currentValue - 1).toString();
+                                    logMealBloc.calculateKcal(
+                                        food.kcal * (currentValue - 1));
+                                  }
+                                },
+                                icon: const Icon(Icons.remove, size: 36)),
                           ),
                           const SizedBox(
-                            width: 50,
+                            width: 40,
                           ),
-                          const Expanded(
+                          Expanded(
                             child: TextField(
+                              onChanged: (value) {
+                                int quantity = int.tryParse(value) ?? 1;
+                                logMealBloc.calculateKcal(food.kcal * quantity);
+                              },
+                              textAlign: TextAlign.center,
+                              controller: _quantityController,
                               keyboardType: TextInputType.number,
                               maxLines: 1,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontFamily: 'SourceSans3',
                                   fontWeight: FontWeight.w600,
                                   fontSize: 24),
                             ),
                           ),
                           const SizedBox(
-                            width: 50,
+                            width: 40,
                           ),
                           Container(
                             padding: const EdgeInsets.all(12),
@@ -281,16 +380,38 @@ class _FoodsTabState extends State<FoodsTab> {
                                   topRight: Radius.circular(10),
                                   bottomRight: Radius.circular(10),
                                 )),
-                            child: const Icon(
-                              Icons.add,
-                              size: 36,
+                            child: IconButton(
+                              onPressed: () {
+                                int currentValue =
+                                    int.tryParse(_quantityController.text) ?? 0;
+                                _quantityController.text =
+                                    (currentValue + 1).toString();
+                                print(currentValue);
+                                logMealBloc.calculateKcal(
+                                    food.kcal * (currentValue + 1));
+                              },
+                              icon: const Icon(
+                                Icons.add,
+                                size: 36,
+                              ),
                             ),
                           ),
                         ],
                       )),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    print(logMealBloc.selectedOption);
+                    double kcal = food.kcal *
+                        (double.tryParse(_quantityController.text) ?? 0);
+                    _addfoodofmeal(
+                      food.id,
+                      logMealBloc.selectedOption,
+                      _quantityController.text,
+                      kcal,
+                      _dateValue,
+                    );
+                  },
                   style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all(HexColor("BBB7EA")),
@@ -353,7 +474,19 @@ class _FoodsTabState extends State<FoodsTab> {
 
   @override
   void dispose() {
-    logMealBloc.dispose();
+    // logMealBloc.dispose();
     super.dispose();
+  }
+
+  void _showDatePicker(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1800),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      logMealBloc.changeDate(picked);
+    }
   }
 }

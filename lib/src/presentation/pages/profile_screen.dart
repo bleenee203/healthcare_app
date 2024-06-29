@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/services/userService.dart';
 import 'package:intl/intl.dart';
@@ -413,16 +412,14 @@ class _ProfilePage extends State<ProfilePage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Map<String, dynamic> jsonData = {
-                    'phone': _phone.text,
-                    'fullname': _fullname.text,
-                    'gender': _gendervalue,
-                    'career': _career.text,
-                    'birthday': _dateController.text,
-                    'cccd': _idnum.text,
-                    'blood_type': _bloodtype.text
-                  };
-                  final newData = User.fromJson(jsonData);
+                  User newData = User(
+                      phone: _phone.text,
+                      fullname: _fullname.text,
+                      gender: _gendervalue,
+                      career: _career.text,
+                      birthday: _parseDate(_dateController.text),
+                      cccd: _idnum.text,
+                      blood_type: _bloodtype.text);
                   // print(newData.birthday);
                   _updateUserData(newData);
                 },
