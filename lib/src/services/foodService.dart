@@ -246,6 +246,7 @@ class FoodService {
     }
     try {
       final newData = updateData.toJson();
+      print(Uri.parse('${url}food/update-food/$id'));
       final response = await http.patch(
         Uri.parse('${url}food/update-food/$id'),
         body: jsonEncode({'newData': newData}),

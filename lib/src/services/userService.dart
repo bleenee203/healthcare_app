@@ -51,6 +51,8 @@ class UserService {
       );
       if (response.statusCode == 200) {
         final Map<String?, dynamic> jsonResponse = jsonDecode(response.body);
+        prefs.setDouble(
+            'calo_target', (jsonResponse['user']['calo_target']).toDouble());
         return User.fromJson(jsonResponse['user']);
       } else {
         throw Exception('Failed to load user data');

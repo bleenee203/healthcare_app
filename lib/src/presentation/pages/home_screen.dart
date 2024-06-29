@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/ImageSliderWithDots.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/userService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -17,6 +18,14 @@ class HomePage extends StatefulWidget {
 class _HomePage extends State<HomePage> {
   final GlobalKey _targetWidgetKey = GlobalKey();
   final ScrollController _scrollController = ScrollController();
+  final UserService userService = UserService();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    final user =  userService.fetchUserData();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return ListView(controller: _scrollController, children: <Widget>[

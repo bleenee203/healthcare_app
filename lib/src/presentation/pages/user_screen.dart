@@ -313,7 +313,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                             ),
                           ),
                           const Padding(
-                            padding: EdgeInsets.only(top: 50, bottom: 8),
+                            padding: EdgeInsets.only(top: 20, bottom: 8),
                             child: Text(
                               "GOALS",
                               //textAlign: TextAlign.left,
@@ -328,11 +328,14 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                               Positioned(
                                   top: 0,
                                   right: 0,
-                                  child: Image.asset("res/images/female.png")),
+                                  child: userData?.gender == true
+                                      ? Image.asset("res/images/female.png")
+                                      : Image.asset("res/images/male.png")),
                               Column(
                                 children: [
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/water-glass-solid.png"),
                                     title: const Row(
                                       children: [
@@ -363,8 +366,8 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                     ),
                                   ),
                                   ListTile(
-                                    leading:
-                                        Image.asset("res/images/run-solid.png"),
+                                    leading: Image.asset(
+                                        width: 28, "res/images/run-solid.png"),
                                     title: const Row(
                                       children: [
                                         Text(
@@ -395,6 +398,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/stretching-exercises-solid.png"),
                                     title: const Row(
                                       children: [
@@ -426,6 +430,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/location-solid.png"),
                                     title: const Row(
                                       children: [
@@ -457,6 +462,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/sleep-solid.png"),
                                     title: const Row(
                                       children: [
@@ -488,20 +494,21 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/calories-solid.png"),
-                                    title: const Row(
+                                    title: Row(
                                       children: [
                                         Text(
-                                          "1.922",
-                                          style: TextStyle(
+                                          '${userData?.calo_target}',
+                                          style: const TextStyle(
                                               fontFamily: "SourceSans3",
                                               fontWeight: FontWeight.w600,
                                               fontSize: 20),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 6,
                                         ),
-                                        Text(
+                                        const Text(
                                           "cal",
                                           style: TextStyle(
                                             fontFamily: "SourceSans3",
