@@ -142,8 +142,12 @@ class RouterCustom {
       GoRoute(
           path: '/set-water-goal',
           name: 'set-water-goal',
-          builder: (BuildContext context, GoRouterState state) =>
-              const WaterSetGoalPage()),
+          builder: (BuildContext context, GoRouterState state) {
+            final water_target = state.extra as int;
+            return WaterSetGoalPage(
+              water_target: water_target,
+            );
+          }),
       GoRoute(
           path: '/nutrition',
           name: 'nutrition',
@@ -164,16 +168,18 @@ class RouterCustom {
           name: 'food-detail',
           builder: (BuildContext context, GoRouterState state) {
             final foodData = state.extra as Food;
-                          return  FoodDetailPage(food: foodData,);
-
+            return FoodDetailPage(
+              food: foodData,
+            );
           }),
-           GoRoute(
+      GoRoute(
           path: '/update-food',
           name: 'update-food',
           builder: (BuildContext context, GoRouterState state) {
             final foodData = state.extra as Food;
-                          return  AddFoodPage(food: foodData,);
-
+            return AddFoodPage(
+              food: foodData,
+            );
           }),
       GoRoute(
           path: '/sleep-goal',

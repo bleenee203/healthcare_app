@@ -1,26 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/userService.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class WaterSetGoalPage extends StatefulWidget {
-  const WaterSetGoalPage({super.key});
+  final int? water_target;
+  const WaterSetGoalPage({super.key, this.water_target});
 
   @override
   State<StatefulWidget> createState() => _WaterSetGoalPage();
 }
 
 class _WaterSetGoalPage extends State<WaterSetGoalPage> {
-  int _water_goal = 2000;
+  final TextEditingController _waterController = TextEditingController();
+  final UserService userService = UserService();
+  late int _water_goal;
+  Future<User?> _updateUserData(newData) async {
+    final user = await userService.updateUserData(newData);
+    if (user != null) {
+      Fluttertoast.showToast(
+        msg: "Set goal successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    }
+  }
+
   void _incrementCounter() {
     setState(() {
       _water_goal++;
+      _waterController.text = _water_goal.toString();
     });
   }
 
   void _decrementCounter() {
     setState(() {
       _water_goal--;
+      _waterController.text = _water_goal.toString();
     });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _water_goal = widget.water_target ?? 2000;
+    _waterController.text = _water_goal.toString();
   }
 
   @override
@@ -80,8 +109,11 @@ class _WaterSetGoalPage extends State<WaterSetGoalPage> {
                   const SizedBox(
                     height: 100,
                   ),
-                  Text(
-                    '$_water_goal',
+                  TextField(
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    controller: _waterController,
+                    decoration: const InputDecoration(border: InputBorder.none),
                     style: const TextStyle(
                         fontFamily: "SourceSans3",
                         fontWeight: FontWeight.w900,
@@ -107,7 +139,32 @@ class _WaterSetGoalPage extends State<WaterSetGoalPage> {
                             child: const Icon(Icons.remove)),
                       )
                     ],
-                  )
+                  ),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        User data = User(
+                            water_target: int.parse(_waterController.text));
+                        _updateUserData(data);
+                      },
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(HexColor("BBB7EA")),
+                          foregroundColor:
+                              MaterialStateProperty.all(Colors.white)),
+                      child: const Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 88),
+                        child: Text(
+                          'SET GOAL',
+                          style: TextStyle(
+                              fontFamily: 'SourceSans3',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -31,7 +31,6 @@ class _MonthWaterTab extends State<MonthWaterTab> {
       for (DateTime i = day;
           i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
           i = i.subtract(const Duration(days: 1))) {
-        //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
         daysOfWeek.add(i);
       }
     }
