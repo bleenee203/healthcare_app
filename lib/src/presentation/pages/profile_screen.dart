@@ -176,7 +176,7 @@ class _ProfilePage extends State<ProfilePage> {
                                 ? "Female"
                                 : (widget.userData?.gender == false
                                     ? "Male"
-                                    : "Unknown")),
+                                    : "")),
                         const SizedBox(
                           height: 10,
                         ),

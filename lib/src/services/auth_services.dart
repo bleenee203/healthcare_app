@@ -33,6 +33,7 @@ void loginUser(
         }
         prefs.setString('accessToken', jsonResponse['accessToken']);
         prefs.setString('email', jsonResponse['loginuser']['email']);
+        prefs.setString('userId', jsonResponse['loginuser']['_id']);
         print(prefs.getString('refreshToken'));
         print(prefs.getString('email'));
         showSuccessSnackBar('SUCCES', 'Login success', context);
@@ -93,6 +94,7 @@ void logoutUser() async {
       prefs.remove('accessToken');
       prefs.remove('refreshToken');
       prefs.remove('email');
+      prefs.remove('userId');
       print('Logout success');
     } else {
       print('Logout failed: ${logoutResponse.body}');
