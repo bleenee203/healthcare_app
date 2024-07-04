@@ -193,7 +193,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                                     ? "Female"
                                                     : (userData?.gender == false
                                                         ? "Male"
-                                                        : "Unknown"),
+                                                        : ""),
                                                 style: const TextStyle(
                                                     fontFamily: "SourceSans3",
                                                     fontWeight: FontWeight.w700,
