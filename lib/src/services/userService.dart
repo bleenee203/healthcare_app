@@ -69,6 +69,7 @@ class UserService {
     String? accessToken = prefs.getString('accessToken');
     String? refreshToken = prefs.getString('refreshToken');
     String? userId = prefs.getString('userId');
+    print("UserID ne: $userId");
     var url = dotenv.env['URL'];
     if (accessToken == null || refreshToken == null) {
       print('Missing access token or refresh token');
