@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/thum_shape.dart';
 import 'package:healthcare_app/src/services/userService.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/auth_services.dart';
 
@@ -16,7 +17,6 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePage extends State<UserProfilePage> with RouteAware {
-  // late SharedPreferences prefs;
   User? userData;
   late int? age = -1;
   final UserService userService = UserService();
@@ -337,19 +337,21 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                     leading: Image.asset(
                                         width: 28,
                                         "res/images/water-glass-solid.png"),
-                                    title: const Row(
+                                    title: Row(
                                       children: [
                                         Text(
-                                          "2000",
-                                          style: TextStyle(
+                                          userData?.water_target != null
+                                              ? "${userData?.water_target}"
+                                              : "No data",
+                                          style: const TextStyle(
                                               fontFamily: "SourceSans3",
                                               fontWeight: FontWeight.w600,
                                               fontSize: 20),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 6,
                                         ),
-                                        Text(
+                                        const Text(
                                           "ml",
                                           style: TextStyle(
                                             fontFamily: "SourceSans3",
@@ -580,10 +582,8 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                           Positioned.fill(
                                             child: Center(
                                               child: Text(
-                                                _lastWeightValue
-                                                        .toStringAsFixed(1) +
-                                                    "kg",
-                                                style: TextStyle(
+                                                "${_lastWeightValue.toStringAsFixed(1)}kg",
+                                                style: const TextStyle(
                                                     fontFamily: "SourceSans3",
                                                     fontSize: 20),
                                               ),

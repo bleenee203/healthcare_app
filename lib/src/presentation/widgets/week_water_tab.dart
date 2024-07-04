@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:healthcare_app/src/presentation/widgets/bar_chart.dart';
+import 'package:healthcare_app/src/services/drinkService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
@@ -12,30 +16,57 @@ class WeekWaterTab extends StatefulWidget {
 }
 
 class _WeekWaterTab extends State<WeekWaterTab> {
+  DrinkService drinkService = DrinkService();
+  List<WaterPoint> points = [];
+
+  Future<List<WaterPoint>> _fetchDrink(String date) async {
+    final List<Map<String, dynamic>> drinks =
+        await drinkService.fetchDrink(date);
+    List<WaterPoint> waterPoints = [];
+    double count = 0;
+    for (var drink in drinks) {
+      int totalAmount = drink['totalAmount'];
+      waterPoints.add(WaterPoint(count, totalAmount.toDouble()));
+      count++;
+    }
+    return waterPoints;
+  }
+
+  Future<void> _addWaterLog(int amount) async {
+    if (await drinkService.addWaterLog(amount)) {
+      Fluttertoast.showToast(
+        msg: "Add water log successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+      setState(() {});
+    } else {
+      Fluttertoast.showToast(
+        msg: "An error occurred while adding the water intake log",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
   late DateTime _datevalue;
-  List<WaterPoint> points = [
-    WaterPoint(0, 1600), // Điểm giá có x = 0 và y = 5
-    WaterPoint(1, 1000), // Điểm giá có x = 1 và y = 8
-    WaterPoint(2, 1400),
-    WaterPoint(3),
-    WaterPoint(4),
-    WaterPoint(5),
-    WaterPoint(6),
-    // Thêm các điểm giá khác tại đây...
-  ];
-  
+
   @override
   void initState() {
     super.initState();
     _datevalue = DateTime.now();
+    _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue));
   }
 
   @override
-  void dispose() {  
+  void dispose() {
     super.dispose();
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -75,7 +106,21 @@ class _WeekWaterTab extends State<WeekWaterTab> {
           const SizedBox(
             height: 78,
           ),
-          BarChartWidget(points: points),
+          FutureBuilder<List<WaterPoint>>(
+            future: _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue)),
+            builder: (BuildContext context,
+                AsyncSnapshot<List<WaterPoint>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Text('No data available');
+              } else {
+                return BarChartWidget(points: snapshot.data!);
+              }
+            },
+          ),
           const SizedBox(
             height: 23,
           ),
@@ -85,7 +130,7 @@ class _WeekWaterTab extends State<WeekWaterTab> {
               "Quick Add For Today",
               style: TextStyle(
                   fontFamily: "SourceSans3",
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700),
             ),
           ),
@@ -95,246 +140,315 @@ class _WeekWaterTab extends State<WeekWaterTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                children: [
-                  Image.asset("res/images/glass-of-water.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 glass",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
+              GestureDetector(
+                onTap: () {
+                  _addWaterLog(250);
+                },
+                child: Column(
+                  children: [
+                    Image.asset("res/images/glass-of-water.png"),
+                    const SizedBox(
+                      height: 13,
                     ),
-                  ),
-                  Text(
-                    "(250 ml)",
-                    style: TextStyle(
+                    const Text(
+                      "1 glass",
+                      style: TextStyle(
                         fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      "(250 ml)",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 14,
+                          color: Colors.black.withOpacity(0.75)),
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                children: [
-                  Image.asset("res/images/bottle.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 bottle",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
+              GestureDetector(
+                onTap: () {
+                  _addWaterLog(500);
+                },
+                child: Column(
+                  children: [
+                    Image.asset("res/images/bottle.png"),
+                    const SizedBox(
+                      height: 13,
                     ),
-                  ),
-                  Text(
-                    "(500 ml)",
-                    style: TextStyle(
+                    const Text(
+                      "1 bottle",
+                      style: TextStyle(
                         fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      "(500 ml)",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 14,
+                          color: Colors.black.withOpacity(0.75)),
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                children: [
-                  Image.asset("res/images/super_bottle.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 super bottle",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
+              GestureDetector(
+                onTap: () {
+                  _addWaterLog(750);
+                },
+                child: Column(
+                  children: [
+                    Image.asset("res/images/super_bottle.png"),
+                    const SizedBox(
+                      height: 13,
                     ),
-                  ),
-                  Text(
-                    "(750 ml)",
-                    style: TextStyle(
+                    const Text(
+                      "1 super bottle",
+                      style: TextStyle(
                         fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      "(750 ml)",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 14,
+                          color: Colors.black.withOpacity(0.75)),
+                    ),
+                  ],
+                ),
               )
             ],
           ),
           const SizedBox(
             height: 28,
           ),
-          const Align(
-            alignment: Alignment.centerLeft,
+          FutureBuilder<List<WaterPoint>>(
+            future: _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue)),
+            builder: (BuildContext context,
+                AsyncSnapshot<List<WaterPoint>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Text('No data available');
+              } else {
+                return Column(
+                  children: [..._buildDayRows(snapshot.data!)],
+                );
+              }
+            },
+          ),
+          const SizedBox(
+            height: 10,
+          )
+        ],
+      ),
+    );
+  }
+
+  String _getDayOfWeek(int index) {
+    switch (index) {
+      case 0:
+        return "Monday";
+      case 1:
+        return "Tuesday";
+      case 2:
+        return "Wednesday";
+      case 3:
+        return "Thursday";
+      case 4:
+        return "Friday";
+      case 5:
+        return "Saturday";
+      case 6:
+        return "Sunday";
+      default:
+        return "";
+    }
+  }
+
+  bool isInSameWeek(DateTime dateToCompare) {
+    int currentWeekNumber =
+        DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays ~/
+            7;
+    int compareWeekNumber =
+        dateToCompare.difference(DateTime(dateToCompare.year, 1, 1)).inDays ~/
+            7;
+    return currentWeekNumber == compareWeekNumber &&
+        DateTime.now().weekday != 7;
+  }
+
+  List<Widget> _buildDayRows(List<WaterPoint> points) {
+    List<Widget> rows = [];
+
+    if (isInSameWeek(_datevalue)) {
+      rows.add(
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Today",
+            style: TextStyle(
+                fontFamily: "SourceSans3",
+                fontSize: 20,
+                fontWeight: FontWeight.w700),
+          ),
+        ),
+      );
+      rows.add(
+        const SizedBox(
+          height: 15,
+        ),
+      );
+      var filteredPoints = points.reversed
+          .where((point) => point.x <= DateTime.now().weekday - 1)
+          .toList();
+      rows.add(Row(
+        children: [
+          Image.asset("res/images/glass-of-water.png"),
+          const SizedBox(
+            width: 10,
+          ),
+          Baseline(
+            baseline: 30.0,
+            baselineType: TextBaseline.alphabetic,
             child: Text(
-              "Today",
-              style: TextStyle(
+              "${filteredPoints.first.y.toInt()}",
+              style: const TextStyle(
                   fontFamily: "SourceSans3",
-                  fontSize: 18,
+                  fontSize: 24,
                   fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(
-            height: 23,
+            width: 2,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Image.asset("res/images/glass-of-water.png"),
-              const Text(
-                "1000",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
+          const Baseline(
+            baseline: 30.0, // Adjust to a common baseline value for all text
+            baselineType: TextBaseline.alphabetic,
+            child: Text(
+              "ml of your ",
+              style: TextStyle(
+                fontFamily: "SourceSans3",
+                fontSize: 16,
               ),
-              const Text(
-                "ml of your ",
-                style: TextStyle(
+            ),
+          ),
+          const SizedBox(
+            width: 2,
+          ),
+          Baseline(
+            baseline: 30.0, // Adjust to a common baseline value for all text
+            baselineType: TextBaseline.alphabetic,
+            child: const Text(
+              "2000",
+              style: TextStyle(
                   fontFamily: "SourceSans3",
-                  fontSize: 16,
-                ),
-              ),
-              const Text(
-                "2000",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
-              ),
-              const Text(
-                "ml goal",
-                style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                ),
-              ),
-              Image.asset("res/images/target.png")
-            ],
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700),
+            ),
           ),
-          const Divider(
-            thickness: 1,
+          const SizedBox(
+            width: 2,
           ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Th5",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
+          const Baseline(
+            baseline: 30.0, // Adjust to a common baseline value for all text
+            baselineType: TextBaseline.alphabetic,
+            child: Text(
+              "ml goal",
+              style: TextStyle(
+                fontFamily: "SourceSans3",
+                fontSize: 16,
               ),
-              SizedBox(
-                width: 60,
-              ),
-              Expanded(
-                child: Text(
-                  "2000ml",
-                  style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const Divider(
-            thickness: 1,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Th4",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(
-                width: 60,
-              ),
-              const Expanded(
-                child: Text(
-                  "2000ml",
-                  style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              Image.asset("res/images/target.png")
-            ],
-          ),
-          const Divider(
-            thickness: 1,
-          ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Th3",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
-              ),
-              SizedBox(
-                width: 60,
-              ),
-              Expanded(
-                child: Text(
-                  "2000ml",
-                  style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const Divider(
-            thickness: 1,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Th2",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(
-                width: 60,
-              ),
-              const Expanded(
-                child: Text(
-                  "2000ml",
-                  style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              Image.asset("res/images/target.png")
-            ],
+            ),
           ),
         ],
-      ),
-    );
-    
+      ));
+      rows.add(const Divider(
+        thickness: 1,
+      ));
+      for (int i = 1; i < filteredPoints.length; i++) {
+        var point = filteredPoints[i];
+        rows.add(Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                _getDayOfWeek(point.x.toInt()),
+                style: const TextStyle(
+                  fontFamily: "SourceSans3",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 60,
+            ),
+            Expanded(
+              child: Text(
+                "${point.y.toInt()}ml",
+                style: const TextStyle(
+                  fontFamily: "SourceSans3",
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ));
+        if (i < filteredPoints.length - 1) {
+          rows.add(const Divider(thickness: 1));
+        }
+      }
+    } else {
+      for (int i = points.length - 1; i >= 0; i--) {
+        var point = points[i];
+        rows.add(Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                _getDayOfWeek(point.x.toInt()),
+                style: const TextStyle(
+                  fontFamily: "SourceSans3",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 60,
+            ),
+            Expanded(
+              child: Text(
+                "${point.y.toInt()} ml",
+                style: const TextStyle(
+                  fontFamily: "SourceSans3",
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ));
+        if (i > 0) {
+          rows.add(const Divider(thickness: 1));
+        }
+      }
+    }
+
+    return rows;
   }
+
   void _moveToPreviousWeek(BuildContext context) {
     DateTime lastweek = _datevalue.subtract(Duration(days: 7));
     setState(() {
       _datevalue = lastweek;
     });
+    _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue));
   }
 
   void _moveToNextWeek(BuildContext context) {
@@ -343,17 +457,12 @@ class _WeekWaterTab extends State<WeekWaterTab> {
       _datevalue = nextweek;
     });
   }
+
   String getWeekRangeString(DateTime date) {
-    // Lấy ngày đầu tiên của tuần (Chủ nhật)
     DateTime firstDayOfWeek = date.subtract(Duration(days: date.weekday - 1));
-
-    // Lấy ngày cuối cùng của tuần (Thứ bảy)
     DateTime lastDayOfWeek = firstDayOfWeek.add(Duration(days: 6));
-
-    // Biến đổi ngày thành chuỗi
     String firstDayString = DateFormat('MMMM d').format(firstDayOfWeek);
     String lastDayString = DateFormat('MMMM d').format(lastDayOfWeek);
-
     return '$firstDayString - $lastDayString';
   }
 }

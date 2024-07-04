@@ -1,12 +1,16 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/ImageSliderWithDots.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/mealServices.dart';
 import 'package:healthcare_app/src/services/userService.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,13 +23,56 @@ class _HomePage extends State<HomePage> {
   final GlobalKey _targetWidgetKey = GlobalKey();
   final ScrollController _scrollController = ScrollController();
   final UserService userService = UserService();
+  final MealService mealService = MealService();
+  final DateTime _datevalue = DateTime.now();
+  double calorieIn = 0;
+  double calorieOut = 0;
+  double calorieNeeded = 0;
+  double calorieTarget = 0;
+  double percent = 0;
+  late SharedPreferences prefs;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    final user =  userService.fetchUserData();
+    final user = userService.fetchUserData();
+    initSharedPref().then((_) {
+      calorieTarget = prefs.getDouble('calo_target')!;
+      _updateCalorie(DateFormat('dd/MM/yyyy').format(_datevalue));
+    });
   }
-  
+
+  Future<void> initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchfoodofmeal(String date) async {
+    final List<Map<String, dynamic>> meals = await mealService.fetchMeal(date);
+    return meals;
+  }
+
+  Future<void> _updateCalorie(String date) async {
+    final meals = await _fetchfoodofmeal(date);
+    double totalCalories = meals.fold(0.0, (sum, meal) {
+      double kcal = meal['kcal'].toDouble();
+      return sum + kcal;
+    });
+    setState(() {
+      calorieIn = totalCalories;
+      calorieNeeded = prefs.getDouble('calo_target')! - calorieIn + calorieOut;
+      percent = calculatePercent(calorieNeeded, calorieTarget);
+    });
+  }
+
+  double calculatePercent(double calorieNeeded, double? calorieTarget) {
+    if (calorieNeeded > 0) {
+      double percent = (calorieTarget! - calorieNeeded) / calorieTarget;
+      return percent.clamp(0.0, 1.0);
+    }
+    return -1;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(controller: _scrollController, children: <Widget>[
@@ -490,8 +537,12 @@ class _HomePage extends State<HomePage> {
                             width: constraint.maxWidth /
                                 4, // Chia đều không gian cho 4 cột
                             child: GestureDetector(
-                              onTap: () =>
-                                  RouterCustom.router.pushNamed("nutrition"),
+                              onTap: () => RouterCustom.router
+                                  .pushNamed("nutrition")
+                                  .then((_) => setState(() {
+                                        _updateCalorie(DateFormat('dd/MM/yyyy')
+                                            .format(_datevalue));
+                                      })),
                               child: Column(
                                 children: [
                                   Image.asset("res/images/image2_3434.png"),
@@ -774,320 +825,724 @@ class _HomePage extends State<HomePage> {
                 children: [
                   Flexible(
                     child: SizedBox(
-                      height: 210,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              HexColor('#FFB094'),
-                              HexColor('#FFE5F8'),
-                            ],
+                        height: 210,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                HexColor('#FFB094'),
+                                HexColor('#FFE5F8'),
+                              ],
+                            ),
                           ),
-                        ),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(left: 12, top: 14),
-                                child: Text(
-                                  "Nutrion",
-                                  style: TextStyle(
-                                      fontFamily: "SourceSans3",
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 9,
-                              ),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  physics: AlwaysScrollableScrollPhysics(),
-                                  child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Card.filled(
-                                          elevation: 0,
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(6.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Breakfast",
-                                                  style: TextStyle(
-                                                      fontFamily: "SourceSans3",
-                                                      fontSize: 12,
-                                                      color:
-                                                          HexColor("F18872")),
-                                                ),
-                                                const SizedBox(
-                                                  height: 8,
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Táo",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "95kcal",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 11,
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Táo",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "95kcal",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 11,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Card.filled(
-                                          elevation: 0,
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(6.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Lunch",
-                                                  style: TextStyle(
-                                                      fontFamily: "SourceSans3",
-                                                      fontSize: 12,
-                                                      color:
-                                                          HexColor("F18872")),
-                                                ),
-                                                const SizedBox(
-                                                  height: 8,
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Táo",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "95kcal",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 11,
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Táo",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "95kcal",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 11,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Card.filled(
-                                          elevation: 0,
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(6.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Dinner",
-                                                  style: TextStyle(
-                                                      fontFamily: "SourceSans3",
-                                                      fontSize: 12,
-                                                      color:
-                                                          HexColor("F18872")),
-                                                ),
-                                                const SizedBox(
-                                                  height: 8,
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Táo",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "95kcal",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 11,
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Táo",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "95kcal",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              "SourceSans3",
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 12, top: 14),
+                                  child: Text(
+                                    "Nutrition",
+                                    style: TextStyle(
+                                        fontFamily: "SourceSans3",
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(
-                                height: 14,
-                              )
-                            ]),
-                      ),
-                    ),
+                                const SizedBox(
+                                  height: 9,
+                                ),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    physics: AlwaysScrollableScrollPhysics(),
+                                    child: FutureBuilder<
+                                            List<Map<String, dynamic>>>(
+                                        future: _fetchfoodofmeal(
+                                            DateFormat('dd/MM/yyyy')
+                                                .format(_datevalue)),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<
+                                                    List<Map<String, dynamic>>>
+                                                snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return Container(
+                                              width: 1,
+                                              height: 1,
+                                            );
+                                          } else if (snapshot.hasError) {
+                                            return Center(
+                                              child: Text(
+                                                'Error: ${snapshot.error}',
+                                                style: const TextStyle(
+                                                    fontFamily: 'SourceSans3',
+                                                    fontSize: 24),
+                                              ),
+                                            );
+                                          } else if (!snapshot.hasData ||
+                                              snapshot.data!.isEmpty) {
+                                            return Column(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Breakfast",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const Center(
+                                                            child: Text(
+                                                                "No data",
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      "SourceSans3",
+                                                                  fontSize: 12,
+                                                                )),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Lunch",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const Center(
+                                                            child: Text(
+                                                                "No data",
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      "SourceSans3",
+                                                                  fontSize: 12,
+                                                                )),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Dinner",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const Center(
+                                                            child: Text(
+                                                                "No data",
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      "SourceSans3",
+                                                                  fontSize: 12,
+                                                                )),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Snack",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const Center(
+                                                            child: Text(
+                                                                "No data",
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      "SourceSans3",
+                                                                  fontSize: 12,
+                                                                )),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          } else {
+                                            List<Map<String, dynamic>>
+                                                breakfast_meals = snapshot.data!
+                                                    .where((meal) =>
+                                                        meal['meal_type'] ==
+                                                        'Breakfast')
+                                                    .toList();
+                                            List<Map<String, dynamic>>
+                                                lunch_meals = snapshot.data!
+                                                    .where((meal) =>
+                                                        meal['meal_type'] ==
+                                                        'Lunch')
+                                                    .toList();
+                                            List<Map<String, dynamic>>
+                                                dinner_meals = snapshot.data!
+                                                    .where((meal) =>
+                                                        meal['meal_type'] ==
+                                                        'Dinner')
+                                                    .toList();
+                                            List<Map<String, dynamic>>
+                                                snack_meals = snapshot.data!
+                                                    .where((meal) =>
+                                                        meal['meal_type'] ==
+                                                        'Snack')
+                                                    .toList();
+                                            return Column(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Breakfast",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 15.0),
+                                                            child: breakfast_meals
+                                                                    .isEmpty
+                                                                ? const Padding(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            32),
+                                                                    child: Text(
+                                                                      "No Data",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            "SourceSans3",
+                                                                        fontSize:
+                                                                            12,
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : ListView(
+                                                                    shrinkWrap:
+                                                                        true,
+                                                                    children: [
+                                                                      for (var i =
+                                                                              0;
+                                                                          i < breakfast_meals.length;
+                                                                          i++) ...[
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            Flexible(
+                                                                              child: Text(
+                                                                                '${breakfast_meals[i]['food_name']}',
+                                                                                style: const TextStyle(
+                                                                                  fontFamily: "SourceSans3",
+                                                                                  fontSize: 12,
+                                                                                ),
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 5,
+                                                                            ),
+                                                                            Text(
+                                                                              "${breakfast_meals[i]['kcal']}cal",
+                                                                              style: const TextStyle(
+                                                                                fontFamily: "SourceSans3",
+                                                                                fontSize: 12,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        if (i <
+                                                                            breakfast_meals.length -
+                                                                                1)
+                                                                          const SizedBox(
+                                                                              height: 8), // Khoảng cách giữa các phần tử
+                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Lunch",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 15.0),
+                                                            child: lunch_meals
+                                                                    .isEmpty
+                                                                ? const Padding(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            32),
+                                                                    child: Text(
+                                                                      "No Data",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            "SourceSans3",
+                                                                        fontSize:
+                                                                            12,
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : ListView(
+                                                                    shrinkWrap:
+                                                                        true,
+                                                                    children: [
+                                                                      for (var i =
+                                                                              0;
+                                                                          i < lunch_meals.length;
+                                                                          i++) ...[
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            Flexible(
+                                                                              child: Text(
+                                                                                '${lunch_meals[i]['food_name']}',
+                                                                                style: const TextStyle(
+                                                                                  fontFamily: "SourceSans3",
+                                                                                  fontSize: 12,
+                                                                                ),
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 5,
+                                                                            ),
+                                                                            Text(
+                                                                              "${lunch_meals[i]['kcal']}cal",
+                                                                              style: const TextStyle(
+                                                                                fontFamily: "SourceSans3",
+                                                                                fontSize: 12,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        if (i <
+                                                                            lunch_meals.length -
+                                                                                1)
+                                                                          const SizedBox(
+                                                                              height: 8), // Khoảng cách giữa các phần tử
+                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Dinner",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 15.0),
+                                                            child: dinner_meals
+                                                                    .isEmpty
+                                                                ? const Padding(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            32),
+                                                                    child: Text(
+                                                                      "No Data",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            "SourceSans3",
+                                                                        fontSize:
+                                                                            12,
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : ListView(
+                                                                    shrinkWrap:
+                                                                        true,
+                                                                    children: [
+                                                                      for (var i =
+                                                                              0;
+                                                                          i < dinner_meals.length;
+                                                                          i++) ...[
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            Flexible(
+                                                                              child: Text(
+                                                                                '${dinner_meals[i]['food_name']}',
+                                                                                style: const TextStyle(
+                                                                                  fontFamily: "SourceSans3",
+                                                                                  fontSize: 12,
+                                                                                ),
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 5,
+                                                                            ),
+                                                                            Text(
+                                                                              "${dinner_meals[i]['kcal']}cal",
+                                                                              style: const TextStyle(
+                                                                                fontFamily: "SourceSans3",
+                                                                                fontSize: 12,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        if (i <
+                                                                            dinner_meals.length -
+                                                                                1)
+                                                                          const SizedBox(
+                                                                              height: 8), // Khoảng cách giữa các phần tử
+                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 11,
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12),
+                                                  child: Card.filled(
+                                                    elevation: 0,
+                                                    color: Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              6.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Snack",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "SourceSans3",
+                                                                fontSize: 12,
+                                                                color: HexColor(
+                                                                    "F18872")),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 15.0),
+                                                            child: snack_meals
+                                                                    .isEmpty
+                                                                ? const Padding(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            32),
+                                                                    child: Text(
+                                                                      "No Data",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            "SourceSans3",
+                                                                        fontSize:
+                                                                            12,
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : ListView(
+                                                                    shrinkWrap:
+                                                                        true,
+                                                                    children: [
+                                                                      for (var i =
+                                                                              0;
+                                                                          i < snack_meals.length;
+                                                                          i++) ...[
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            Flexible(
+                                                                              child: Text(
+                                                                                '${snack_meals[i]['food_name']}',
+                                                                                style: const TextStyle(
+                                                                                  fontFamily: "SourceSans3",
+                                                                                  fontSize: 12,
+                                                                                ),
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 5,
+                                                                            ),
+                                                                            Text(
+                                                                              "${snack_meals[i]['kcal']}cal",
+                                                                              style: const TextStyle(
+                                                                                fontFamily: "SourceSans3",
+                                                                                fontSize: 12,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        if (i <
+                                                                            snack_meals.length -
+                                                                                1)
+                                                                          const SizedBox(
+                                                                              height: 8), // Khoảng cách giữa các phần tử
+                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            );
+                                          }
+                                        }),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 14,
+                                )
+                              ]),
+                        )),
                   ),
                   const SizedBox(
                     width: 20,
@@ -1372,9 +1827,9 @@ class _HomePage extends State<HomePage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          const Text(
-                                            '5460',
-                                            style: TextStyle(
+                                          Text(
+                                            '$calorieNeeded',
+                                            style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700),
                                           ),
@@ -1400,9 +1855,9 @@ class _HomePage extends State<HomePage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    const Text(
-                                      '5460',
-                                      style: TextStyle(
+                                    Text(
+                                      '$calorieIn',
+                                      style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700),
                                     ),
@@ -1423,9 +1878,9 @@ class _HomePage extends State<HomePage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    const Text(
-                                      '5460',
-                                      style: TextStyle(
+                                    Text(
+                                      '$calorieOut',
+                                      style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700),
                                     ),

@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/userService.dart';
 import 'package:hexcolor/hexcolor.dart';
-
 
 class WaterGoalPage extends StatefulWidget {
   const WaterGoalPage({super.key});
@@ -12,6 +14,13 @@ class WaterGoalPage extends StatefulWidget {
 }
 
 class _WaterGoalPage extends State<WaterGoalPage> {
+  final UserService userService = UserService();
+  int? water_target;
+  Future<User?> _fetchUserData() async {
+    final user = await userService.fetchUserData();
+    return user;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -81,8 +90,9 @@ class _WaterGoalPage extends State<WaterGoalPage> {
                     height: 25,
                   ),
                   GestureDetector(
-                    onTap: () =>
-                        RouterCustom.router.pushNamed('set-water-goal'),
+                    onTap: () => RouterCustom.router
+                        .pushNamed('set-water-goal', extra: water_target)
+                        .then((_) => setState(() {})),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -91,13 +101,43 @@ class _WaterGoalPage extends State<WaterGoalPage> {
                           style: TextStyle(
                               fontSize: 20, fontFamily: "SourceSans3"),
                         ),
-                        Text(
-                          "2000 ml",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black.withOpacity(0.75),
-                              fontFamily: "SourceSans3"),
-                        ),
+                        FutureBuilder<User?>(
+                            future: _fetchUserData(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<User?> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                    'Error: ${snapshot.error}',
+                                    style: const TextStyle(
+                                        fontFamily: 'SourceSans3',
+                                        fontSize: 24),
+                                  ),
+                                );
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data?.water_target == null) {
+                                return Text(
+                                  "No data",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black.withOpacity(0.75),
+                                      fontFamily: "SourceSans3"),
+                                );
+                              } else {
+                                User? user = snapshot.data;
+                                water_target = user?.water_target;
+                                return Text(
+                                  "${user?.water_target}",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black.withOpacity(0.75),
+                                      fontFamily: "SourceSans3"),
+                                );
+                              }
+                            }),
                       ],
                     ),
                   ),

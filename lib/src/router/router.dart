@@ -135,8 +135,12 @@ class RouterCustom {
       GoRoute(
           path: '/set-water-goal',
           name: 'set-water-goal',
-          builder: (BuildContext context, GoRouterState state) =>
-              const WaterSetGoalPage()),
+          builder: (BuildContext context, GoRouterState state) {
+            final water_target = state.extra as int;
+            return WaterSetGoalPage(
+              water_target: water_target,
+            );
+          }),
       GoRoute(
           path: '/nutrition',
           name: 'nutrition',
@@ -157,42 +161,44 @@ class RouterCustom {
           name: 'food-detail',
           builder: (BuildContext context, GoRouterState state) {
             final foodData = state.extra as Food;
-                          return  FoodDetailPage(food: foodData,);
-
+            return FoodDetailPage(
+              food: foodData,
+            );
           }),
-           GoRoute(
+      GoRoute(
           path: '/update-food',
           name: 'update-food',
           builder: (BuildContext context, GoRouterState state) {
             final foodData = state.extra as Food;
-                          return  AddFoodPage(food: foodData,);
-
+            return AddFoodPage(
+              food: foodData,
+            );
           }),
       GoRoute(
           path: '/sleep-goal',
           name: 'sleep-goal',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepGoalPage()),
+              const SleepGoalPage()),
       GoRoute(
           path: '/set-sleep-goal',
           name: 'set-sleep-goal',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepSetGoalPage()),
+              const SleepSetGoalPage()),
       GoRoute(
           path: '/set-sleep-start',
           name: 'set-sleep-start',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepSetStartPage()),
+              const SleepSetStartPage()),
       GoRoute(
           path: '/forum-post',
           name: 'forum-post',
           builder: (BuildContext context, GoRouterState state) =>
-          const ForumPost()),
+              const ForumPost()),
       GoRoute(
           path: '/sleep',
           name: 'sleep',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepPage()),
+              const SleepPage()),
     ],
   );
 }
