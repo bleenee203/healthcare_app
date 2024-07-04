@@ -69,9 +69,9 @@ class _splashState extends State<splash> with SingleTickerProviderStateMixin {
             const SizedBox(
               height: 0,
             ),
-            FadeAnimation(
+            const FadeAnimation(
               1,
-              const SizedBox(
+              SizedBox(
                 width: 300,
                 child: Align(
                   child: Text(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:http/http.dart';
 
 import '../bloc/log_meal_bloc.dart';
 
@@ -205,8 +204,8 @@ class _FoodsTabState extends State<FoodsTab> {
                   onPressed: () {},
                   style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all(HexColor("BBB7EA")),
-                      foregroundColor: MaterialStateProperty.all(Colors.white)),
+                          WidgetStateProperty.all(HexColor("BBB7EA")),
+                      foregroundColor: WidgetStateProperty.all(Colors.white)),
                   child: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 88),
                     child: Text(

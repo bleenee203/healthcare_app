@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -205,7 +204,7 @@ class _SleepGoalPage extends State<SleepGoalPage> {
                   ),
                   GestureDetector(
                     onTap: () {},
-                    child: Container(
+                    child: SizedBox(
                       width: 340,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,

@@ -1,6 +1,4 @@
-import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -103,10 +101,8 @@ class _SleepSetStartPage extends State<SleepSetStartPage> {
                             height: 150,
                             child: NotificationListener<ScrollEndNotification>(
                               onNotification: (notification) {
-                                if (notification is ScrollEndNotification) {
-                                  _centerItem(_hoursController, 24);
-                                }
-                                return true;
+                                _centerItem(_hoursController, 24);
+                                                              return true;
                               },
                               child: ListWheelScrollView.useDelegate(
                                 controller: _hoursController,
@@ -153,10 +149,8 @@ class _SleepSetStartPage extends State<SleepSetStartPage> {
                             height: 150,
                             child: NotificationListener<ScrollEndNotification>(
                               onNotification: (notification) {
-                                if (notification is ScrollEndNotification) {
-                                  _centerItem(_minutesController, 60);
-                                }
-                                return true;
+                                _centerItem(_minutesController, 60);
+                                                              return true;
                               },
                               child: ListWheelScrollView.useDelegate(
                                 controller: _minutesController,
@@ -198,9 +192,9 @@ class _SleepSetStartPage extends State<SleepSetStartPage> {
                     alignment: Alignment.bottomCenter,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(344, 60),
-                        padding: EdgeInsets.fromLTRB(68, 16, 68, 16),
-                        backgroundColor: Color(0xFF474672),
+                        fixedSize: const Size(344, 60),
+                        padding: const EdgeInsets.fromLTRB(68, 16, 68, 16),
+                        backgroundColor: const Color(0xFF474672),
                       ),
                       onPressed: () {
                         print("${_hoursController.selectedItem%24} - ${_minutesController.selectedItem%60}");

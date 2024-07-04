@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:healthcare_app/src/services/foodService.dart';
@@ -35,7 +33,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
             content: Text(result),
             actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
                   if (result == 'Food created successfully') {
@@ -147,7 +145,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Name of food',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -175,7 +173,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Ration',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -195,7 +193,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                       return null;
                                     },
                                   )),
-                                  Text(
+                                  const Text(
                                     'g',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -210,11 +208,11 @@ class _AddFoodPageState extends State<AddFoodPage> {
                           height: 18,
                         ),
                         Container(
-                          padding: EdgeInsets.all(15),
+                          padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Color(0x3F000000),
                                 blurRadius: 4,
@@ -234,7 +232,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
                             children: [
                               TableRow(
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Average nutritional \n'
                                     'value above',
                                     style: TextStyle(
@@ -250,11 +248,11 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                       return null;
                                     },
                                     keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         // contentPadding: EdgeInsets.all(8),
                                         ),
                                   ),
-                                  Text(
+                                  const Text(
                                     'g',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -264,7 +262,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
                               ),
                               TableRow(
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Kcal',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -279,17 +277,17 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                       return null;
                                     },
                                     keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         // contentPadding: EdgeInsets.all(8),
                                         ),
                                   ),
-                                  SizedBox
+                                  const SizedBox
                                       .shrink(), // Placeholder for alignment
                                 ],
                               ),
                               TableRow(
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Fat',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -298,17 +296,17 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                   TextField(
                                     controller: _fatController,
                                     keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         // contentPadding: EdgeInsets.all(8),
                                         ),
                                   ),
-                                  SizedBox
+                                  const SizedBox
                                       .shrink(), // Placeholder for alignment
                                 ],
                               ),
                               TableRow(
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Carbs',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -317,17 +315,17 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                   TextField(
                                     controller: _carbsController,
                                     keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         // contentPadding: EdgeInsets.all(8),
                                         ),
                                   ),
-                                  SizedBox
+                                  const SizedBox
                                       .shrink(), // Placeholder for alignment
                                 ],
                               ),
                               TableRow(
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Protein',
                                     style: TextStyle(
                                         fontFamily: 'SourceSans3',
@@ -336,11 +334,11 @@ class _AddFoodPageState extends State<AddFoodPage> {
                                   TextField(
                                     controller: _proteinController,
                                     keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         // contentPadding: EdgeInsets.all(8),
                                         ),
                                   ),
-                                  SizedBox
+                                  const SizedBox
                                       .shrink(), // Placeholder for alignment
                                 ],
                               ),
@@ -371,10 +369,10 @@ class _AddFoodPageState extends State<AddFoodPage> {
                               }
                             },
                             style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
+                                backgroundColor: WidgetStateProperty.all(
                                     HexColor("BBB7EA")),
                                 foregroundColor:
-                                    MaterialStateProperty.all(Colors.white)),
+                                    WidgetStateProperty.all(Colors.white)),
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
                                   vertical: 8, horizontal: 88),

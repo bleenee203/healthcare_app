@@ -29,7 +29,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
             width: double.infinity,
             height: double.infinity,
-            color: Color(0xFFFBEDEC),
+            color: const Color(0xFFFBEDEC),
             child: Column(
               children: <Widget>[
                 Row(

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:healthcare_app/src/presentation/widgets/bar_chart.dart';
@@ -331,14 +330,14 @@ class _WeekWaterTab extends State<WeekWaterTab> {
     
   }
   void _moveToPreviousWeek(BuildContext context) {
-    DateTime lastweek = _datevalue.subtract(Duration(days: 7));
+    DateTime lastweek = _datevalue.subtract(const Duration(days: 7));
     setState(() {
       _datevalue = lastweek;
     });
   }
 
   void _moveToNextWeek(BuildContext context) {
-    DateTime nextweek = _datevalue.add(Duration(days: 7));
+    DateTime nextweek = _datevalue.add(const Duration(days: 7));
     setState(() {
       _datevalue = nextweek;
     });
@@ -348,7 +347,7 @@ class _WeekWaterTab extends State<WeekWaterTab> {
     DateTime firstDayOfWeek = date.subtract(Duration(days: date.weekday - 1));
 
     // Lấy ngày cuối cùng của tuần (Thứ bảy)
-    DateTime lastDayOfWeek = firstDayOfWeek.add(Duration(days: 6));
+    DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
 
     // Biến đổi ngày thành chuỗi
     String firstDayString = DateFormat('MMMM d').format(firstDayOfWeek);

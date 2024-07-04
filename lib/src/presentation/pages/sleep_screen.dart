@@ -4,7 +4,6 @@ import 'package:hexcolor/hexcolor.dart';
 
 import '../widgets/sleep_nested_tab.dart';
 
-
 class SleepPage extends StatefulWidget {
   const SleepPage({super.key});
 
@@ -25,6 +24,84 @@ class _SleepPageState extends State<SleepPage> with TickerProviderStateMixin {
   void dispose() {
     super.dispose();
     _tabController.dispose();
+  }
+
+  void _showSleepDialog() {
+    showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Stack(
+          children: [
+            Positioned(
+              top: -10,
+              right: -40,
+              child: Dialog(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                  ),
+                ),
+                backgroundColor: const Color(0xFFD4A7C7),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () {
+                                  RouterCustom.router.pushNamed('sleep-log');
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text(
+                                  'Add Sleep Log',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: "SourceSans3",
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () {
+                                  RouterCustom.router.pushNamed('set-wake-time');
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text(
+                                  'Begin Sleep Now',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: "SourceSans3",
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -76,8 +153,7 @@ class _SleepPageState extends State<SleepPage> with TickerProviderStateMixin {
                             width: 23,
                           ),
                           GestureDetector(
-                              onTap: () =>
-                                  RouterCustom.router.pushNamed('water-log'),
+                              onTap: _showSleepDialog,
                               child: Image.asset("res/images/plus.png")),
                         ],
                       ),

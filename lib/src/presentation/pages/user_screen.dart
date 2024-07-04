@@ -1,17 +1,11 @@
-import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/thum_shape.dart';
 import 'package:healthcare_app/src/services/userService.dart';
-import 'package:http/http.dart' as http;
 import 'package:hexcolor/hexcolor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../../services/auth_services.dart';
 
@@ -28,8 +22,8 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
   late int? age = -1;
   final UserService userService = UserService();
   double _currentWeightValue = 53;
-  double _lastWeightValue = 49.2;
-  double _targetWeightValue = 55;
+  final double _lastWeightValue = 49.2;
+  final double _targetWeightValue = 55;
   late Future<User?> _userDataFuture;
   // void initSharedPref() async {
   //   prefs = await SharedPreferences.getInstance();
@@ -48,7 +42,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
     //userData = user;
     if (user != null && user.birthday != null) {
       int birthYear = user.birthday?.year ?? DateTime.now().year;
-      print("birthyear ${birthYear}");
+      print("birthyear $birthYear");
       age = DateTime.now().year - birthYear;
     }
     return user;
@@ -159,7 +153,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 32),
-                                    child: Container(
+                                    child: SizedBox(
                                       height: 102,
                                       child: Column(
                                         crossAxisAlignment:
@@ -545,9 +539,8 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        _targetWeightValue.toStringAsFixed(1) +
-                                            "kg",
-                                        style: TextStyle(
+                                        "${_targetWeightValue.toStringAsFixed(1)}kg",
+                                        style: const TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontSize: 20),
                                       ),
@@ -588,10 +581,9 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                           Positioned.fill(
                                             child: Center(
                                               child: Text(
-                                                _lastWeightValue
-                                                        .toStringAsFixed(1) +
-                                                    "kg",
-                                                style: TextStyle(
+                                                "${_lastWeightValue
+                                                        .toStringAsFixed(1)}kg",
+                                                style: const TextStyle(
                                                     fontFamily: "SourceSans3",
                                                     fontSize: 20),
                                               ),
@@ -606,9 +598,8 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        _lastWeightValue.toStringAsFixed(1) +
-                                            "kg",
-                                        style: TextStyle(
+                                        "${_lastWeightValue.toStringAsFixed(1)}kg",
+                                        style: const TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontSize: 20),
                                       ),
@@ -649,10 +640,9 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                           Positioned.fill(
                                             child: Center(
                                               child: Text(
-                                                _targetWeightValue
-                                                        .toStringAsFixed(1) +
-                                                    "kg",
-                                                style: TextStyle(
+                                                "${_targetWeightValue
+                                                        .toStringAsFixed(1)}kg",
+                                                style: const TextStyle(
                                                     fontFamily: "SourceSans3",
                                                     fontSize: 20),
                                               ),

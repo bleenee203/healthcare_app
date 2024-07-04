@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/presentation/widgets/threemonth_sleep_tab.dart';
-import 'package:healthcare_app/src/presentation/widgets/treemonth_water_tab.dart';
 import 'package:healthcare_app/src/presentation/widgets/week_sleep_tab.dart';
 import 'package:healthcare_app/src/presentation/widgets/year_sleep_tab.dart';
-import 'package:healthcare_app/src/presentation/widgets/year_water_tab.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 import 'month_sleep_tab.dart';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/presentation/widgets/ImageSliderWithDots.dart';
 import 'package:healthcare_app/src/router/router.dart';
@@ -444,7 +443,7 @@ class _HomePage extends State<HomePage> {
                                 // Cuộn đến vị trí của widget cần cuộn đến
                                 _scrollController.animateTo(
                                   targetPosition,
-                                  duration: Duration(milliseconds: 500),
+                                  duration: const Duration(milliseconds: 500),
                                   curve: Curves.easeInOut,
                                 );
                               },
@@ -796,7 +795,7 @@ class _HomePage extends State<HomePage> {
                               ),
                               Expanded(
                                 child: SingleChildScrollView(
-                                  physics: AlwaysScrollableScrollPhysics(),
+                                  physics: const AlwaysScrollableScrollPhysics(),
                                   child: Column(
                                     children: [
                                       Padding(
