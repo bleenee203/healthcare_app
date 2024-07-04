@@ -444,7 +444,7 @@ class _WeekWaterTab extends State<WeekWaterTab> {
   }
 
   void _moveToPreviousWeek(BuildContext context) {
-    DateTime lastweek = _datevalue.subtract(Duration(days: 7));
+    DateTime lastweek = _datevalue.subtract(const Duration(days: 7));
     setState(() {
       _datevalue = lastweek;
     });
@@ -452,7 +452,7 @@ class _WeekWaterTab extends State<WeekWaterTab> {
   }
 
   void _moveToNextWeek(BuildContext context) {
-    DateTime nextweek = _datevalue.add(Duration(days: 7));
+    DateTime nextweek = _datevalue.add(const Duration(days: 7));
     setState(() {
       _datevalue = nextweek;
     });

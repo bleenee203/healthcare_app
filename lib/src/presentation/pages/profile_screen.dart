@@ -14,13 +14,13 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePage extends State<ProfilePage> {
   final UserService userService = UserService();
-  TextEditingController _fullname = TextEditingController();
-  TextEditingController _gender = TextEditingController();
+  final TextEditingController _fullname = TextEditingController();
+  final TextEditingController _gender = TextEditingController();
   bool? _gendervalue = false;
-  TextEditingController _phone = TextEditingController();
-  TextEditingController _career = TextEditingController();
-  TextEditingController _idnum = TextEditingController();
-  TextEditingController _bloodtype = TextEditingController();
+  final TextEditingController _phone = TextEditingController();
+  final TextEditingController _career = TextEditingController();
+  final TextEditingController _idnum = TextEditingController();
+  final TextEditingController _bloodtype = TextEditingController();
   static DateTime? _parseDate(String dateStr) {
     try {
       // First try to parse as ISO 8601
@@ -60,6 +60,7 @@ class _ProfilePage extends State<ProfilePage> {
       });
       Navigator.of(context).pop();
     }
+    return null;
   }
 
   @override
@@ -343,7 +344,7 @@ class _ProfilePage extends State<ProfilePage> {
                                 });
                               },
                             ),
-                            Text('Female'),
+                            const Text('Female'),
                           ],
                         ),
                         Column(
@@ -357,7 +358,7 @@ class _ProfilePage extends State<ProfilePage> {
                                 });
                               },
                             ),
-                            Text('Male'),
+                            const Text('Male'),
                           ],
                         )
                       ],

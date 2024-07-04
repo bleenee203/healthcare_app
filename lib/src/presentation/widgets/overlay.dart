@@ -17,7 +17,7 @@ class LoadingOverlay {
   );
 
   static void show(BuildContext context) {
-    Overlay.of(context)?.insert(_overlayEntry);
+    Overlay.of(context).insert(_overlayEntry);
   }
 
   static void hide() {

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -19,7 +18,7 @@ class _ForumPost extends State<ForumPost> {
   List<Map<String, String>> replies = [];
 
   void _showCommentDialog() {
-    TextEditingController _commentController = TextEditingController();
+    TextEditingController commentController = TextEditingController();
 
     showDialog(
       context: context,
@@ -29,7 +28,7 @@ class _ForumPost extends State<ForumPost> {
           content: SizedBox(
             width: MediaQuery.of(context).size.width * 0.7,
             child: TextField(
-              controller: _commentController,
+              controller: commentController,
               maxLines: null,
               decoration: const InputDecoration(hintText: 'Enter your comment'),
             ),
@@ -44,7 +43,7 @@ class _ForumPost extends State<ForumPost> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  comments.add({'userId': 'User', 'comment': _commentController.text});
+                  comments.add({'userId': 'User', 'comment': commentController.text});
                 });
                 Navigator.of(context).pop();
               },
@@ -57,7 +56,7 @@ class _ForumPost extends State<ForumPost> {
   }
 
   void _showReplyDialog(String commentId) {
-    TextEditingController _replyController = TextEditingController();
+    TextEditingController replyController = TextEditingController();
 
     showDialog(
       barrierDismissible: false,
@@ -68,7 +67,7 @@ class _ForumPost extends State<ForumPost> {
           content: SizedBox(
             width: MediaQuery.of(context).size.width * 0.7,
             child: TextField(
-              controller: _replyController,
+              controller: replyController,
               maxLines: null,
               decoration: const InputDecoration(hintText: 'Enter your reply'),
             ),
@@ -83,7 +82,7 @@ class _ForumPost extends State<ForumPost> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  replies.add({'commentId': commentId, 'userId': 'User', 'reply': _replyController.text});
+                  replies.add({'commentId': commentId, 'userId': 'User', 'reply': replyController.text});
                 });
                 Navigator.of(context).pop();
               },

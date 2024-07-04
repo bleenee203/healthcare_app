@@ -1,9 +1,7 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
+
+import '../../services/auth_services.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -15,34 +13,6 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  void forgotPass() async {
-    if (emailController.text.isNotEmpty ) {
-      final mail = emailController.value.text;
-      var url = dotenv.env['URL'];
-      var regBody = {
-        "email": emailController.value.text,
-      };
-      try {
-        var response = await http.post(Uri.parse("${url}user/forgotpass"),
-            headers: {"Content-Type":"application/json"},
-            body: jsonEncode(regBody)
-        );
-        var jsonResponse = jsonDecode(response.body);
-        print(jsonEncode(regBody));
-        print(jsonResponse);
-        print(jsonResponse['success']);
-        if (jsonResponse['success']) {
-          context.push('/verify2/$mail');
-        } else {
-          print("SomeThing Went Wrong");
-        }
-      }
-      catch (e) {
-        print("Lỗi: $e");
-      }
-    }
-  }
 
     @override
     Widget build(BuildContext context) {
@@ -150,15 +120,15 @@ class _RegisterState extends State<Register> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () async {
-                              forgotPass();
+                              forgotPass(emailController, context);
                             },
                             style: ButtonStyle(
                               foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
+                              WidgetStateProperty.all<Color>(Colors.white),
                               backgroundColor:
-                              MaterialStateProperty.all<Color>(Color(0xFFFF8C74)),
+                              WidgetStateProperty.all<Color>(const Color(0xFFFF8C74)),
                               shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(24.0),
                                 ),
