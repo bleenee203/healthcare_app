@@ -53,6 +53,8 @@ class UserService {
         final Map<String?, dynamic> jsonResponse = jsonDecode(response.body);
         prefs.setDouble(
             'calo_target', (jsonResponse['user']['calo_target']).toDouble());
+        prefs.setInt(
+            'water_target', (jsonResponse['user']['water_target'])?.toInt());
         return User.fromJson(jsonResponse['user']);
       } else {
         throw Exception('Failed to load user data');
@@ -97,7 +99,7 @@ class UserService {
     }
     try {
       final newData = updateData.toJson();
-      final response = await http.put(
+      final response = await http.patch(
         Uri.parse('${url}user/update-user'),
         body: jsonEncode({'userId': userId, 'newData': newData}),
         headers: {

@@ -9,6 +9,7 @@ class User {
   final String? cccd;
   final String? blood_type;
   final double? calo_target;
+  final int? water_target;
 
   User(
       {this.fullname,
@@ -18,17 +19,20 @@ class User {
       this.career,
       this.cccd,
       this.blood_type,
-      this.calo_target});
+      this.calo_target,
+      this.water_target});
   Map<String, dynamic> toJson() {
     return {
-      'fullname': fullname,
-      'gender': gender,
-      'phone': phone,
-      'career': career,
-      'cccd': cccd,
-      'birthday': DateFormat('dd/MM/yyyy').format(birthday!),
-      'blood_type': blood_type,
+      if (fullname != null) 'fullname': fullname,
+      if (gender != null) 'gender': gender,
+      if (phone != null) 'phone': phone,
+      if (career != null) 'career': career,
+      if (cccd != null) 'cccd': cccd,
+      if (birthday != null)
+        'birthday': DateFormat('dd/MM/yyyy').format(birthday!),
+      if (blood_type != null) 'blood_type': blood_type,
       if (calo_target != null) 'calo_target': calo_target,
+      if (water_target != null) 'water_target': water_target,
     };
   }
 
@@ -50,10 +54,8 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     bool? parsedGender;
-
     if (json.containsKey('gender')) {
       final dynamic genderValue = json['gender'];
-
       if (genderValue is bool) {
         parsedGender = genderValue;
       } else if (genderValue is String) {
@@ -72,6 +74,7 @@ class User {
             : null,
         cccd: json['cccd'] ?? '',
         blood_type: json['blood_type'] ?? '',
-        calo_target: json['calo_target'].toDouble());
+        calo_target: json['calo_target']?.toDouble(),
+        water_target: json['water_target']?.toInt());
   }
 }
