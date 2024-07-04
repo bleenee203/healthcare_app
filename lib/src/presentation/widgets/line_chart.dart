@@ -105,10 +105,10 @@ class _LineChartWidgetState<T extends ChartPoint> extends State<LineChartWidget<
                   reservedSize: 40,
                 ),
               ),
-              topTitles: AxisTitles(
+              topTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
-              rightTitles: AxisTitles(
+              rightTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
             ),
@@ -128,13 +128,13 @@ class _LineChartWidgetState<T extends ChartPoint> extends State<LineChartWidget<
               verticalInterval: 1,
               horizontalInterval: 1,
               getDrawingHorizontalLine: (value) {
-                return FlLine(
+                return const FlLine(
                   color: Colors.grey,
                   strokeWidth: 0.5,
                 );
               },
               getDrawingVerticalLine: (value) {
-                return FlLine(
+                return const FlLine(
                   color: Colors.grey,
                   strokeWidth: 0.5,
                 );

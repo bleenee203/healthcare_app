@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -84,12 +82,12 @@ class _WaterSetGoalPage extends State<WaterSetGoalPage> {
                   ),
                   Text(
                     '$_water_goal',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontFamily: "SourceSans3",
                         fontWeight: FontWeight.w900,
                         fontSize: 60),
                   ),
-                  Text(
+                  const Text(
                     "ml per day",
                     style: TextStyle(fontFamily: "SourceSans3", fontSize: 20),
                   ),
@@ -101,12 +99,12 @@ class _WaterSetGoalPage extends State<WaterSetGoalPage> {
                       Expanded(
                         child: ElevatedButton(
                             onPressed: _incrementCounter,
-                            child: Icon(Icons.add)),
+                            child: const Icon(Icons.add)),
                       ),
                       Expanded(
                         child: ElevatedButton(
                             onPressed: _decrementCounter,
-                            child: Icon(Icons.remove)),
+                            child: const Icon(Icons.remove)),
                       )
                     ],
                   )

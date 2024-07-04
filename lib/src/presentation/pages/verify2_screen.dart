@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 
@@ -148,7 +146,7 @@ class _Verify2State extends State<Verify2> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Color(0xffFBEDEC),
+                  color: const Color(0xffFBEDEC),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -183,11 +181,11 @@ class _Verify2State extends State<Verify2> {
                         },
                         style: ButtonStyle(
                           foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Color(0xFFFF8C74)),
+                          WidgetStateProperty.all<Color>(Colors.white),
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                              const Color(0xFFFF8C74)),
                           shape:
-                          MaterialStateProperty.all<RoundedRectangleBorder>(
+                          WidgetStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                             ),
@@ -264,7 +262,7 @@ class _Verify2State extends State<Verify2> {
           if (value.length == 1 && last == false) {
             FocusScope.of(context).nextFocus();
           }
-          if (value.length == 0 && first == false) {
+          if (value.isEmpty && first == false) {
             FocusScope.of(context).previousFocus();
           }
         },

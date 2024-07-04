@@ -160,13 +160,13 @@ class _ForumPage extends State<ForumPage> {
   }
 
   void _showCreateThreadDialog() {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Form(
-          key: _formKey,
+          key: formKey,
           child: Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25),
@@ -255,7 +255,7 @@ class _ForumPage extends State<ForumPage> {
                           children: <Widget>[
                             TextButton(
                               onPressed: () {
-                                if (_formKey.currentState!.validate()) {
+                                if (formKey.currentState!.validate()) {
                                   setState(() {
                                     data.insert(data.length, {
                                       "user_id": "currentUser",
@@ -465,7 +465,7 @@ class _ForumPage extends State<ForumPage> {
                                         children: [
                                           Row(
                                             children: [
-                                              Container(
+                                              SizedBox(
                                                 width: MediaQuery.of(context).size.width *0.25,
                                                 child: Text(
                                                   filteredData[index]['title']!,
@@ -493,7 +493,7 @@ class _ForumPage extends State<ForumPage> {
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
                                               Text('16'),
-                                              const SizedBox(width: 5,),
+                                              SizedBox(width: 5,),
                                               Image(
                                                   image: AssetImage(
                                                       "res/images/message.png")),

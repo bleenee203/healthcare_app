@@ -60,12 +60,12 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(
                   height: 15,
                 ),
-                Column(
+                const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     FadeAnimation(
                       2,
-                      const Text(
+                      Text(
                         "Welcome Back",
                         style: TextStyle(
                           fontFamily: 'SourceSans3',
@@ -75,12 +75,12 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 5,
                     ),
                     FadeAnimation(
                       2,
-                      const Text(
+                      Text(
                         "Please, Log In",
                         style: TextStyle(
                           fontFamily: 'SourceSans3',
@@ -136,13 +136,13 @@ class _LoginPageState extends State<LoginPage> {
                             keyboardType: TextInputType.emailAddress,
                             controller: emailController,
                             validator: (value) {
-                              bool _isEmailValid = RegExp(
+                              bool isEmailValid = RegExp(
                                       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value ?? '');
                               if (value!.isEmpty) {
                                 return "Enter Email";
                               }
-                              if (!_isEmailValid) {
+                              if (!isEmailValid) {
                                 return 'Invalid email format'; // Trả về thông báo lỗi
                               }
                               return null; // Email hợp lệ

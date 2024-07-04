@@ -5,18 +5,23 @@ import 'package:go_router/go_router.dart';
 import 'package:healthcare_app/src/models/foodModel.dart';
 import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/begin_sleep.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
 import 'package:healthcare_app/src/presentation/pages/food_detail_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/log_exercise.dart';
 import 'package:healthcare_app/src/presentation/pages/login_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/nutrition_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/personality_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/profile_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/resetPassword_screen.dart';
+import 'package:healthcare_app/src/presentation/pages/select_exercise.dart';
 import 'package:healthcare_app/src/presentation/pages/set-water-goal.dart';
+import 'package:healthcare_app/src/presentation/pages/set_wake_time.dart';
 import 'package:healthcare_app/src/presentation/pages/signup_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/sleep_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/splash_page.dart';
+import 'package:healthcare_app/src/presentation/pages/step_count_page.dart';
 import 'package:healthcare_app/src/presentation/pages/tabs.dart';
 import 'package:healthcare_app/src/presentation/pages/verify2_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/verify_screen.dart';
@@ -25,11 +30,13 @@ import 'package:healthcare_app/src/presentation/pages/water_goal_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/water_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/add_food_screen.dart';
 
+import '../presentation/pages/excercise_screen.dart';
 import '../presentation/pages/forum_post.dart';
 import '../presentation/pages/register_screen.dart';
 import '../presentation/pages/set_sleep_goal.dart';
 import '../presentation/pages/set_sleep_start.dart';
 import '../presentation/pages/sleep_goal_screen.dart';
+import '../presentation/pages/sleep_log.dart';
 
 class RouterCustom {
   static final GoRouter router = GoRouter(
@@ -60,7 +67,7 @@ class RouterCustom {
             const MyTabs(), // Hiển thị LoginPage
       ),
       GoRoute(
-          path: '/verify/:mail/:password', // Path cho giao diện splash
+          path: '/verify/:mail/:password', //
           name: 'verify',
           builder: (BuildContext context, GoRouterState state) {
             String? mail = state.pathParameters['mail'];
@@ -104,7 +111,7 @@ class RouterCustom {
           name: 'profile',
           builder: (BuildContext context, GoRouterState state) {
             final userData = state.extra as User?;
-            log("userdata ${userData}");
+            log("userdata $userData");
             return ProfilePage(userData: userData);
           }),
       GoRoute(
@@ -172,27 +179,66 @@ class RouterCustom {
           path: '/sleep-goal',
           name: 'sleep-goal',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepGoalPage()),
+              const SleepGoalPage()),
       GoRoute(
           path: '/set-sleep-goal',
           name: 'set-sleep-goal',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepSetGoalPage()),
+              const SleepSetGoalPage()),
       GoRoute(
           path: '/set-sleep-start',
           name: 'set-sleep-start',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepSetStartPage()),
+              const SleepSetStartPage()),
       GoRoute(
           path: '/forum-post',
           name: 'forum-post',
           builder: (BuildContext context, GoRouterState state) =>
-          const ForumPost()),
+              const ForumPost()),
       GoRoute(
           path: '/sleep',
           name: 'sleep',
           builder: (BuildContext context, GoRouterState state) =>
-          const SleepPage()),
+              const SleepPage()),
+      GoRoute(
+          path: '/exercise',
+          name: 'exercise',
+          builder: (BuildContext context, GoRouterState state) =>
+              const ExercisePage()),
+      GoRoute(
+          path: '/sleep-log',
+          name: 'sleep-log',
+          builder: (BuildContext context, GoRouterState state) =>
+              const SleepLog()),
+      GoRoute(
+          path: '/set-wake-time',
+          name: 'set-wake-time',
+          builder: (BuildContext context, GoRouterState state) =>
+              const SleepSetWakeTime()),
+      GoRoute(
+        path: '/begin-sleep/:hour/:min',
+        name: 'begin-sleep',
+        builder: (BuildContext context, GoRouterState state) {
+          int? hour = int.tryParse(state.pathParameters['hour'] ?? '');
+          int? min = int.tryParse(state.pathParameters['min'] ?? '');
+          return BeginSleepPage(hour, min);
+        },
+      ),
+      GoRoute(
+          path: '/step-count',
+          name: 'step-count',
+          builder: (BuildContext context, GoRouterState state) =>
+          const StepCountPage()),
+      GoRoute(
+          path: '/select-exercise',
+          name: 'select-exercise',
+          builder: (BuildContext context, GoRouterState state) =>
+          const SelectExercise()),
+      GoRoute(
+          path: '/log-exercise',
+          name: 'log-exercise',
+          builder: (BuildContext context, GoRouterState state) =>
+          const LogExersise()),
     ],
   );
 }

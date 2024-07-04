@@ -34,18 +34,18 @@ class _LazyLoadingListState extends State<LazyLoadingList> {
     if (day.day == DateTime.now().day) {
       for (DateTime i = day;
           i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
-          i = i.subtract(Duration(days: 1))) {
+          i = i.subtract(const Duration(days: 1))) {
         //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
         daysOfWeek.add(i);
       }
       daysOfWeek.addAll(initDayOfWeek(
-          daysOfWeek[daysOfWeek.length - 1].subtract(Duration(days: 1))));
+          daysOfWeek[daysOfWeek.length - 1].subtract(const Duration(days: 1))));
       daysOfWeek.addAll(initDayOfWeek(
-          daysOfWeek[daysOfWeek.length - 1].subtract(Duration(days: 1))));
+          daysOfWeek[daysOfWeek.length - 1].subtract(const Duration(days: 1))));
     } else {
       for (DateTime i = day;
           i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
-          i = i.subtract(Duration(days: 1))) {
+          i = i.subtract(const Duration(days: 1))) {
         //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
         daysOfWeek.add(i);
       }
@@ -82,7 +82,7 @@ class _LazyLoadingListState extends State<LazyLoadingList> {
       await Future.delayed(const Duration(seconds: 3));
       setState(() {
         listDay.addAll(initDayOfWeek(
-            listDay[listDay.length - 1].subtract(Duration(days: 1))));
+            listDay[listDay.length - 1].subtract(const Duration(days: 1))));
       });
     }
   }

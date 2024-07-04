@@ -204,3 +204,30 @@ void verifyUser(List<String> otpValues, String email, String password,BuildConte
     }
   }
 }
+void forgotPass(final emailController, BuildContext context) async {
+  if (emailController.text.isNotEmpty ) {
+    final mail = emailController.value.text;
+    var url = dotenv.env['URL'];
+    var regBody = {
+      "email": emailController.value.text,
+    };
+    try {
+      var response = await http.post(Uri.parse("${url}user/forgotpass"),
+          headers: {"Content-Type":"application/json"},
+          body: jsonEncode(regBody)
+      );
+      var jsonResponse = jsonDecode(response.body);
+      print(jsonEncode(regBody));
+      print(jsonResponse);
+      print(jsonResponse['success']);
+      if (jsonResponse['success']) {
+        context.push('/verify2/$mail');
+      } else {
+        print("SomeThing Went Wrong");
+      }
+    }
+    catch (e) {
+      print("Lỗi: $e");
+    }
+  }
+}

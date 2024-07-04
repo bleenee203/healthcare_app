@@ -18,7 +18,7 @@ class _SignupPageState extends State<SignupPage> {
   final emailController = TextEditingController();
   final passController = TextEditingController();
   final confirmPassController = TextEditingController();
-  bool _isNotValidate = false;
+  final bool _isNotValidate = false;
 
   bool passToggle = true;
   bool confirmPassToggle = true;
@@ -52,12 +52,12 @@ class _SignupPageState extends State<SignupPage> {
                 const SizedBox(
                   height: 5,
                 ),
-                Column(
+                const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     FadeAnimation(
                       2,
-                      const Text(
+                      Text(
                         "Hi There!",
                         style: TextStyle(
                           fontFamily: 'SourceSans3',
@@ -67,12 +67,12 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 5,
                     ),
                     FadeAnimation(
                       2,
-                      const Text(
+                      Text(
                         "Let's Get Started",
                         style: TextStyle(
                           fontFamily: 'SourceSans3',
@@ -126,13 +126,13 @@ class _SignupPageState extends State<SignupPage> {
                             keyboardType: TextInputType.emailAddress,
                             controller: emailController,
                             validator: (value) {
-                              bool _isEmailValid = RegExp(
+                              bool isEmailValid = RegExp(
                                       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value ?? '');
                               if (value!.isEmpty) {
                                 return "Enter Email";
                               }
-                              if (!_isEmailValid) {
+                              if (!isEmailValid) {
                                 return 'Invalid email format'; // Trả về thông báo lỗi
                               }
                               return null; // Email hợp lệ

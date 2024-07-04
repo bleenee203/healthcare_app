@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -20,23 +17,6 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
       FixedExtentScrollController(initialItem: 0);
   final FixedExtentScrollController _minutesController =
       FixedExtentScrollController(initialItem: 0);
-
-  void _centerItem(FixedExtentScrollController controller, int itemCount) {
-    final int selectedItem = controller.selectedItem;
-    setState(() {
-      if (itemCount == 24) {
-        _sleepHours = selectedItem % itemCount;
-      }
-      else {
-        _sleepMin = selectedItem %60;
-      }
-    });
-    controller.animateToItem(
-      selectedItem,
-      duration: const Duration(milliseconds: 30),
-      curve: Curves.easeInOut,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,11 +70,12 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                 ),
                 const SizedBox(height: 100),
                 Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, style: BorderStyle.solid, width: 1.0)
-                  ),
+                  // decoration: BoxDecoration(
+                  //     border: Border.all(color: Colors.black, style: BorderStyle.solid, width: 1.0)
+                  // ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
                         children: [
@@ -103,12 +84,13 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                             height: 150,
                             child: NotificationListener<ScrollEndNotification>(
                               onNotification: (notification) {
-                                if (notification is ScrollEndNotification) {
-                                  _centerItem(_hoursController, 24);
-                                }
+                                // if (notification is ScrollEndNotification) {
+                                //   _centerItem(_hoursController, 24);
+                                // }
                                 return true;
                               },
                               child: ListWheelScrollView.useDelegate(
+                                physics: const FixedExtentScrollPhysics(),
                                 controller: _hoursController,
                                 itemExtent: 120,
                                 onSelectedItemChanged: (int index) {
@@ -116,11 +98,15 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                                     _sleepHours = index % 24;
                                   });
                                 },
-                                childDelegate: ListWheelChildLoopingListDelegate(
-                                  children: List<Widget>.generate(24, (int index) {
+                                childDelegate:
+                                    ListWheelChildLoopingListDelegate(
+                                  children:
+                                      List<Widget>.generate(24, (int index) {
                                     return Center(
                                       child: Text(
-                                        (index % 24).toString(),
+                                        (index % 24).toString().length == 1
+                                            ? "0${index % 24}"
+                                            : (index % 24).toString(),
                                         style: const TextStyle(
                                           fontFamily: "SourceSans3",
                                           fontWeight: FontWeight.w900,
@@ -135,7 +121,8 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                           ),
                           const Text(
                             "Hours",
-                            style: TextStyle(fontFamily: "SourceSans3", fontSize: 20),
+                            style: TextStyle(
+                                fontFamily: "SourceSans3", fontSize: 20),
                           ),
                         ],
                       ),
@@ -153,12 +140,13 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                             height: 150,
                             child: NotificationListener<ScrollEndNotification>(
                               onNotification: (notification) {
-                                if (notification is ScrollEndNotification) {
-                                  _centerItem(_minutesController, 60);
-                                }
+                                // if (notification is ScrollEndNotification) {
+                                //   _centerItem(_minutesController, 60);
+                                // }
                                 return true;
                               },
                               child: ListWheelScrollView.useDelegate(
+                                physics: const FixedExtentScrollPhysics(),
                                 controller: _minutesController,
                                 itemExtent: 120,
                                 onSelectedItemChanged: (int index) {
@@ -166,11 +154,15 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                                     _sleepMin = index % 60;
                                   });
                                 },
-                                childDelegate: ListWheelChildLoopingListDelegate(
-                                  children: List<Widget>.generate(60, (int index) {
+                                childDelegate:
+                                    ListWheelChildLoopingListDelegate(
+                                  children:
+                                      List<Widget>.generate(60, (int index) {
                                     return Center(
                                       child: Text(
-                                        (index % 60).toString(),
+                                        (index % 60).toString().length == 1
+                                            ? "0${index % 60}"
+                                            : (index % 60).toString(),
                                         style: const TextStyle(
                                           fontFamily: "SourceSans3",
                                           fontWeight: FontWeight.w900,
@@ -185,7 +177,8 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                           ),
                           const Text(
                             "Minutes",
-                            style: TextStyle(fontFamily: "SourceSans3", fontSize: 20),
+                            style: TextStyle(
+                                fontFamily: "SourceSans3", fontSize: 20),
                           ),
                         ],
                       ),
@@ -198,20 +191,24 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                     alignment: Alignment.bottomCenter,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(344, 60),
-                        padding: EdgeInsets.fromLTRB(68, 16, 68, 16),
-                        backgroundColor: Color(0xFF474672),
+                        fixedSize: const Size(344, 60),
+                        padding: const EdgeInsets.fromLTRB(68, 16, 68, 16),
+                        backgroundColor: const Color(0xFF474672),
                       ),
                       onPressed: () {
-                        print("${_hoursController.selectedItem%24} - ${_minutesController.selectedItem%60}");
+                        print(
+                            "${_hoursController.selectedItem % 24} - ${_minutesController.selectedItem % 60}");
                         // Handle set goal
                       },
-                      child: const Text('SET GOAL', style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: "SourceSans3",
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),),
+                      child: const Text(
+                        'SET GOAL',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: "SourceSans3",
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 )
