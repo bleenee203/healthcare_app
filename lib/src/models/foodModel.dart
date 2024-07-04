@@ -1,4 +1,5 @@
 class Food {
+  final String? id;
   final String food_name;
   final double kcal;
   final double? carbs;
@@ -7,17 +8,19 @@ class Food {
   final bool isDeleted;
   final double ration;
   final double avg_above;
-  final String? user_id;
-  Food(
-      {required this.food_name,
-      required this.kcal,
-      this.carbs,
-      this.protein,
-      this.fat,
-      required this.avg_above,
-      required this.ration,
-      required this.isDeleted,
-      this.user_id});
+  // final String? user_id;
+  Food({
+    this.id,
+    required this.food_name,
+    required this.kcal,
+    this.carbs,
+    this.protein,
+    this.fat,
+    required this.avg_above,
+    required this.ration,
+    required this.isDeleted,
+    // this.user_id
+  });
   Map<String, dynamic> toJson() {
     return {
       'food_name': food_name,
@@ -28,20 +31,22 @@ class Food {
       'ration': ration,
       'avg_above': avg_above,
       'isDeleted': isDeleted,
-      'user_id': user_id
+      // 'user_id': user_id
     };
   }
 
   factory Food.fromJson(Map<String, dynamic> json) {
     return Food(
-        food_name: json['food_name'],
-        kcal: (json['kcal']).toDouble(),
-        carbs: (json['carbs'] ?? 0).toDouble(),
-        protein: (json['protein'] ?? 0).toDouble(),
-        fat: (json['fat'] ?? 0).toDouble(),
-        ration: json['ration'].toDouble(),
-        avg_above: (json['avg_above']).toDouble(),
-        isDeleted: json['isDeleted'],
-        user_id: json['blood_type']);
+      id: json['id'],
+      food_name: json['food_name'],
+      kcal: (json['kcal']).toDouble(),
+      carbs: (json['carbs'] ?? 0).toDouble(),
+      protein: (json['protein'] ?? 0).toDouble(),
+      fat: (json['fat'] ?? 0).toDouble(),
+      ration: json['ration'].toDouble(),
+      avg_above: (json['avg_above']).toDouble(),
+      isDeleted: json['isDeleted'],
+      // user_id: json['user_id']
+    );
   }
 }

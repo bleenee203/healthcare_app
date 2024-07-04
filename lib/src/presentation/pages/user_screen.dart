@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
@@ -22,31 +21,23 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
   late int? age = -1;
   final UserService userService = UserService();
   double _currentWeightValue = 53;
-  final double _lastWeightValue = 49.2;
-  final double _targetWeightValue = 55;
+  double _lastWeightValue = 49.2;
+  double _targetWeightValue = 55;
   late Future<User?> _userDataFuture;
-  // void initSharedPref() async {
-  //   prefs = await SharedPreferences.getInstance();
-  // }
-
   @override
   void initState() {
     super.initState();
-    // initSharedPref();
     _userDataFuture = _fetchUserData();
   }
 
   Future<User?> _fetchUserData() async {
     final user = await userService.fetchUserData();
-    //setState(() {
-    //userData = user;
     if (user != null && user.birthday != null) {
       int birthYear = user.birthday?.year ?? DateTime.now().year;
-      print("birthyear $birthYear");
+      print("birthyear ${birthYear}");
       age = DateTime.now().year - birthYear;
     }
     return user;
-    //});
   }
 
   Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
@@ -153,7 +144,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 32),
-                                    child: SizedBox(
+                                    child: Container(
                                       height: 102,
                                       child: Column(
                                         crossAxisAlignment:
@@ -322,7 +313,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                             ),
                           ),
                           const Padding(
-                            padding: EdgeInsets.only(top: 50, bottom: 8),
+                            padding: EdgeInsets.only(top: 20, bottom: 8),
                             child: Text(
                               "GOALS",
                               //textAlign: TextAlign.left,
@@ -337,11 +328,14 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                               Positioned(
                                   top: 0,
                                   right: 0,
-                                  child: Image.asset("res/images/female.png")),
+                                  child: userData?.gender == true
+                                      ? Image.asset("res/images/female.png")
+                                      : Image.asset("res/images/male.png")),
                               Column(
                                 children: [
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/water-glass-solid.png"),
                                     title: const Row(
                                       children: [
@@ -372,8 +366,8 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                     ),
                                   ),
                                   ListTile(
-                                    leading:
-                                        Image.asset("res/images/run-solid.png"),
+                                    leading: Image.asset(
+                                        width: 28, "res/images/run-solid.png"),
                                     title: const Row(
                                       children: [
                                         Text(
@@ -404,6 +398,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/stretching-exercises-solid.png"),
                                     title: const Row(
                                       children: [
@@ -435,6 +430,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/location-solid.png"),
                                     title: const Row(
                                       children: [
@@ -466,6 +462,7 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/sleep-solid.png"),
                                     title: const Row(
                                       children: [
@@ -497,20 +494,21 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                   ),
                                   ListTile(
                                     leading: Image.asset(
+                                        width: 28,
                                         "res/images/calories-solid.png"),
-                                    title: const Row(
+                                    title: Row(
                                       children: [
                                         Text(
-                                          "1.922",
-                                          style: TextStyle(
+                                          '${userData?.calo_target}',
+                                          style: const TextStyle(
                                               fontFamily: "SourceSans3",
                                               fontWeight: FontWeight.w600,
                                               fontSize: 20),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 6,
                                         ),
-                                        Text(
+                                        const Text(
                                           "cal",
                                           style: TextStyle(
                                             fontFamily: "SourceSans3",
@@ -539,8 +537,9 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "${_targetWeightValue.toStringAsFixed(1)}kg",
-                                        style: const TextStyle(
+                                        _targetWeightValue.toStringAsFixed(1) +
+                                            "kg",
+                                        style: TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontSize: 20),
                                       ),
@@ -581,9 +580,10 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                           Positioned.fill(
                                             child: Center(
                                               child: Text(
-                                                "${_lastWeightValue
-                                                        .toStringAsFixed(1)}kg",
-                                                style: const TextStyle(
+                                                _lastWeightValue
+                                                        .toStringAsFixed(1) +
+                                                    "kg",
+                                                style: TextStyle(
                                                     fontFamily: "SourceSans3",
                                                     fontSize: 20),
                                               ),
@@ -598,8 +598,9 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "${_lastWeightValue.toStringAsFixed(1)}kg",
-                                        style: const TextStyle(
+                                        _lastWeightValue.toStringAsFixed(1) +
+                                            "kg",
+                                        style: TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontSize: 20),
                                       ),
@@ -640,9 +641,10 @@ class _UserProfilePage extends State<UserProfilePage> with RouteAware {
                                           Positioned.fill(
                                             child: Center(
                                               child: Text(
-                                                "${_targetWeightValue
-                                                        .toStringAsFixed(1)}kg",
-                                                style: const TextStyle(
+                                                _targetWeightValue
+                                                        .toStringAsFixed(1) +
+                                                    "kg",
+                                                style: TextStyle(
                                                     fontFamily: "SourceSans3",
                                                     fontSize: 20),
                                               ),

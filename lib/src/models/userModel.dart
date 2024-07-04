@@ -8,6 +8,7 @@ class User {
   final String? career;
   final String? cccd;
   final String? blood_type;
+  final double? calo_target;
 
   User(
       {this.fullname,
@@ -16,7 +17,8 @@ class User {
       this.birthday,
       this.career,
       this.cccd,
-      this.blood_type});
+      this.blood_type,
+      this.calo_target});
   Map<String, dynamic> toJson() {
     return {
       'fullname': fullname,
@@ -24,10 +26,12 @@ class User {
       'phone': phone,
       'career': career,
       'cccd': cccd,
-      'birthday': birthday?.toIso8601String(),
-      'blood_type': blood_type
+      'birthday': DateFormat('dd/MM/yyyy').format(birthday!),
+      'blood_type': blood_type,
+      if (calo_target != null) 'calo_target': calo_target,
     };
   }
+
   static DateTime? _parseDate(String dateStr) {
     try {
       // First try to parse as ISO 8601
@@ -47,17 +51,17 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     bool? parsedGender;
 
-  if (json.containsKey('gender')) {
-    final dynamic genderValue = json['gender'];
+    if (json.containsKey('gender')) {
+      final dynamic genderValue = json['gender'];
 
-    if (genderValue is bool) {
-      parsedGender = genderValue;
-    } else if (genderValue is String) {
-      parsedGender = genderValue.toLowerCase() == 'true';
-    } else {
-      parsedGender = null;
+      if (genderValue is bool) {
+        parsedGender = genderValue;
+      } else if (genderValue is String) {
+        parsedGender = genderValue.toLowerCase() == 'true';
+      } else {
+        parsedGender = null;
+      }
     }
-  }
     return User(
         phone: json['phone'] ?? '',
         fullname: json['fullname'] ?? '',
@@ -67,6 +71,7 @@ class User {
             ? _parseDate(json['birthday'])
             : null,
         cccd: json['cccd'] ?? '',
-        blood_type: json['blood_type'] ?? '');
+        blood_type: json['blood_type'] ?? '',
+        calo_target: json['calo_target'].toDouble());
   }
 }
