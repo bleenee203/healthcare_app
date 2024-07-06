@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/presentation/widgets/nested_tab.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WaterPage extends StatefulWidget {
   const WaterPage({super.key});
@@ -13,11 +13,22 @@ class WaterPage extends StatefulWidget {
 
 class _WaterPageState extends State<WaterPage> with TickerProviderStateMixin {
   late TabController _tabController;
+  late SharedPreferences prefs;
+  late int water_target = 0;
+
+  Future<void> initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 1, vsync: this);
+    initSharedPref().then((_) {
+      setState(() {
+        water_target = prefs.getInt('water_target')!;
+      });
+    });
   }
 
   @override
@@ -68,8 +79,12 @@ class _WaterPageState extends State<WaterPage> with TickerProviderStateMixin {
                       Row(
                         children: [
                           GestureDetector(
-                              onTap: () =>
-                                  RouterCustom.router.pushNamed('water-goal'),
+                              onTap: () => RouterCustom.router
+                                  .pushNamed('water-goal')
+                                  .then((value) => setState(() {
+                                        water_target =
+                                            prefs.getInt('water_target') ?? 0;
+                                      })),
                               child: Image.asset("res/images/settings.png")),
                           const SizedBox(
                             width: 23,
@@ -86,8 +101,10 @@ class _WaterPageState extends State<WaterPage> with TickerProviderStateMixin {
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
-                    children: const <Widget>[
-                      NestedTabBar(),
+                    children: <Widget>[
+                      NestedTabBar(
+                        water_target: water_target,
+                      ),
                     ],
                   ),
                 ),

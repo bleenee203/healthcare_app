@@ -54,7 +54,7 @@ class DrinkService {
     return false;
   }
 
-  Future<List<Map<String, dynamic>>> fetchDrink(String date) async {
+  Future<Map<String, dynamic>> fetchDrink(String date) async {
     await initVariables();
     if (isExpired) {
       if (await refreshAccessToken()) {
@@ -63,7 +63,7 @@ class DrinkService {
     }
     if (accessToken == null || isExpired) {
       print('no valid access token');
-      return [];
+      return {};
     }
     try {
       final response = await http.get(
@@ -86,12 +86,144 @@ class DrinkService {
           print('Invalid drink data found: $drink');
         }
       });
-
-      return parsedDrinks;
+      final avg = decodedResponse['avg'];
+      return {'drinks': parsedDrinks, 'avg': avg};
     } catch (error, stackTrace) {
       print('Error fetching drink data: $error');
       print('Stack trace: $stackTrace');
-      return [];
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchDrinkByMonth(String date) async {
+    print("day ladate $date");
+
+    await initVariables();
+    if (isExpired) {
+      if (await refreshAccessToken()) {
+        return fetchDrink(date);
+      }
+    }
+    if (accessToken == null || isExpired) {
+      print('no valid access token');
+      return {};
+    }
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '${url}drink/get-water-month?user_id=$userId&monthStartDate=$date'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final drinks = decodedResponse['drinks'] as List<dynamic>;
+      print(drinks);
+      List<Map<String, dynamic>> parsedDrinks = [];
+      drinks.forEach((drink) {
+        if (drink is Map<String, dynamic>) {
+          parsedDrinks.add(drink);
+        } else {
+          print('Invalid drink data found: $drink');
+        }
+      });
+      final avg = decodedResponse['avg'];
+      return {'drinks': parsedDrinks, 'avg': avg};
+    } catch (error, stackTrace) {
+      print('Error fetching drink data: $error');
+      print('Stack trace: $stackTrace');
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchWeekDrinkByMonth(String month) async {
+    await initVariables();
+    if (isExpired) {
+      if (await refreshAccessToken()) {
+        return fetchWeekDrinkByMonth(month);
+      }
+    }
+    if (accessToken == null || isExpired) {
+      print('no valid access token');
+      return {};
+    }
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '${url}drink/get-water-week-month?user_id=$userId&month=$month'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final drinks = decodedResponse['drinks'] as List<dynamic>;
+      // print(drinks);
+      List<Map<String, dynamic>> parsedDrinks = [];
+      drinks.forEach((drink) {
+        if (drink is Map<String, dynamic>) {
+          parsedDrinks.add(drink);
+        } else {
+          print('Invalid drink data found: $drink');
+        }
+      });
+      return {'drinks': parsedDrinks};
+    } catch (error, stackTrace) {
+      print('Error fetching drink data: $error');
+      print('Stack trace: $stackTrace');
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchMonthDrinkByYear(String date) async {
+    await initVariables();
+    if (isExpired) {
+      if (await refreshAccessToken()) {
+        return fetchMonthDrinkByYear(date);
+      }
+    }
+    if (accessToken == null || isExpired) {
+      print('no valid access token');
+      return {};
+    }
+    try {
+      final response = await http.get(
+        Uri.parse('${url}drink/get-water-year?user_id=$userId&date=$date'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final drinks = decodedResponse['drinks'] as List<dynamic>;
+       final days = decodedResponse['days'] as List<dynamic>;
+      final avg = decodedResponse['avg'];
+      // print(drinks);
+      List<Map<String, dynamic>> parsedDrinks = [];
+      drinks.forEach((drink) {
+        if (drink is Map<String, dynamic>) {
+          parsedDrinks.add(drink);
+        } else {
+          print('Invalid drink data found: $drink');
+        }
+      });
+      List<Map<String, dynamic>> parsedDays = [];
+      days.forEach((day) {
+        if (day is Map<String, dynamic>) {
+          parsedDays.add(day);
+        } else {
+          print('Invalid drink data found: $day');
+        }
+      });
+      return {'drinks': parsedDrinks, 'avg': avg,'days':parsedDays};
+    } catch (error, stackTrace) {
+      print('Error fetching drink data: $error');
+      print('Stack trace: $stackTrace');
+      return {};
     }
   }
 
