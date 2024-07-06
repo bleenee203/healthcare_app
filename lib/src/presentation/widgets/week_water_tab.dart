@@ -1,16 +1,55 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:healthcare_app/src/presentation/widgets/bar_chart.dart';
 import 'package:healthcare_app/src/services/drinkService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 class WeekWaterTab extends StatefulWidget {
   final int water_target;
   const WeekWaterTab({super.key, required this.water_target});
   @override
   State<WeekWaterTab> createState() => _WeekWaterTab();
+}
+
+void showReminderNotification() async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  var initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettingsIOS = IOSInitializationSettings();
+  var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    'channel_id',
+    'channel_name',
+    channelDescription: 'Notifications to remind you to drink water',
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
+  var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+  var platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+    iOS: iOSPlatformChannelSpecifics,
+  );
+
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    'Đã đến giờ uống nước!',
+    'Hãy uống nước để duy trì sức khoẻ!',
+    platformChannelSpecifics,
+    payload: 'item x',
+  );
 }
 
 class _WeekWaterTab extends State<WeekWaterTab> {
@@ -42,6 +81,12 @@ class _WeekWaterTab extends State<WeekWaterTab> {
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
+      AndroidAlarmManager.cancel(0);
+
+      // Bắt đầu lại alarm để nhắc nhở tiếp tục sau mỗi phút
+      if (_isReminderOn) {
+        _startAlarmManager();
+      }
       setState(() {});
     } else {
       Fluttertoast.showToast(
@@ -55,11 +100,39 @@ class _WeekWaterTab extends State<WeekWaterTab> {
   }
 
   late DateTime _datevalue;
-
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   @override
   void initState() {
     super.initState();
     _datevalue = DateTime.now();
+    // Khởi tạo plugin để hiển thị thông báo
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    // Bắt đầu alarm manager
+    _loadReminderStatus();
+  }
+
+  bool _isReminderOn = false;
+  Future<void> _loadReminderStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isReminderOn = prefs.getBool('isReminderOn') ?? false;
+      if (_isReminderOn) {
+        _startAlarmManager();
+      }
+    });
+  }
+
+  void _startAlarmManager() {
+    const oneMinute = Duration(hours: 1);
+    AndroidAlarmManager.periodic(oneMinute, 0, showReminderNotification,
+        exact: true, wakeup: true);
   }
 
   @override

@@ -90,8 +90,9 @@ class _WaterPageState extends State<WaterPage> with TickerProviderStateMixin {
                             width: 23,
                           ),
                           GestureDetector(
-                              onTap: () =>
-                                  RouterCustom.router.pushNamed('water-log'),
+                              onTap: () => RouterCustom.router
+                                  .pushNamed('water-log')
+                                  .then((value) => setState(() {})),
                               child: Image.asset("res/images/plus.png")),
                         ],
                       ),
