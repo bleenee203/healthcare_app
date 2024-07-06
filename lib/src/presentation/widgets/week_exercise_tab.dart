@@ -3,6 +3,7 @@ import 'package:healthcare_app/src/presentation/widgets/week_exercise_chart.dart
 import 'package:intl/intl.dart';
 
 import '../../models/exercise_point.dart';
+import '../../services/exercise_services.dart';
 import 'bar_chart.dart';
 
 class WeekExerciseTab extends StatefulWidget {
@@ -16,18 +17,32 @@ class _WeekExerciseTab extends State<WeekExerciseTab> {
   int selectedButton = 0;
   final _scrollController = ScrollController();
   late DateTime _datevalue;
-  List<DateTime> listDay = [];
+  //
+  // List<ExercisePoint> points = [
+  //   ExercisePoint(0, 60), // Điểm giá có x = 0 và y = 5
+  //   ExercisePoint(1, 30), // Điểm giá có x = 1 và y = 8
+  //   ExercisePoint(2),
+  //   ExercisePoint(3),
+  //   ExercisePoint(4),
+  //   ExercisePoint(5),
+  //   ExercisePoint(6),
+  // ];
 
-  List<ExercisePoint> points = [
-    ExercisePoint(0, 60), // Điểm giá có x = 0 và y = 5
-    ExercisePoint(1, 30), // Điểm giá có x = 1 và y = 8
-    ExercisePoint(2),
-    ExercisePoint(3),
-    ExercisePoint(4),
-    ExercisePoint(5),
-    ExercisePoint(6),
-    // Thêm các điểm giá khác tại đây...
-  ];
+  ExerciseService exerciseService = ExerciseService();
+  List<ExercisePoint> points = [];
+
+  Future<List<ExercisePoint>> _fetchExercise(String date) async {
+    final List<Map<String, dynamic>> exercises =
+    await exerciseService.fetchExercise(date);
+    List<ExercisePoint> exercisePoints = [];
+    double count = 0;
+    for (var exercise in exercises) {
+      int totalCaloBurn = exercise['totalCaloBurn'];
+      exercisePoints.add(ExercisePoint(count, totalCaloBurn.toDouble()));
+      count++;
+    }
+    return exercisePoints;
+  }
 
   List<DateTime> initDayOfWeek(DateTime day) {
     List<DateTime> daysOfWeek = [];
@@ -47,7 +62,7 @@ class _WeekExerciseTab extends State<WeekExerciseTab> {
   void initState() {
     super.initState();
     _datevalue = DateTime.now();
-    listDay = initDayOfWeek(DateTime.now());
+    _fetchExercise(DateFormat('yyyy-MM-dd').format(_datevalue));
   }
 
   @override
@@ -139,7 +154,21 @@ class _WeekExerciseTab extends State<WeekExerciseTab> {
                 const SizedBox(
                   height: 15,
                 ),
-                BarChartWidget(points: points),
+                FutureBuilder<List<ExercisePoint>>(
+                  future: _fetchExercise(DateFormat('yyyy-MM-dd').format(_datevalue)),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<ExercisePoint>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Text('No data available');
+                    } else {
+                      return BarChartWidget(points: snapshot.data!);
+                    }
+                  },
+                ),
               ],
             ),
           const SizedBox(height: 30),
@@ -281,13 +310,14 @@ class _WeekExerciseTab extends State<WeekExerciseTab> {
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            itemCount: listDay.length,
+            // itemCount: listDay.length,
             itemBuilder: (context, index) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    DateFormat('EEEE').format(listDay[index]),
+                    // DateFormat('EEEE').format(listDay[index]),
+                    "hehe",
                     style: const TextStyle(
                         fontFamily: "SourceSans3",
                         fontSize: 18,
@@ -355,16 +385,16 @@ class _WeekExerciseTab extends State<WeekExerciseTab> {
     DateTime lastweek = _datevalue.subtract(const Duration(days: 7));
     setState(() {
       _datevalue = lastweek;
-      listDay = initDayOfWeek(lastweek);
     });
+    _fetchExercise(DateFormat('yyyy-MM-dd').format(_datevalue));
   }
 
   void _moveToNextWeek(BuildContext context) {
     DateTime nextweek = _datevalue.add(const Duration(days: 7));
     setState(() {
       _datevalue = nextweek;
-      listDay = initDayOfWeek(nextweek);
     });
+    // _fetchExercise(DateFormat('yyyy-MM-dd').format(_datevalue));
   }
 
   String getWeekRangeString(DateTime date) {

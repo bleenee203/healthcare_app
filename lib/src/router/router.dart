@@ -7,6 +7,7 @@ import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/begin_sleep.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
+import 'package:healthcare_app/src/presentation/pages/exercise_goal.dart';
 import 'package:healthcare_app/src/presentation/pages/food_detail_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/log_exercise.dart';
@@ -46,25 +47,25 @@ class RouterCustom {
         path: '/', // Path cho giao diện splash
         name: 'splash',
         builder: (BuildContext context, GoRouterState state) =>
-            const splash(), // Hiển thị LoginPage
+        const splash(), // Hiển thị LoginPage
       ),
       GoRoute(
         path: '/login', // Path cho giao diện đăng nhập
         name: 'login',
         builder: (BuildContext context, GoRouterState state) =>
-            const LoginPage(), // Hiển thị LoginPage
+        const LoginPage(), // Hiển thị LoginPage
       ),
       GoRoute(
         path: '/signup', // Path cho giao diện splash
         name: 'signup',
         builder: (BuildContext context, GoRouterState state) =>
-            const SignupPage(), // Hiển thị LoginPage
+        const SignupPage(), // Hiển thị LoginPage
       ),
       GoRoute(
         path: '/tabs', // Path cho giao diện splash
         name: 'tabs',
         builder: (BuildContext context, GoRouterState state) =>
-            const MyTabs(), // Hiển thị LoginPage
+        const MyTabs(), // Hiển thị LoginPage
       ),
       GoRoute(
           path: '/verify/:mail/:password', //
@@ -77,7 +78,7 @@ class RouterCustom {
               password: password,
             );
           } // Hiển thị LoginPage
-          ),
+      ),
       GoRoute(
           path: '/verify2/:mail', // Path cho giao diện splash
           name: 'verify2',
@@ -85,18 +86,18 @@ class RouterCustom {
             String? mail = state.pathParameters['mail'];
             return Verify2(mail: mail);
           } // Hiển thị LoginPage
-          ),
+      ),
       GoRoute(
         path: '/success', // Path cho giao diện splash
         name: 'success',
         builder: (BuildContext context, GoRouterState state) =>
-            const Success(), // Hiển thị LoginPage
+        const Success(), // Hiển thị LoginPage
       ),
       GoRoute(
         path: '/register', // Path cho giao diện splash
         name: 'register',
         builder: (BuildContext context, GoRouterState state) =>
-            const Register(), // Hiển thị LoginPage
+        const Register(), // Hiển thị LoginPage
       ),
       GoRoute(
           path: '/resetpass/:email', // Path cho giao diện splash
@@ -105,7 +106,7 @@ class RouterCustom {
             String? email = state.pathParameters['email'];
             return ResetPassword(email: email);
           } // H
-          ),
+      ),
       GoRoute(
           path: '/profile',
           name: 'profile',
@@ -118,27 +119,27 @@ class RouterCustom {
           path: '/change-password',
           name: 'change-password',
           builder: (BuildContext context, GoRouterState state) =>
-              const ChangePasswordPage()),
+          const ChangePasswordPage()),
       GoRoute(
           path: '/personality',
           name: 'personality',
           builder: (BuildContext context, GoRouterState state) =>
-              const PersonalityPage()),
+          const PersonalityPage()),
       GoRoute(
           path: '/water',
           name: 'water',
           builder: (BuildContext context, GoRouterState state) =>
-              const WaterPage()),
+          const WaterPage()),
       GoRoute(
           path: '/water-log',
           name: 'water-log',
           builder: (BuildContext context, GoRouterState state) =>
-              const WaterLogPage()),
+          const WaterLogPage()),
       GoRoute(
           path: '/water-goal',
           name: 'water-goal',
           builder: (BuildContext context, GoRouterState state) =>
-              const WaterGoalPage()),
+          const WaterGoalPage()),
       GoRoute(
           path: '/set-water-goal',
           name: 'set-water-goal',
@@ -152,17 +153,17 @@ class RouterCustom {
           path: '/nutrition',
           name: 'nutrition',
           builder: (BuildContext context, GoRouterState state) =>
-              const NutritionPage()),
+          const NutritionPage()),
       GoRoute(
           path: '/foods',
           name: 'foods',
           builder: (BuildContext context, GoRouterState state) =>
-              const FoodsPage()),
+          const FoodsPage()),
       GoRoute(
           path: '/add-food',
           name: 'add-food',
           builder: (BuildContext context, GoRouterState state) =>
-              const AddFoodPage()),
+          const AddFoodPage()),
       GoRoute(
           path: '/food-detail',
           name: 'food-detail',
@@ -185,42 +186,42 @@ class RouterCustom {
           path: '/sleep-goal',
           name: 'sleep-goal',
           builder: (BuildContext context, GoRouterState state) =>
-              const SleepGoalPage()),
+          const SleepGoalPage()),
       GoRoute(
           path: '/set-sleep-goal',
           name: 'set-sleep-goal',
           builder: (BuildContext context, GoRouterState state) =>
-              const SleepSetGoalPage()),
+          const SleepSetGoalPage()),
       GoRoute(
           path: '/set-sleep-start',
           name: 'set-sleep-start',
           builder: (BuildContext context, GoRouterState state) =>
-              const SleepSetStartPage()),
+          const SleepSetStartPage()),
       GoRoute(
           path: '/forum-post',
           name: 'forum-post',
           builder: (BuildContext context, GoRouterState state) =>
-              const ForumPost()),
+          const ForumPost()),
       GoRoute(
           path: '/sleep',
           name: 'sleep',
           builder: (BuildContext context, GoRouterState state) =>
-              const SleepPage()),
+          const SleepPage()),
       GoRoute(
           path: '/exercise',
           name: 'exercise',
           builder: (BuildContext context, GoRouterState state) =>
-              const ExercisePage()),
+          const ExercisePage()),
       GoRoute(
           path: '/sleep-log',
           name: 'sleep-log',
           builder: (BuildContext context, GoRouterState state) =>
-              const SleepLog()),
+          const SleepLog()),
       GoRoute(
           path: '/set-wake-time',
           name: 'set-wake-time',
           builder: (BuildContext context, GoRouterState state) =>
-              const SleepSetWakeTime()),
+          const SleepSetWakeTime()),
       GoRoute(
         path: '/begin-sleep/:hour/:min',
         name: 'begin-sleep',
@@ -231,20 +232,32 @@ class RouterCustom {
         },
       ),
       GoRoute(
-          path: '/step-count',
+          path: '/step-count/:type',
           name: 'step-count',
-          builder: (BuildContext context, GoRouterState state) =>
-          const StepCountPage()),
+          builder: (BuildContext context, GoRouterState state) {
+            String? type = state.pathParameters['type'];
+            return StepCountPage(type: type,);
+          }
+      ),
       GoRoute(
           path: '/select-exercise',
           name: 'select-exercise',
           builder: (BuildContext context, GoRouterState state) =>
           const SelectExercise()),
       GoRoute(
-          path: '/log-exercise',
+          path: '/log-exercise/:acti',
           name: 'log-exercise',
+          builder: (BuildContext context, GoRouterState state) {
+            String? acti = state.pathParameters['acti'];
+            return LogExersise(
+              acti: acti,
+            );
+          }),
+      GoRoute(
+          path: '/goal-exercise',
+          name: 'goal-exercise',
           builder: (BuildContext context, GoRouterState state) =>
-          const LogExersise()),
+          const ExerciseGoal()),
     ],
   );
 }

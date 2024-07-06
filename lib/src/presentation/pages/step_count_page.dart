@@ -2,18 +2,23 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:healthcare_app/src/models/exerciseModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pedometer/pedometer.dart';
 
+import '../../services/exercise_services.dart';
+
 String formatDate(DateTime d) {
   return d.toString().substring(0, 19);
 }
 
 class StepCountPage extends StatefulWidget {
-  const StepCountPage({super.key});
+  final type;
+  StepCountPage({super.key, required this.type});
 
   @override
   State<StatefulWidget> createState() => _StepCountPageState();
@@ -34,6 +39,22 @@ class _StepCountPageState extends State<StepCountPage>
   LatLng _currentLocation = const LatLng(10.893309, 106.791911);
   Line? _routeLine;
   String initStep = '0';
+
+  final ExerciseService exerciseService = ExerciseService();
+
+  Future<Exercise?> _addExerciseData(newData) async {
+    final exercise = await exerciseService.addExerciseLog(newData);
+    if (exercise != null) {
+      Fluttertoast.showToast(
+        msg: "Add new exercise log successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    }
+    return null;
+  }
 
   // Hàm này xử lý cho map
   void _onMapCreated(MapboxMapController controller) {
@@ -70,48 +91,52 @@ class _StepCountPageState extends State<StepCountPage>
     // initPlatformState();
     getCurrentLocation();
   }
+  @override
+  void dispose(){
+    super.dispose();
+    _stepCountSubscription?.cancel();
+    _pedestrianStatusSubscription?.cancel();
+  }
 
   void onStepCount(StepCount event) {
     print(event);
-    setState(() {
-      _steps = event.steps.toString();
-      if (initStep == '0'){
-        initStep = _steps;
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _steps = event.steps.toString();
+        if (initStep == '0') {
+          initStep = _steps;
+        }
+      });
+    }
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
     print(event);
-    setState(() {
-      _status = event.status;
-    });
+    if (mounted) {
+      setState(() {
+        _status = event.status;
+      });
+    }
   }
 
   void onPedestrianStatusError(error) {
     print('onPedestrianStatusError: $error');
-    setState(() {
-      _status = 'Pedestrian Status not available';
-    });
+    if (mounted) {
+      setState(() {
+        _status = 'Pedestrian Status not available';
+      });
+    }
     print(_status);
   }
 
   void onStepCountError(error) {
     print('onStepCountError: $error');
-    setState(() {
-      _steps = 'Step Count not available';
-    });
+    if (mounted) {
+      setState(() {
+        _steps = 'Step Count not available';
+      });
+    }
   }
-
-  // void initPlatformState() {
-  //   _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-  //   _stepCountStream = Pedometer.stepCountStream;
-  //
-  //   _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-  //   _stepCountStream = Pedometer.stepCountStream;
-  //
-  //   if (!mounted) return;
-  // }
 
   void initPlatformState() {
     _pedestrianStatusSubscription =
@@ -142,11 +167,6 @@ class _StepCountPageState extends State<StepCountPage>
     _routePoints.clear();
     _distance = 0.0;
 
-    // _pedestrianStatusStream
-    //     .listen(onPedestrianStatusChanged)
-    //     .onError(onPedestrianStatusError);
-    //
-    // _stepCountStream.listen(onStepCount).onError(onStepCountError);
     initPlatformState();
     if (mapController != null) {
       _routeLine = await mapController!.addLine(
@@ -160,36 +180,29 @@ class _StepCountPageState extends State<StepCountPage>
 
     location.onLocationChanged.listen((LocationData currentLocation) {
       if (!isTracking) return;
-      setState(() {
-        LatLng currentPoint =
-            LatLng(currentLocation.latitude!, currentLocation.longitude!);
-        if (_routePoints.isNotEmpty) {
-          _distance += _calculateDistance(_routePoints.last, currentPoint);
-        }
-        _routePoints.add(currentPoint);
-        mapController!.updateLine(
-          _routeLine!,
-          LineOptions(
-            geometry: _routePoints,
-          ),
-        );
-        mapController?.animateCamera(
-          CameraUpdate.newLatLng(currentPoint),
-        );
-      });
+      if (mounted){
+        setState(() {
+          LatLng currentPoint =
+          LatLng(currentLocation.latitude!, currentLocation.longitude!);
+          if (_routePoints.isNotEmpty) {
+            _distance += _calculateDistance(_routePoints.last, currentPoint);
+          }
+          _routePoints.add(currentPoint);
+          mapController!.updateLine(
+            _routeLine!,
+            LineOptions(
+              geometry: _routePoints,
+            ),
+          );
+          mapController?.animateCamera(
+            CameraUpdate.newLatLng(currentPoint),
+          );
+        });
+      }
     });
   }
 
   void _stopTracking() {
-    // if (mapController != null && _routePoints.isNotEmpty) {
-    //   mapController!.addLine(
-    //     LineOptions(
-    //       geometry: _routePoints,
-    //       lineColor: '#ff0000',
-    //       lineWidth: 5.0,
-    //     ),
-    //   );
-    // }
     setState(() {
       isTracking = false;
       _routePoints.clear();
@@ -215,6 +228,8 @@ class _StepCountPageState extends State<StepCountPage>
 
   @override
   Widget build(BuildContext context) {
+    final int parsedSteps = int.tryParse(_steps) ?? 0;
+    final int parsedInitSteps = int.tryParse(initStep) ?? 0;
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -247,7 +262,7 @@ class _StepCountPageState extends State<StepCountPage>
                           child: Image.asset('res/images/go-back.png'),
                         ),
                         Text(
-                          "walking".toUpperCase(),
+                          widget.type.toUpperCase(),
                           style: TextStyle(
                             color: HexColor("474672"),
                             fontFamily: "SourceSans3",
@@ -259,7 +274,15 @@ class _StepCountPageState extends State<StepCountPage>
                             alignment: Alignment.center,
                             child: TextButton(
                               onPressed: () {
-                               print("heheh");
+                                DateTime today = DateTime.now();
+                                Exercise data = Exercise(
+                                  type: widget.type,
+                                  date: today,
+                                  calo_burn: ((int.parse(_steps)-int.parse(initStep)) * 0.04),
+                                  start_time: TimeOfDay.fromDateTime(today),
+                                  // duration: double.parse(_durationController.value.text),
+                                  distance: _distance,                                   );
+                                _addExerciseData(data);
                               },
                               child: const Text(
                                 "SAVE",
@@ -280,7 +303,7 @@ class _StepCountPageState extends State<StepCountPage>
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
                         target: _currentLocation,
-                        zoom: 14.0,
+                        zoom: 16.0,
                       ),
                       minMaxZoomPreference: const MinMaxZoomPreference(0, 22),
                       zoomGesturesEnabled: true,
@@ -352,7 +375,7 @@ class _StepCountPageState extends State<StepCountPage>
                               height: 5,
                             ),
                             Text(
-                              "${(int.parse(_steps)-int.parse(initStep)).toString()} steps",
+                              "${(parsedSteps-parsedInitSteps).toString()} steps",
                               style: const TextStyle(
                                 fontFamily: "SourceSans3",
                                 fontSize: 20,
