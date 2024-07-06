@@ -1,16 +1,53 @@
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:healthcare_app/src/presentation/widgets/bar_chart.dart';
 import 'package:healthcare_app/src/presentation/widgets/water_year_chart.dart';
 import 'package:healthcare_app/src/services/drinkService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class YearWaterTab extends StatefulWidget {
   final int water_target;
   const YearWaterTab({super.key, required this.water_target});
   @override
   State<YearWaterTab> createState() => _YearWaterTab();
+}
+
+void showReminderNotification() async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  var initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettingsIOS = IOSInitializationSettings();
+  var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    'channel_id',
+    'channel_name',
+    channelDescription: 'Notifications to remind you to drink water',
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
+  var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+  var platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+    iOS: iOSPlatformChannelSpecifics,
+  );
+
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    'Đã đến giờ uống nước!',
+    'Hãy uống nước để duy trì sức khoẻ!',
+    platformChannelSpecifics,
+    payload: 'item x',
+  );
 }
 
 class _YearWaterTab extends State<YearWaterTab> {
@@ -42,6 +79,33 @@ class _YearWaterTab extends State<YearWaterTab> {
     return daysOfWeek;
   }
 
+  Future<void> _addWaterLog(int amount) async {
+    if (await drinkService.addWaterLog(amount)) {
+      Fluttertoast.showToast(
+        msg: "Add water log successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+      AndroidAlarmManager.cancel(0);
+
+      // Bắt đầu lại alarm để nhắc nhở tiếp tục sau mỗi phút
+      _startAlarmManager();
+      setState(() {});
+    } else {
+      Fluttertoast.showToast(
+        msg: "An error occurred while adding the water intake log",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   // final _scrollController = ScrollController();
 
   // Dummy list of items
@@ -62,6 +126,30 @@ class _YearWaterTab extends State<YearWaterTab> {
     _datevalue = DateTime.now();
     // listDay = initDayOfWeek(DateTime.now().subtract(const Duration(days: 1)));
     // _scrollController.addListener(_loadMoreItems);
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    // Bắt đầu alarm manager
+    _loadReminderStatus();
+  }
+  bool _isReminderOn = false;
+  Future<void> _loadReminderStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isReminderOn = prefs.getBool('isReminderOn') ?? false;
+      if (_isReminderOn) {
+        _startAlarmManager();
+      }
+    });
+  }
+  void _startAlarmManager() {
+    const oneMinute = Duration(hours: 1);
+    AndroidAlarmManager.periodic(oneMinute, 0, showReminderNotification,
+        exact: true, wakeup: true);
   }
 
   @override
@@ -206,71 +294,86 @@ class _YearWaterTab extends State<YearWaterTab> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        children: [
-                          Image.asset("res/images/glass-of-water.png"),
-                          const SizedBox(
-                            height: 13,
-                          ),
-                          const Text(
-                            "1 glass",
-                            style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 16,
+                      GestureDetector(
+                        onTap: () {
+                          _addWaterLog(250);
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/glass-of-water.png"),
+                            const SizedBox(
+                              height: 13,
                             ),
-                          ),
-                          Text(
-                            "(250 ml)",
-                            style: TextStyle(
+                            const Text(
+                              "1 glass",
+                              style: TextStyle(
                                 fontFamily: "SourceSans3",
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.75)),
-                          ),
-                        ],
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(250 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       ),
-                      Column(
-                        children: [
-                          Image.asset("res/images/bottle.png"),
-                          const SizedBox(
-                            height: 13,
-                          ),
-                          const Text(
-                            "1 bottle",
-                            style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 16,
+                      GestureDetector(
+                        onTap: () {
+                          _addWaterLog(500);
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/bottle.png"),
+                            const SizedBox(
+                              height: 13,
                             ),
-                          ),
-                          Text(
-                            "(500 ml)",
-                            style: TextStyle(
+                            const Text(
+                              "1 bottle",
+                              style: TextStyle(
                                 fontFamily: "SourceSans3",
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.75)),
-                          ),
-                        ],
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(500 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       ),
-                      Column(
-                        children: [
-                          Image.asset("res/images/super_bottle.png"),
-                          const SizedBox(
-                            height: 13,
-                          ),
-                          const Text(
-                            "1 super bottle",
-                            style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 16,
+                      GestureDetector(
+                        onTap: () {
+                          _addWaterLog(750);
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/super_bottle.png"),
+                            const SizedBox(
+                              height: 13,
                             ),
-                          ),
-                          Text(
-                            "(750 ml)",
-                            style: TextStyle(
+                            const Text(
+                              "1 super bottle",
+                              style: TextStyle(
                                 fontFamily: "SourceSans3",
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.75)),
-                          ),
-                        ],
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(750 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       )
                     ],
                   ),
@@ -296,9 +399,9 @@ class _YearWaterTab extends State<YearWaterTab> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Image.asset("res/images/glass-of-water.png"),
-                        const Text(
-                          "1000",
-                          style: TextStyle(
+                        Text(
+                          "${reversedDays[0]['totalAmount']}",
+                          style: const TextStyle(
                               fontFamily: "SourceSans3",
                               fontSize: 24,
                               fontWeight: FontWeight.w700),
@@ -310,9 +413,9 @@ class _YearWaterTab extends State<YearWaterTab> {
                             fontSize: 16,
                           ),
                         ),
-                        const Text(
-                          "2000",
-                          style: TextStyle(
+                        Text(
+                          "${widget.water_target}",
+                          style: const TextStyle(
                               fontFamily: "SourceSans3",
                               fontSize: 24,
                               fontWeight: FontWeight.w700),
@@ -401,10 +504,10 @@ class _YearWaterTab extends State<YearWaterTab> {
                                       fontWeight: FontWeight.w600),
                                 ),
                               ),
-                              const Expanded(
+                              Expanded(
                                 child: Text(
-                                  "2000ml",
-                                  style: TextStyle(
+                                  "${reversedDays[index]['totalAmount']}ml",
+                                  style: const TextStyle(
                                     fontFamily: "SourceSans3",
                                     fontSize: 16,
                                   ),

@@ -64,6 +64,7 @@ class MealService {
       print('no valid access token');
       return [];
     }
+    print("datewedfw $date");
     try {
       final response = await http.get(
         Uri.parse('${url}meal/get-meal?user_id=$userId&date=$date'),
@@ -76,7 +77,6 @@ class MealService {
         final decodedResponse =
             jsonDecode(response.body) as Map<String, dynamic>;
         final meals = decodedResponse['meals'] as List<dynamic>;
-        print(meals);
         // Kiểm tra và chuyển đổi từng phần tử trong danh sách meals thành Map<String, dynamic>
         List<Map<String, dynamic>> parsedMeals = [];
         meals.forEach((meal) {
@@ -143,7 +143,6 @@ class MealService {
     try {
       final newData = meal.toJson();
       final requestBody = jsonEncode({'userId': userId, "newData": newData});
-
       // Print the body of the request
       print('Request Body: $requestBody');
       final response = await http.post(

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/drinkService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalityPage extends StatefulWidget {
   const PersonalityPage({super.key});
@@ -12,6 +14,65 @@ class PersonalityPage extends StatefulWidget {
 }
 
 class _PersonalityPage extends State<PersonalityPage> {
+  late SharedPreferences prefs;
+  Future<void> initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  int water_target = 0;
+  Future<Map<String, dynamic>> _fetchDrink(String date) async {
+    Map<String, dynamic>? drinkToday;
+    DrinkService drinkService = DrinkService();
+
+    if (date == "Today") {
+      DateTime today = DateTime.now();
+      final Map<String, dynamic> response =
+          await drinkService.fetchDrink(DateFormat('yyyy-MM-dd').format(today));
+      if (response.isEmpty) {
+        return {};
+      }
+      final List<Map<String, dynamic>> drinks = response['drinks'] ?? [];
+      drinkToday = drinks.firstWhere(
+          (drink) => drink['date'] == DateFormat('dd/MM/yyyy').format(today),
+          orElse: () => {});
+    } else if (date == "Yesterday") {
+      DateTime today = DateTime.now().subtract(Duration(days: 1));
+      final Map<String, dynamic> response =
+          await drinkService.fetchDrink(DateFormat('yyyy-MM-dd').format(today));
+      if (response.isEmpty) {
+        return {};
+      }
+      final List<Map<String, dynamic>> drinks = response['drinks'] ?? [];
+      drinkToday = drinks.firstWhere(
+          (drink) => drink['date'] == DateFormat('dd/MM/yyyy').format(today),
+          orElse: () => {});
+    } else {
+      DateTime today = DateFormat('dd/MM/yyyy').parse(date);
+      final Map<String, dynamic> response =
+          await drinkService.fetchDrink(DateFormat('yyyy-MM-dd').format(today));
+      if (response.isEmpty) {
+        return {};
+      }
+      final List<Map<String, dynamic>> drinks = response['drinks'] ?? [];
+      drinkToday =
+          drinks.firstWhere((drink) => drink['date'] == date, orElse: () => {});
+      print(drinks);
+      print(date);
+    }
+    return {'drinkToday': drinkToday};
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initSharedPref().then((_) {
+      setState(() {
+        water_target = prefs.getInt('water_target')!;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -316,7 +377,9 @@ class _PersonalityPage extends State<PersonalityPage> {
                   height: 16,
                 ),
                 GestureDetector(
-                  onTap: () => RouterCustom.router.pushNamed('water'),
+                  onTap: () => RouterCustom.router.pushNamed('water').then((_) {
+                    setState(() {});
+                  }),
                   child: Card.filled(
                     elevation: 0,
                     color: Colors.white,
@@ -342,42 +405,91 @@ class _PersonalityPage extends State<PersonalityPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                "2000",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "SourceSans3",
-                                  fontSize: 36,
-                                ),
-                              ),
-                              const Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Text(
-                                    "ml",
-                                    style: TextStyle(
-                                      fontFamily: "SourceSans3",
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              FutureBuilder<Map<String, dynamic>>(
+                                  future: _fetchDrink(_datevalue),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<Map<String, dynamic>>
+                                          snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (!snapshot.hasData ||
+                                        snapshot.data!.isEmpty) {
+                                      return const Text(
+                                        'No data',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "SourceSans3",
+                                          fontSize: 36,
+                                        ),
+                                      );
+                                    } else {
+                                      final Map<String, dynamic> drink =
+                                          (snapshot.data!['drinkToday']
+                                              as Map<String, dynamic>);
+                                      return Text(
+                                        "${drink['totalAmount']}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "SourceSans3",
+                                          fontSize: 36,
+                                        ),
+                                      );
+                                    }
+                                  }),
                               SizedBox(
                                   child: Stack(
                                       fit: StackFit.loose,
                                       alignment: Alignment.center,
                                       children: [
                                     Positioned(
-                                      child: CircularPercentIndicator(
-                                        radius: 30,
-                                        lineWidth: 6,
-                                        backgroundColor: HexColor("F3F4F7"),
-                                        progressColor: HexColor("BBB7EA"),
-                                        circularStrokeCap:
-                                            CircularStrokeCap.round,
-                                        percent: 0.4,
-                                      ),
+                                      child: FutureBuilder<
+                                              Map<String, dynamic>>(
+                                          future: _fetchDrink(_datevalue),
+                                          builder: (BuildContext context,
+                                              AsyncSnapshot<
+                                                      Map<String, dynamic>>
+                                                  snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return const Center(
+                                                  child:
+                                                      CircularProgressIndicator());
+                                            } else if (!snapshot.hasData ||
+                                                snapshot.data!.isEmpty) {
+                                              return CircularPercentIndicator(
+                                                radius: 30,
+                                                lineWidth: 6,
+                                                backgroundColor:
+                                                    HexColor("F3F4F7"),
+                                                progressColor:
+                                                    HexColor("BBB7EA"),
+                                                circularStrokeCap:
+                                                    CircularStrokeCap.round,
+                                                percent: 0,
+                                              );
+                                            } else {
+                                              final Map<String, dynamic> drink =
+                                                  (snapshot.data!['drinkToday']
+                                                      as Map<String, dynamic>);
+                                              return CircularPercentIndicator(
+                                                radius: 30,
+                                                lineWidth: 6,
+                                                backgroundColor:
+                                                    HexColor("F3F4F7"),
+                                                progressColor:
+                                                    HexColor("BBB7EA"),
+                                                circularStrokeCap:
+                                                    CircularStrokeCap.round,
+                                                percent: drink['totalAmount'] <=
+                                                        water_target
+                                                    ? drink['totalAmount'] /
+                                                        water_target
+                                                    : 1,
+                                              );
+                                            }
+                                          }),
                                     ),
                                     Image.asset("res/images/glass.png")
                                   ])),
@@ -387,7 +499,7 @@ class _PersonalityPage extends State<PersonalityPage> {
                             height: 20,
                           ),
                           Text(
-                            "Today",
+                            _datevalue,
                             style: TextStyle(
                                 fontFamily: "SourceSans3",
                                 fontSize: 16,

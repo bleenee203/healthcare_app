@@ -1,5 +1,9 @@
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/router/router.dart';
+import 'package:healthcare_app/src/services/drinkService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
@@ -11,6 +15,34 @@ class WaterLogPage extends StatefulWidget {
 }
 
 class _WaterPageState extends State<WaterLogPage> {
+  DrinkService drinkService = DrinkService();
+  Future<void> _addWaterLog(String date, int amount) async {
+    if (await drinkService.addWaterLogByDate(date,amount)) {
+      Fluttertoast.showToast(
+        msg: "Add water log successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+      Navigator.pop(context);
+    } else {
+      Fluttertoast.showToast(
+        msg: "An error occurred while adding the water intake log",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  TextEditingController amountController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -47,12 +79,18 @@ class _WaterPageState extends State<WaterLogPage> {
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const Text(
-                        "SAVE",
-                        style: TextStyle(
-                          fontFamily: "SourceSans3",
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                      GestureDetector(
+                        onTap: () {
+                          _addWaterLog(
+                              _datelog, int.parse(amountController.text));
+                        },
+                        child: const Text(
+                          "SAVE",
+                          style: TextStyle(
+                            fontFamily: "SourceSans3",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       )
                     ],
@@ -72,6 +110,7 @@ class _WaterPageState extends State<WaterLogPage> {
                       Expanded(
                         flex: 4,
                         child: TextField(
+                          controller: amountController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                               enabledBorder: UnderlineInputBorder(
@@ -123,71 +162,84 @@ class _WaterPageState extends State<WaterLogPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        children: [
-                          Image.asset("res/images/glass-of-water.png"),
-                          const SizedBox(
-                            height: 13,
-                          ),
-                          const Text(
-                            "1 glass",
-                            style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 16,
+                      GestureDetector(
+                        onTap: () {
+                          amountController.text = '250';
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/glass-of-water.png"),
+                            const SizedBox(
+                              height: 13,
                             ),
-                          ),
-                          Text(
-                            "(250 ml)",
-                            style: TextStyle(
+                            const Text(
+                              "1 glass",
+                              style: TextStyle(
                                 fontFamily: "SourceSans3",
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.75)),
-                          ),
-                        ],
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(250 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       ),
-                      Column(
-                        children: [
-                          Image.asset("res/images/bottle.png"),
-                          const SizedBox(
-                            height: 13,
-                          ),
-                          const Text(
-                            "1 bottle",
-                            style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 16,
+                      GestureDetector(
+                        onTap: () => amountController.text = '500',
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/bottle.png"),
+                            const SizedBox(
+                              height: 13,
                             ),
-                          ),
-                          Text(
-                            "(500 ml)",
-                            style: TextStyle(
+                            const Text(
+                              "1 bottle",
+                              style: TextStyle(
                                 fontFamily: "SourceSans3",
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.75)),
-                          ),
-                        ],
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(500 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       ),
-                      Column(
-                        children: [
-                          Image.asset("res/images/super_bottle.png"),
-                          const SizedBox(
-                            height: 13,
-                          ),
-                          const Text(
-                            "1 super bottle",
-                            style: TextStyle(
-                              fontFamily: "SourceSans3",
-                              fontSize: 16,
+                      GestureDetector(
+                        onTap: () {
+                          amountController.text = '750';
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/super_bottle.png"),
+                            const SizedBox(
+                              height: 13,
                             ),
-                          ),
-                          Text(
-                            "(750 ml)",
-                            style: TextStyle(
+                            const Text(
+                              "1 super bottle",
+                              style: TextStyle(
                                 fontFamily: "SourceSans3",
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.75)),
-                          ),
-                        ],
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(750 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       )
                     ],
                   ),
@@ -243,7 +295,7 @@ class _WaterPageState extends State<WaterLogPage> {
     );
   }
 
-  String _datelog = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  String _datelog = DateFormat('yyyy-MM-dd').format(DateTime.now());
   void _showDatePicker(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -253,7 +305,7 @@ class _WaterPageState extends State<WaterLogPage> {
     );
     String? selectedDate;
     if (picked != null) {
-      selectedDate = DateFormat('dd/MM/yyyy').format(picked);
+      selectedDate = DateFormat('yyyy-MM-dd').format(picked);
     }
     setState(() {
       _datelog = selectedDate ?? _datelog;

@@ -47,7 +47,7 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
   Future<Map<String, dynamic>> _fetchDrink() async {
     final Map<String, dynamic> result = {};
     double count = 0;
-
+    List<Map<String, dynamic>>? drinks;
     for (var month in monthsmonth) {
       final Map<String, dynamic> response = await drinkService
           .fetchWeekDrinkByMonth(DateFormat('yyyy-MM').format(month));
@@ -56,6 +56,7 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
       }
 
       List<Map<String, dynamic>> monthDrinks = response['drinks'] ?? [];
+      drinks = response['days'] ?? [];
       List<WaterPoint> waterPoints = [];
       for (var drink in monthDrinks) {
         int totalAmount = drink['totalAmount'];
@@ -65,8 +66,8 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
 
       result['month${monthsmonth.indexOf(month) + 1}'] = waterPoints;
     }
-    print(result);
-    return result;
+    print(drinks);
+    return {'result': result, 'drinks': drinks};
   }
 
   // final _scrollController = ScrollController();
@@ -120,7 +121,7 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
             } else {
               months[0] = ({0: monthsmonth[0].month});
               final List<WaterPoint> points =
-                  (snapshot.data!['month1'] as List<dynamic>?)
+                  (snapshot.data!['result']['month1'] as List<dynamic>?)
                           ?.map((e) => e as WaterPoint)
                           .toList() ??
                       [];
@@ -128,7 +129,7 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
 
 // Lấy danh sách WaterPoint của month2 từ snapshot.data
               final List<WaterPoint> month2Points =
-                  (snapshot.data!['month2'] as List<dynamic>?)
+                  (snapshot.data!['result']['month2'] as List<dynamic>?)
                           ?.map((e) => e as WaterPoint)
                           .toList() ??
                       [];
@@ -137,28 +138,16 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
 
 // Lấy danh sách WaterPoint của month3 từ snapshot.data
               final List<WaterPoint> month3Points =
-                  (snapshot.data!['month3'] as List<dynamic>?)
+                  (snapshot.data!['result']['month3'] as List<dynamic>?)
                           ?.map((e) => e as WaterPoint)
                           .toList() ??
                       [];
               points.addAll(month3Points);
-              final double avg;
-              // if (isInSameMonth(_datevalue)) {
-              //   // Calculate the end of the current week
-              //   DateTime now = DateTime.now();
-              //   int currentWeekday = now.weekday;
-              //   int endOfWeekDay = now.day + (7 - currentWeekday);
-
-              //   final List<WaterPoint> filteredPoints =
-              //       points.where((point) => point.x <= endOfWeekDay).toList();
-              //   final double totalAmount =
-              //       filteredPoints.fold(0, (sum, point) => sum + point.y);
-
-              //   avg = double.parse(
-              //       (totalAmount / filteredPoints.length).toStringAsFixed(2));
-              // } else {
-              //   avg = (snapshot.data!['avg'] as double?) ?? 0.0;
-              // }
+              final List<Map<String, dynamic>> drinks =
+                  (snapshot.data!['drinks'] as List<Map<String, dynamic>>?) ??
+                      [];
+              List<Map<String, dynamic>> reversedDays =
+                  List.from(drinks.reversed);
               return Column(
                 children: [
                   const SizedBox(height: 24),
@@ -304,9 +293,9 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Image.asset("res/images/glass-of-water.png"),
-                      const Text(
-                        "1000",
-                        style: TextStyle(
+                      Text(
+                        "${reversedDays[0]['totalAmount']}",
+                        style: const TextStyle(
                             fontFamily: "SourceSans3",
                             fontSize: 24,
                             fontWeight: FontWeight.w700),
@@ -318,9 +307,9 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
                           fontSize: 16,
                         ),
                       ),
-                      const Text(
-                        "2000",
-                        style: TextStyle(
+                      Text(
+                        "${widget.water_target}",
+                        style: const TextStyle(
                             fontFamily: "SourceSans3",
                             fontSize: 24,
                             fontWeight: FontWeight.w700),
@@ -341,95 +330,98 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount:
-                        listDay.length + 1, // Adding 1 for loading indicator
+                    itemCount: reversedDays.length -
+                        1, // Adding 1 for loading indicator
                     itemBuilder: (context, index) {
-                      if (index == listDay.length) {
-                        // If reached the end of the list, show a loading indicator
-                        return const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      } else {
-                        // Displaying the actual item
-                        return Column(
-                          children: [
-                            if (listDay[index].weekday == DateTime.sunday)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 20),
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration:
-                                      BoxDecoration(color: HexColor("BBB7EA")),
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 5),
-                                    child: Row(
-                                      //mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
+                      return Column(
+                        children: [
+                          if (reversedDays[index]['date'] != null &&
+                              (DateFormat('dd/MM/yyyy')
+                                          .parse(reversedDays[index]['date']))
+                                      .weekday ==
+                                  DateTime.sunday)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                decoration:
+                                    BoxDecoration(color: HexColor("BBB7EA")),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  child: Row(
+                                    //mainAxisAlignment: MainAxisAlignment.center,
+
+                                    children: [
+                                      if (reversedDays[index]['date'] != null)
                                         Text(
                                           DateFormat('MMMM d').format(
-                                              listDay[index].subtract(
-                                                  const Duration(days: 6))),
+                                              (DateFormat('dd/MM/yyyy').parse(
+                                                      reversedDays[index]
+                                                          ['date']!))
+                                                  .subtract(
+                                                      const Duration(days: 6))),
                                           style: const TextStyle(
                                             fontFamily: "SourceSans3",
                                             fontSize: 20,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                        const Text(
-                                          " - ",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontFamily: "SourceSans3",
-                                          ),
+                                      const Text(
+                                        " - ",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontFamily: "SourceSans3",
                                         ),
+                                      ),
+                                      if (reversedDays[index]['date'] != null)
                                         Text(
-                                          DateFormat('MMMM d')
-                                              .format(listDay[index]),
+                                          DateFormat('MMMM d').format(
+                                              (DateFormat('dd/MM/yyyy').parse(
+                                                  reversedDays[index]
+                                                      ['date']!))),
                                           style: const TextStyle(
                                             fontSize: 20,
                                             fontFamily: "SourceSans3",
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
+                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              if (reversedDays[index]['date'] != null)
                                 Expanded(
                                   child: Text(
-                                    DateFormat('EEEE').format(listDay[index]),
+                                    DateFormat('EEEE').format(
+                                        (DateFormat('dd/MM/yyyy').parse(
+                                            reversedDays[index]['date']))),
                                     style: const TextStyle(
                                         fontFamily: "SourceSans3",
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600),
                                   ),
                                 ),
-                                const Expanded(
-                                  child: Text(
-                                    "2000ml",
-                                    style: TextStyle(
-                                      fontFamily: "SourceSans3",
-                                      fontSize: 16,
-                                    ),
+                              Expanded(
+                                child: Text(
+                                  "${reversedDays[index]['totalAmount']}",
+                                  style: const TextStyle(
+                                    fontFamily: "SourceSans3",
+                                    fontSize: 16,
                                   ),
                                 ),
-                              ],
-                            ),
-                            const Divider(
-                              thickness: 1,
-                            ),
-                          ],
-                        );
-                      }
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            thickness: 1,
+                          ),
+                        ],
+                      );
                     },
                   ),
                 ],

@@ -144,6 +144,7 @@ class _WaterSetGoalPage extends State<WaterSetGoalPage> {
                       )
                     ],
                   ),
+                  const SizedBox(height: 20,),
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
