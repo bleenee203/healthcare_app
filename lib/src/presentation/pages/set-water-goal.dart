@@ -4,6 +4,7 @@ import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:healthcare_app/src/services/userService.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WaterSetGoalPage extends StatefulWidget {
   final int? water_target;
@@ -18,6 +19,8 @@ class _WaterSetGoalPage extends State<WaterSetGoalPage> {
   final UserService userService = UserService();
   late int _water_goal;
   Future<User?> _updateUserData(newData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     final user = await userService.updateUserData(newData);
     if (user != null) {
       Fluttertoast.showToast(
@@ -27,6 +30,7 @@ class _WaterSetGoalPage extends State<WaterSetGoalPage> {
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
+      prefs.setInt('water_goal', _water_goal);
     }
   }
 

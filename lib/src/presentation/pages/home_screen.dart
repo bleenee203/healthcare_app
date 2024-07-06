@@ -57,6 +57,7 @@ class _HomePage extends State<HomePage> {
       double kcal = meal['kcal'].toDouble();
       return sum + kcal;
     });
+    if (!mounted) return;
     setState(() {
       calorieIn = totalCalories;
       calorieNeeded = prefs.getDouble('calo_target')! - calorieIn + calorieOut;

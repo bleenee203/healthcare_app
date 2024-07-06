@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:healthcare_app/src/presentation/widgets/bar_chart.dart';
@@ -10,18 +7,22 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
 class WeekWaterTab extends StatefulWidget {
-  const WeekWaterTab({super.key});
+  final int water_target;
+  const WeekWaterTab({super.key, required this.water_target});
   @override
   State<WeekWaterTab> createState() => _WeekWaterTab();
 }
 
 class _WeekWaterTab extends State<WeekWaterTab> {
   DrinkService drinkService = DrinkService();
-  List<WaterPoint> points = [];
-
-  Future<List<WaterPoint>> _fetchDrink(String date) async {
-    final List<Map<String, dynamic>> drinks =
-        await drinkService.fetchDrink(date);
+  Future<Map<String, dynamic>> _fetchDrink(String date) async {
+    late double avg;
+    final Map<String, dynamic> response = await drinkService.fetchDrink(date);
+    if (response.isEmpty) {
+      return {};
+    }
+    final List<Map<String, dynamic>> drinks = response['drinks'] ?? [];
+    avg = double.parse(response['avg']);
     List<WaterPoint> waterPoints = [];
     double count = 0;
     for (var drink in drinks) {
@@ -29,7 +30,7 @@ class _WeekWaterTab extends State<WeekWaterTab> {
       waterPoints.add(WaterPoint(count, totalAmount.toDouble()));
       count++;
     }
-    return waterPoints;
+    return {'points': waterPoints, 'avg': avg};
   }
 
   Future<void> _addWaterLog(int amount) async {
@@ -59,7 +60,6 @@ class _WeekWaterTab extends State<WeekWaterTab> {
   void initState() {
     super.initState();
     _datevalue = DateTime.now();
-    _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue));
   }
 
   @override
@@ -70,184 +70,173 @@ class _WeekWaterTab extends State<WeekWaterTab> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                  onTap: () => _moveToPreviousWeek(context),
-                  child: Image.asset("res/images/left.png")),
-              Text(
-                getWeekRangeString(_datevalue),
-                style: const TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              GestureDetector(
-                onTap: _datevalue.day == DateTime.now().day
-                    ? null
-                    : () => _moveToNextWeek(context),
-                child: Image.asset("res/images/right.png"),
-              )
-            ],
-          ),
-          Text(
-            "2000ml (avg)",
-            style: TextStyle(
-              color: HexColor("474672").withOpacity(0.5),
-              fontFamily: "SourceSans3",
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(
-            height: 78,
-          ),
-          FutureBuilder<List<WaterPoint>>(
-            future: _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue)),
-            builder: (BuildContext context,
-                AsyncSnapshot<List<WaterPoint>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Text('No data available');
-              } else {
-                return BarChartWidget(points: snapshot.data!);
-              }
-            },
-          ),
-          const SizedBox(
-            height: 23,
-          ),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Quick Add For Today",
-              style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(
-            height: 12,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  _addWaterLog(250);
-                },
-                child: Column(
-                  children: [
-                    Image.asset("res/images/glass-of-water.png"),
-                    const SizedBox(
-                      height: 13,
-                    ),
-                    const Text(
-                      "1 glass",
-                      style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 16,
+      child: FutureBuilder<Map<String, dynamic>>(
+          future: _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue)),
+          builder: (BuildContext context,
+              AsyncSnapshot<Map<String, dynamic>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No data available'));
+            } else {
+              final List<WaterPoint> points =
+                  (snapshot.data!['points'] as List?)
+                          ?.map((e) => e as WaterPoint)
+                          .toList() ??
+                      [];
+              final double avg = (snapshot.data!['avg'] as double?) ?? 0.0;
+              return Column(
+                children: [
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                          onTap: () => _moveToPreviousWeek(context),
+                          child: Image.asset("res/images/left.png")),
+                      Text(
+                        getWeekRangeString(_datevalue),
+                        style: const TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
+                      GestureDetector(
+                        onTap: _datevalue.day == DateTime.now().day
+                            ? null
+                            : () => _moveToNextWeek(context),
+                        child: Image.asset("res/images/right.png"),
+                      )
+                    ],
+                  ),
+                  Text(
+                    "$avg (avg)",
+                    style: TextStyle(
+                      color: HexColor("474672").withOpacity(0.5),
+                      fontFamily: "SourceSans3",
+                      fontSize: 14,
                     ),
-                    Text(
-                      "(250 ml)",
+                  ),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  BarChartWidget(points: points),
+                  const SizedBox(
+                    height: 23,
+                  ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Quick Add For Today",
                       style: TextStyle(
                           fontFamily: "SourceSans3",
-                          fontSize: 14,
-                          color: Colors.black.withOpacity(0.75)),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700),
                     ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  _addWaterLog(500);
-                },
-                child: Column(
-                  children: [
-                    Image.asset("res/images/bottle.png"),
-                    const SizedBox(
-                      height: 13,
-                    ),
-                    const Text(
-                      "1 bottle",
-                      style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 16,
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          _addWaterLog(250);
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/glass-of-water.png"),
+                            const SizedBox(
+                              height: 13,
+                            ),
+                            const Text(
+                              "1 glass",
+                              style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(250 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      "(500 ml)",
-                      style: TextStyle(
-                          fontFamily: "SourceSans3",
-                          fontSize: 14,
-                          color: Colors.black.withOpacity(0.75)),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  _addWaterLog(750);
-                },
-                child: Column(
-                  children: [
-                    Image.asset("res/images/super_bottle.png"),
-                    const SizedBox(
-                      height: 13,
-                    ),
-                    const Text(
-                      "1 super bottle",
-                      style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 16,
+                      GestureDetector(
+                        onTap: () {
+                          _addWaterLog(500);
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/bottle.png"),
+                            const SizedBox(
+                              height: 13,
+                            ),
+                            const Text(
+                              "1 bottle",
+                              style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(500 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      "(750 ml)",
-                      style: TextStyle(
-                          fontFamily: "SourceSans3",
-                          fontSize: 14,
-                          color: Colors.black.withOpacity(0.75)),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 28,
-          ),
-          FutureBuilder<List<WaterPoint>>(
-            future: _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue)),
-            builder: (BuildContext context,
-                AsyncSnapshot<List<WaterPoint>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Text('No data available');
-              } else {
-                return Column(
-                  children: [..._buildDayRows(snapshot.data!)],
-                );
-              }
-            },
-          ),
-          const SizedBox(
-            height: 10,
-          )
-        ],
-      ),
+                      GestureDetector(
+                        onTap: () {
+                          _addWaterLog(750);
+                        },
+                        child: Column(
+                          children: [
+                            Image.asset("res/images/super_bottle.png"),
+                            const SizedBox(
+                              height: 13,
+                            ),
+                            const Text(
+                              "1 super bottle",
+                              style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "(750 ml)",
+                              style: TextStyle(
+                                  fontFamily: "SourceSans3",
+                                  fontSize: 14,
+                                  color: Colors.black.withOpacity(0.75)),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 28,
+                  ),
+                  ..._buildDayRows(points),
+                  const SizedBox(
+                    height: 10,
+                  )
+                ],
+              );
+            }
+          }),
     );
   }
 
@@ -344,9 +333,9 @@ class _WeekWaterTab extends State<WeekWaterTab> {
           Baseline(
             baseline: 30.0, // Adjust to a common baseline value for all text
             baselineType: TextBaseline.alphabetic,
-            child: const Text(
-              "2000",
-              style: TextStyle(
+            child: Text(
+              "${widget.water_target}",
+              style: const TextStyle(
                   fontFamily: "SourceSans3",
                   fontSize: 24,
                   fontWeight: FontWeight.w700),
@@ -366,6 +355,10 @@ class _WeekWaterTab extends State<WeekWaterTab> {
               ),
             ),
           ),
+          const Spacer(),
+          (widget.water_target <= filteredPoints.first.y.toInt())
+              ? Image.asset("res/images/target.png")
+              : const SizedBox()
         ],
       ));
       rows.add(const Divider(
@@ -398,6 +391,13 @@ class _WeekWaterTab extends State<WeekWaterTab> {
                 ),
               ),
             ),
+            // const Spacer(),
+            const Spacer(),
+            (widget.water_target <= point.y.toInt())
+                ? Image.asset("res/images/target.png")
+                : const SizedBox(
+                    width: 20,
+                  )
           ],
         ));
         if (i < filteredPoints.length - 1) {
