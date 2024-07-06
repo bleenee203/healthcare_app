@@ -4,9 +4,11 @@ import 'package:healthcare_app/src/presentation/widgets/treemonth_water_tab.dart
 import 'package:healthcare_app/src/presentation/widgets/week_water_tab.dart';
 import 'package:healthcare_app/src/presentation/widgets/year_water_tab.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NestedTabBar extends StatefulWidget {
-  const NestedTabBar({super.key});
+  final int water_target;
+  const NestedTabBar({super.key, required this.water_target});
   @override
   _NestedTabBarState createState() => _NestedTabBarState();
 }
@@ -49,11 +51,12 @@ class _NestedTabBarState extends State<NestedTabBar>
 
   @override
   void initState() {
-    super.initState();
     _datevalue = DateTime.now();
     _nestedTabController = TabController(length: 4, vsync: this);
     listDay = initDayOfWeek(DateTime.now().subtract(const Duration(days: 1)));
     _scrollController.addListener(_loadMoreItems);
+
+    super.initState();
   }
 
   @override
@@ -130,11 +133,15 @@ class _NestedTabBarState extends State<NestedTabBar>
           margin: const EdgeInsets.symmetric(horizontal: 20),
           child: TabBarView(
             controller: _nestedTabController,
-            children: const <Widget>[
-               WeekWaterTab(),
-               MonthWaterTab(),
-               TreeMonthWaterTab(),
-               YearWaterTab()
+            children: <Widget>[
+              WeekWaterTab(
+                water_target: widget.water_target,
+              ),
+              MonthWaterTab(
+                water_target: widget.water_target,
+              ),
+              TreeMonthWaterTab(water_target: widget.water_target,),
+              YearWaterTab(water_target: widget.water_target,)
             ],
           ),
         )

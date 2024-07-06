@@ -1,362 +1,441 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
-import 'package:healthcare_app/src/presentation/widgets/bar_chart.dart';
+import 'package:healthcare_app/src/presentation/widgets/water_3month_chart.dart';
+import 'package:healthcare_app/src/services/drinkService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
 class TreeMonthWaterTab extends StatefulWidget {
-  const TreeMonthWaterTab({super.key});
+  final int water_target;
+  const TreeMonthWaterTab({super.key, required this.water_target});
   @override
   State<TreeMonthWaterTab> createState() => _TreeMonthWaterTab();
 }
 
 class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
   late DateTime _datevalue;
+  List<Map<int, int>> months = List.filled(3, {});
+  // List<DateTime> initDayOfWeek(DateTime day) {
+  //   List<DateTime> daysOfWeek = [];
+  //   DateTime mondayOfThisWeek = day.subtract(
+  //       Duration(days: day.weekday - 1)); // Lùi lại đến thứ Hai của tuần này
 
-  List<DateTime> initDayOfWeek(DateTime day) {
-    List<DateTime> daysOfWeek = [];
-    DateTime mondayOfThisWeek = day.subtract(
-        Duration(days: day.weekday - 1)); // Lùi lại đến thứ Hai của tuần này
+  //   // Generating days from today to Monday of this week
+  //   if (day.day == DateTime.now().subtract(const Duration(days: 1)).day) {
+  //     for (DateTime i = day;
+  //         i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
+  //         i = i.subtract(const Duration(days: 1))) {
+  //       //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
+  //       daysOfWeek.add(i);
+  //     }
+  //     daysOfWeek.addAll(initDayOfWeek(
+  //         daysOfWeek[daysOfWeek.length - 1].subtract(const Duration(days: 1))));
+  //   } else {
+  //     for (DateTime i = day;
+  //         i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
+  //         i = i.subtract(const Duration(days: 1))) {
+  //       //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
+  //       daysOfWeek.add(i);
+  //     }
+  //   }
 
-    // Generating days from today to Monday of this week
-    if (day.day == DateTime.now().subtract(const Duration(days: 1)).day) {
-      for (DateTime i = day;
-          i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
-          i = i.subtract(const Duration(days: 1))) {
-        //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
-        daysOfWeek.add(i);
+  //   return daysOfWeek;
+  // }
+  late List<DateTime> monthsmonth = [];
+
+  DrinkService drinkService = DrinkService();
+  Future<Map<String, dynamic>> _fetchDrink() async {
+    final Map<String, dynamic> result = {};
+    double count = 0;
+
+    for (var month in monthsmonth) {
+      final Map<String, dynamic> response = await drinkService
+          .fetchWeekDrinkByMonth(DateFormat('yyyy-MM').format(month));
+      if (response.isEmpty) {
+        return {};
       }
-      daysOfWeek.addAll(initDayOfWeek(
-          daysOfWeek[daysOfWeek.length - 1].subtract(const Duration(days: 1))));
-    } else {
-      for (DateTime i = day;
-          i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
-          i = i.subtract(const Duration(days: 1))) {
-        //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
-        daysOfWeek.add(i);
+
+      List<Map<String, dynamic>> monthDrinks = response['drinks'] ?? [];
+      List<WaterPoint> waterPoints = [];
+      for (var drink in monthDrinks) {
+        int totalAmount = drink['totalAmount'];
+        waterPoints.add(WaterPoint(count, totalAmount.toDouble()));
+        count++;
       }
+
+      result['month${monthsmonth.indexOf(month) + 1}'] = waterPoints;
     }
-
-    return daysOfWeek;
+    print(result);
+    return result;
   }
 
-  final _scrollController = ScrollController();
+  // final _scrollController = ScrollController();
 
   // Dummy list of items
   List<DateTime> listDay = [];
-  List<WaterPoint> points = [
-    WaterPoint(0, 1600), // Điểm giá có x = 0 và y = 5
-    WaterPoint(1, 1000), // Điểm giá có x = 1 và y = 8
-    WaterPoint(2),
-    WaterPoint(3),
-    WaterPoint(4),
-    WaterPoint(5),
-    WaterPoint(6),
-    // Thêm các điểm giá khác tại đây...
-  ];
   @override
   void initState() {
     super.initState();
     _datevalue = DateTime.now();
-    listDay = initDayOfWeek(DateTime.now().subtract(const Duration(days: 1)));
-    _scrollController.addListener(_loadMoreItems);
+    // listDay = initDayOfWeek(DateTime.now().subtract(const Duration(days: 1)));
+    // _scrollController.addListener(_loadMoreItems);
+    _fetchDrink();
+    monthsmonth = getCurrentQuarterMonths(_datevalue);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _scrollController.dispose();
+    // _scrollController.dispose();
   }
 
   // Function to simulate loading more items
-  Future<void> _loadMoreItems() async {
-    // Trigger loading more items when reaching the end of the list
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      // Simulating a delay of 1 second
-      await Future.delayed(const Duration(seconds: 1));
-      setState(() {
-        listDay.addAll(initDayOfWeek(
-            listDay[listDay.length - 1].subtract(const Duration(days: 1))));
-      });
-    }
-  }
+  // Future<void> _loadMoreItems() async {
+  //   // Trigger loading more items when reaching the end of the list
+  //   if (_scrollController.position.pixels ==
+  //       _scrollController.position.maxScrollExtent) {
+  //     // Simulating a delay of 1 second
+  //     await Future.delayed(const Duration(seconds: 1));
+  //     setState(() {
+  //       listDay.addAll(initDayOfWeek(
+  //           listDay[listDay.length - 1].subtract(const Duration(days: 1))));
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    print(_datevalue);
-
     return SingleChildScrollView(
-      controller: _scrollController,
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                  onTap: () => _moveToPreviousQuarter(context),
-                  child: Image.asset("res/images/left.png")),
-              Text(
-                getCurrentQuarterString(_datevalue),
-                style: const TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              GestureDetector(
-                onTap: isInCurrentQuarter(_datevalue)
-                    ? null
-                    : () => _moveToNextMonth(context),
-                child: Image.asset("res/images/right.png"),
-              )
-            ],
-          ),
-          Text(
-            "2000ml (avg)",
-            style: TextStyle(
-              color: HexColor("474672").withOpacity(0.5),
-              fontFamily: "SourceSans3",
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(
-            height: 78,
-          ),
-          BarChartWidget(points: points),
-          const SizedBox(
-            height: 23,
-          ),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Quick Add For Today",
-              style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(
-            height: 12,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
+      // controller: _scrollController,
+      child: FutureBuilder<Map<String, dynamic>>(
+          future: _fetchDrink(),
+          builder: (BuildContext context,
+              AsyncSnapshot<Map<String, dynamic>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No data available'));
+            } else {
+              months[0] = ({0: monthsmonth[0].month});
+              final List<WaterPoint> points =
+                  (snapshot.data!['month1'] as List<dynamic>?)
+                          ?.map((e) => e as WaterPoint)
+                          .toList() ??
+                      [];
+              months[1] = ({points.length: monthsmonth[1].month});
+
+// Lấy danh sách WaterPoint của month2 từ snapshot.data
+              final List<WaterPoint> month2Points =
+                  (snapshot.data!['month2'] as List<dynamic>?)
+                          ?.map((e) => e as WaterPoint)
+                          .toList() ??
+                      [];
+              points.addAll(month2Points);
+              months[2] = ({points.length: monthsmonth[2].month});
+
+// Lấy danh sách WaterPoint của month3 từ snapshot.data
+              final List<WaterPoint> month3Points =
+                  (snapshot.data!['month3'] as List<dynamic>?)
+                          ?.map((e) => e as WaterPoint)
+                          .toList() ??
+                      [];
+              points.addAll(month3Points);
+              final double avg;
+              // if (isInSameMonth(_datevalue)) {
+              //   // Calculate the end of the current week
+              //   DateTime now = DateTime.now();
+              //   int currentWeekday = now.weekday;
+              //   int endOfWeekDay = now.day + (7 - currentWeekday);
+
+              //   final List<WaterPoint> filteredPoints =
+              //       points.where((point) => point.x <= endOfWeekDay).toList();
+              //   final double totalAmount =
+              //       filteredPoints.fold(0, (sum, point) => sum + point.y);
+
+              //   avg = double.parse(
+              //       (totalAmount / filteredPoints.length).toStringAsFixed(2));
+              // } else {
+              //   avg = (snapshot.data!['avg'] as double?) ?? 0.0;
+              // }
+              return Column(
                 children: [
-                  Image.asset("res/images/glass-of-water.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 glass",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    "(250 ml)",
-                    style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Image.asset("res/images/bottle.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 bottle",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    "(500 ml)",
-                    style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Image.asset("res/images/super_bottle.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 super bottle",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    "(750 ml)",
-                    style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 28,
-          ),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Today",
-              style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(
-            height: 23,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Image.asset("res/images/glass-of-water.png"),
-              const Text(
-                "1000",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
-              ),
-              const Text(
-                "ml of your ",
-                style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                ),
-              ),
-              const Text(
-                "2000",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
-              ),
-              const Text(
-                "ml goal",
-                style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                ),
-              ),
-              Image.asset("res/images/target.png")
-            ],
-          ),
-          const Divider(
-            thickness: 1,
-          ),
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: listDay.length + 1, // Adding 1 for loading indicator
-            itemBuilder: (context, index) {
-              if (index == listDay.length) {
-                // If reached the end of the list, show a loading indicator
-                return const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                // Displaying the actual item
-                return Column(
-                  children: [
-                    if (listDay[index].weekday == DateTime.sunday)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(color: HexColor("BBB7EA")),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: Row(
-                              //mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  DateFormat('MMMM d').format(listDay[index]
-                                      .subtract(const Duration(days: 6))),
-                                  style: const TextStyle(
-                                    fontFamily: "SourceSans3",
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Text(
-                                  " - ",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: "SourceSans3",
-                                  ),
-                                ),
-                                Text(
-                                  DateFormat('MMMM d').format(listDay[index]),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: "SourceSans3",
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                          onTap: () => _moveToPreviousQuarter(context),
+                          child: Image.asset("res/images/left.png")),
+                      Text(
+                        getCurrentQuarterString(_datevalue),
+                        style: const TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            DateFormat('EEEE').format(listDay[index]),
-                            style: const TextStyle(
-                                fontFamily: "SourceSans3",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
+                      GestureDetector(
+                        onTap: isInCurrentQuarter(_datevalue)
+                            ? null
+                            : () => _moveToNextMonth(context),
+                        child: Image.asset("res/images/right.png"),
+                      )
+                    ],
+                  ),
+                  // Text(
+                  //   "$avg (avg)",
+                  //   style: TextStyle(
+                  //     color: HexColor("474672").withOpacity(0.5),
+                  //     fontFamily: "SourceSans3",
+                  //     fontSize: 14,
+                  //   ),
+                  // ),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Water3MonthChart(points: points, months: months),
+                  const SizedBox(
+                    height: 23,
+                  ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Quick Add For Today",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Image.asset("res/images/glass-of-water.png"),
+                          const SizedBox(
+                            height: 13,
                           ),
-                        ),
-                        const Expanded(
-                          child: Text(
-                            "2000ml",
+                          const Text(
+                            "1 glass",
                             style: TextStyle(
                               fontFamily: "SourceSans3",
                               fontSize: 16,
                             ),
                           ),
+                          Text(
+                            "(250 ml)",
+                            style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 14,
+                                color: Colors.black.withOpacity(0.75)),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Image.asset("res/images/bottle.png"),
+                          const SizedBox(
+                            height: 13,
+                          ),
+                          const Text(
+                            "1 bottle",
+                            style: TextStyle(
+                              fontFamily: "SourceSans3",
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            "(500 ml)",
+                            style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 14,
+                                color: Colors.black.withOpacity(0.75)),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Image.asset("res/images/super_bottle.png"),
+                          const SizedBox(
+                            height: 13,
+                          ),
+                          const Text(
+                            "1 super bottle",
+                            style: TextStyle(
+                              fontFamily: "SourceSans3",
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            "(750 ml)",
+                            style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 14,
+                                color: Colors.black.withOpacity(0.75)),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 28,
+                  ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Today",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 23,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Image.asset("res/images/glass-of-water.png"),
+                      const Text(
+                        "1000",
+                        style: TextStyle(
+                            fontFamily: "SourceSans3",
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700),
+                      ),
+                      const Text(
+                        "ml of your ",
+                        style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 16,
                         ),
-                      ],
-                    ),
-                    const Divider(
-                      thickness: 1,
-                    ),
-                  ],
-                );
-              }
-            },
-          ),
-        ],
-      ),
+                      ),
+                      const Text(
+                        "2000",
+                        style: TextStyle(
+                            fontFamily: "SourceSans3",
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700),
+                      ),
+                      const Text(
+                        "ml goal",
+                        style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 16,
+                        ),
+                      ),
+                      Image.asset("res/images/target.png")
+                    ],
+                  ),
+                  const Divider(
+                    thickness: 1,
+                  ),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount:
+                        listDay.length + 1, // Adding 1 for loading indicator
+                    itemBuilder: (context, index) {
+                      if (index == listDay.length) {
+                        // If reached the end of the list, show a loading indicator
+                        return const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      } else {
+                        // Displaying the actual item
+                        return Column(
+                          children: [
+                            if (listDay[index].weekday == DateTime.sunday)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration:
+                                      BoxDecoration(color: HexColor("BBB7EA")),
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 5),
+                                    child: Row(
+                                      //mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          DateFormat('MMMM d').format(
+                                              listDay[index].subtract(
+                                                  const Duration(days: 6))),
+                                          style: const TextStyle(
+                                            fontFamily: "SourceSans3",
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const Text(
+                                          " - ",
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontFamily: "SourceSans3",
+                                          ),
+                                        ),
+                                        Text(
+                                          DateFormat('MMMM d')
+                                              .format(listDay[index]),
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontFamily: "SourceSans3",
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    DateFormat('EEEE').format(listDay[index]),
+                                    style: const TextStyle(
+                                        fontFamily: "SourceSans3",
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                                const Expanded(
+                                  child: Text(
+                                    "2000ml",
+                                    style: TextStyle(
+                                      fontFamily: "SourceSans3",
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Divider(
+                              thickness: 1,
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ],
+              );
+            }
+          }),
     );
   }
 
@@ -381,6 +460,7 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
 
     setState(() {
       _datevalue = previousQuarterStart;
+      monthsmonth = getCurrentQuarterMonths(_datevalue);
     });
   }
 
@@ -412,6 +492,7 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
 
     setState(() {
       _datevalue = previousQuarterStart;
+      monthsmonth = getCurrentQuarterMonths(_datevalue);
     });
   }
 
@@ -440,6 +521,11 @@ class _TreeMonthWaterTab extends State<TreeMonthWaterTab> {
     }
 
     return quarterMonths;
+  }
+
+  bool isInSameMonth(DateTime dateToCompare) {
+    DateTime now = DateTime.now();
+    return dateToCompare.year == now.year && dateToCompare.month == now.month;
   }
 
   String getCurrentQuarterString(DateTime date) {

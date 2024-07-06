@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:healthcare_app/src/presentation/widgets/bar_chart.dart';
+import 'package:healthcare_app/src/presentation/widgets/water_year_chart.dart';
+import 'package:healthcare_app/src/services/drinkService.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
 class YearWaterTab extends StatefulWidget {
-  const YearWaterTab({super.key});
+  final int water_target;
+  const YearWaterTab({super.key, required this.water_target});
   @override
   State<YearWaterTab> createState() => _YearWaterTab();
 }
@@ -39,320 +42,387 @@ class _YearWaterTab extends State<YearWaterTab> {
     return daysOfWeek;
   }
 
-  final _scrollController = ScrollController();
+  // final _scrollController = ScrollController();
 
   // Dummy list of items
-  List<DateTime> listDay = [];
-  List<WaterPoint> points = [
-    WaterPoint(0, 1600), // Điểm giá có x = 0 và y = 5
-    WaterPoint(1, 1000), // Điểm giá có x = 1 và y = 8
-    WaterPoint(2),
-    WaterPoint(3),
-    WaterPoint(4),
-    WaterPoint(5),
-    WaterPoint(6),
-    // Thêm các điểm giá khác tại đây...
-  ];
+  // List<DateTime> listDay = [];
+  // List<WaterPoint> points = [
+  //   WaterPoint(0, 1600), // Điểm giá có x = 0 và y = 5
+  //   WaterPoint(1, 1000), // Điểm giá có x = 1 và y = 8
+  //   WaterPoint(2),
+  //   WaterPoint(3),
+  //   WaterPoint(4),
+  //   WaterPoint(5),
+  //   WaterPoint(6),
+  //   // Thêm các điểm giá khác tại đây...
+  // ];
   @override
   void initState() {
     super.initState();
     _datevalue = DateTime.now();
-    listDay = initDayOfWeek(DateTime.now().subtract(const Duration(days: 1)));
-    _scrollController.addListener(_loadMoreItems);
+    // listDay = initDayOfWeek(DateTime.now().subtract(const Duration(days: 1)));
+    // _scrollController.addListener(_loadMoreItems);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _scrollController.dispose();
+    // _scrollController.dispose();
   }
 
-  // Function to simulate loading more items
-  Future<void> _loadMoreItems() async {
-    // Trigger loading more items when reaching the end of the list
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      // Simulating a delay of 1 second
-      await Future.delayed(const Duration(seconds: 1));
-      setState(() {
-        listDay.addAll(initDayOfWeek(
-            listDay[listDay.length - 1].subtract(const Duration(days: 1))));
-      });
+  DrinkService drinkService = DrinkService();
+  Future<Map<String, dynamic>> _fetchDrink(String date) async {
+    try {
+      late double avg;
+      final Map<String, dynamic> response =
+          await drinkService.fetchMonthDrinkByYear(date);
+      if (response.isEmpty) {
+        return {};
+      }
+      final List<Map<String, dynamic>> drinks = response['drinks'] ?? [];
+      final List<Map<String, dynamic>> days = response['days'] ?? [];
+      avg = double.parse(response['avg']);
+      List<WaterPoint> waterPoints = [];
+      double count = 0;
+      for (var drink in drinks) {
+        int totalAmount = drink['totalAmount'];
+        waterPoints.add(WaterPoint(count, totalAmount.toDouble()));
+        count++;
+      }
+
+      return {'points': waterPoints, 'avg': avg, 'days': days};
+    } catch (error, stackTrace) {
+      print('Error fetching drink data: $error');
+      print('Stack trace: $stackTrace');
+      return {};
     }
   }
+  // Function to simulate loading more items
+  // Future<void> _loadMoreItems() async {
+  //   // Trigger loading more items when reaching the end of the list
+  //   if (_scrollController.position.pixels ==
+  //       _scrollController.position.maxScrollExtent) {
+  //     // Simulating a delay of 1 second
+  //     await Future.delayed(const Duration(seconds: 1));
+  //     setState(() {
+  //       listDay.addAll(initDayOfWeek(
+  //           listDay[listDay.length - 1].subtract(const Duration(days: 1))));
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                  onTap: () => _moveToPreviousYear(context),
-                  child: Image.asset("res/images/left.png")),
-              Text(
-                DateFormat('yyyy').format(_datevalue),
-                style: const TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              GestureDetector(
-                onTap: _datevalue.year == DateTime.now().year
-                    ? null
-                    : () => _moveToNextYear(context),
-                child: Image.asset("res/images/right.png"),
-              )
-            ],
-          ),
-          Text(
-            "2000ml (avg)",
-            style: TextStyle(
-              color: HexColor("474672").withOpacity(0.5),
-              fontFamily: "SourceSans3",
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(
-            height: 78,
-          ),
-          BarChartWidget(points: points),
-          const SizedBox(
-            height: 23,
-          ),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Quick Add For Today",
-              style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(
-            height: 12,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Image.asset("res/images/glass-of-water.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 glass",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    "(250 ml)",
-                    style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Image.asset("res/images/bottle.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 bottle",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    "(500 ml)",
-                    style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Image.asset("res/images/super_bottle.png"),
-                  const SizedBox(
-                    height: 13,
-                  ),
-                  const Text(
-                    "1 super bottle",
-                    style: TextStyle(
-                      fontFamily: "SourceSans3",
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    "(750 ml)",
-                    style: TextStyle(
-                        fontFamily: "SourceSans3",
-                        fontSize: 14,
-                        color: Colors.black.withOpacity(0.75)),
-                  ),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 28,
-          ),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Today",
-              style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(
-            height: 23,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Image.asset("res/images/glass-of-water.png"),
-              const Text(
-                "1000",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
-              ),
-              const Text(
-                "ml of your ",
-                style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                ),
-              ),
-              const Text(
-                "2000",
-                style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
-              ),
-              const Text(
-                "ml goal",
-                style: TextStyle(
-                  fontFamily: "SourceSans3",
-                  fontSize: 16,
-                ),
-              ),
-              Image.asset("res/images/target.png")
-            ],
-          ),
-          const Divider(
-            thickness: 1,
-          ),
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: listDay.length + 1, // Adding 1 for loading indicator
-            itemBuilder: (context, index) {
-              if (index == listDay.length) {
-                // If reached the end of the list, show a loading indicator
-                return const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
+      child: FutureBuilder<Map<String, dynamic>>(
+          future: _fetchDrink(DateFormat('yyyy-MM-dd').format(_datevalue)),
+          builder: (BuildContext context,
+              AsyncSnapshot<Map<String, dynamic>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No data available'));
+            } else {
+              final List<WaterPoint> points =
+                  (snapshot.data!['points'] as List?)
+                          ?.map((e) => e as WaterPoint)
+                          .toList() ??
+                      [];
+              [];
+              final List<Map<String, dynamic>> days =
+                  (snapshot.data!['days'] as List<Map<String, dynamic>>?) ?? [];
+
+              List<Map<String, dynamic>> reversedDays =
+                  List.from(days.reversed);
+              double avg = 0;
+              if (isInSameYear(_datevalue)) {
+                reversedDays = reversedDays
+                    .where((day) => DateFormat('dd/MM/yyyy')
+                        .parse(day['date'])
+                        .isBefore(DateTime.now().subtract(Duration(days: 1))))
+                    .toList();
+                final double totalAmount = reversedDays.fold(
+                    0, (sum, day) => sum + day['totalAmount']);
+                avg = double.parse(
+                    (totalAmount / reversedDays.length).toStringAsFixed(2));
               } else {
-                // Displaying the actual item
-                return Column(
-                  children: [
-                    if (listDay[index].weekday == DateTime.sunday)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(color: HexColor("BBB7EA")),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: Row(
-                              //mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  DateFormat('MMMM d').format(listDay[index]
-                                      .subtract(const Duration(days: 6))),
-                                  style: const TextStyle(
-                                    fontFamily: "SourceSans3",
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Text(
-                                  " - ",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: "SourceSans3",
-                                  ),
-                                ),
-                                Text(
-                                  DateFormat('MMMM d').format(listDay[index]),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: "SourceSans3",
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                avg = (snapshot.data!['avg'] as double?) ?? 0.0;
+              }
+              return Column(
+                children: [
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                          onTap: () => _moveToPreviousYear(context),
+                          child: Image.asset("res/images/left.png")),
+                      Text(
+                        DateFormat('yyyy').format(_datevalue),
+                        style: const TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            DateFormat('EEEE').format(listDay[index]),
-                            style: const TextStyle(
-                                fontFamily: "SourceSans3",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
+                      GestureDetector(
+                        onTap: _datevalue.year == DateTime.now().year
+                            ? null
+                            : () => _moveToNextYear(context),
+                        child: Image.asset("res/images/right.png"),
+                      )
+                    ],
+                  ),
+                  Text(
+                    "${avg}ml (avg)",
+                    style: TextStyle(
+                      color: HexColor("474672").withOpacity(0.5),
+                      fontFamily: "SourceSans3",
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  WaterYearChart(points: points),
+                  const SizedBox(
+                    height: 23,
+                  ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Quick Add For Today",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Image.asset("res/images/glass-of-water.png"),
+                          const SizedBox(
+                            height: 13,
                           ),
-                        ),
-                        const Expanded(
-                          child: Text(
-                            "2000ml",
+                          const Text(
+                            "1 glass",
                             style: TextStyle(
                               fontFamily: "SourceSans3",
                               fontSize: 16,
                             ),
                           ),
+                          Text(
+                            "(250 ml)",
+                            style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 14,
+                                color: Colors.black.withOpacity(0.75)),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Image.asset("res/images/bottle.png"),
+                          const SizedBox(
+                            height: 13,
+                          ),
+                          const Text(
+                            "1 bottle",
+                            style: TextStyle(
+                              fontFamily: "SourceSans3",
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            "(500 ml)",
+                            style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 14,
+                                color: Colors.black.withOpacity(0.75)),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Image.asset("res/images/super_bottle.png"),
+                          const SizedBox(
+                            height: 13,
+                          ),
+                          const Text(
+                            "1 super bottle",
+                            style: TextStyle(
+                              fontFamily: "SourceSans3",
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            "(750 ml)",
+                            style: TextStyle(
+                                fontFamily: "SourceSans3",
+                                fontSize: 14,
+                                color: Colors.black.withOpacity(0.75)),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 28,
+                  ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Today",
+                      style: TextStyle(
+                          fontFamily: "SourceSans3",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 23,
+                  ),
+                  if (isInSameYear(_datevalue))
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Image.asset("res/images/glass-of-water.png"),
+                        const Text(
+                          "1000",
+                          style: TextStyle(
+                              fontFamily: "SourceSans3",
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700),
                         ),
+                        const Text(
+                          "ml of your ",
+                          style: TextStyle(
+                            fontFamily: "SourceSans3",
+                            fontSize: 16,
+                          ),
+                        ),
+                        const Text(
+                          "2000",
+                          style: TextStyle(
+                              fontFamily: "SourceSans3",
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        const Text(
+                          "ml goal",
+                          style: TextStyle(
+                            fontFamily: "SourceSans3",
+                            fontSize: 16,
+                          ),
+                        ),
+                        Image.asset("res/images/target.png")
                       ],
                     ),
-                    const Divider(
-                      thickness: 1,
-                    ),
-                  ],
-                );
-              }
-            },
-          ),
-        ],
-      ),
+                  const Divider(
+                    thickness: 1,
+                  ),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: reversedDays.length - 1,
+                    itemBuilder: (context, index) {
+                      return Column(
+                        children: [
+                          if ((DateFormat('dd/MM/yyyy')
+                                      .parse(reversedDays[index]['date']))
+                                  .weekday ==
+                              DateTime.sunday)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                decoration:
+                                    BoxDecoration(color: HexColor("BBB7EA")),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  child: Row(
+                                    //mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        DateFormat('MMMM d').format((DateFormat(
+                                                    'dd/MM/yyyy')
+                                                .parse(reversedDays[index]
+                                                    ['date']))
+                                            .subtract(const Duration(days: 6))),
+                                        style: const TextStyle(
+                                          fontFamily: "SourceSans3",
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const Text(
+                                        " - ",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontFamily: "SourceSans3",
+                                        ),
+                                      ),
+                                      Text(
+                                        DateFormat('MMMM d').format(
+                                            (DateFormat('dd/MM/yyyy').parse(
+                                                reversedDays[index]['date']))),
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontFamily: "SourceSans3",
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  DateFormat('EEEE').format(
+                                      (DateFormat('dd/MM/yyyy')
+                                          .parse(reversedDays[index]['date']))),
+                                  style: const TextStyle(
+                                      fontFamily: "SourceSans3",
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              const Expanded(
+                                child: Text(
+                                  "2000ml",
+                                  style: TextStyle(
+                                    fontFamily: "SourceSans3",
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            thickness: 1,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              );
+            }
+          }),
     );
   }
 
@@ -372,5 +442,10 @@ class _YearWaterTab extends State<YearWaterTab> {
     setState(() {
       _datevalue = lastYear;
     });
+  }
+
+  bool isInSameYear(DateTime dateToCompare) {
+    DateTime now = DateTime.now();
+    return dateToCompare.year == now.year;
   }
 }
