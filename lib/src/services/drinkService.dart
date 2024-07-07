@@ -77,7 +77,6 @@ class DrinkService {
 
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
       final drinks = decodedResponse['drinks'] as List<dynamic>;
-      print(drinks);
       List<Map<String, dynamic>> parsedDrinks = [];
       drinks.forEach((drink) {
         if (drink is Map<String, dynamic>) {
@@ -161,6 +160,7 @@ class DrinkService {
 
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
       final drinks = decodedResponse['drinks'] as List<dynamic>;
+       final days = decodedResponse['days'] as List<dynamic>;
       // print(drinks);
       List<Map<String, dynamic>> parsedDrinks = [];
       drinks.forEach((drink) {
@@ -170,7 +170,15 @@ class DrinkService {
           print('Invalid drink data found: $drink');
         }
       });
-      return {'drinks': parsedDrinks};
+       List<Map<String, dynamic>> parsedDays = [];
+      days.forEach((day) {
+        if (day is Map<String, dynamic>) {
+          parsedDays.add(day);
+        } else {
+          print('Invalid drink data found: $day');
+        }
+      });
+      return {'drinks': parsedDrinks,'days':parsedDays};
     } catch (error, stackTrace) {
       print('Error fetching drink data: $error');
       print('Stack trace: $stackTrace');
@@ -200,7 +208,7 @@ class DrinkService {
 
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
       final drinks = decodedResponse['drinks'] as List<dynamic>;
-       final days = decodedResponse['days'] as List<dynamic>;
+      final days = decodedResponse['days'] as List<dynamic>;
       final avg = decodedResponse['avg'];
       // print(drinks);
       List<Map<String, dynamic>> parsedDrinks = [];
@@ -219,7 +227,7 @@ class DrinkService {
           print('Invalid drink data found: $day');
         }
       });
-      return {'drinks': parsedDrinks, 'avg': avg,'days':parsedDays};
+      return {'drinks': parsedDrinks, 'avg': avg, 'days': parsedDays};
     } catch (error, stackTrace) {
       print('Error fetching drink data: $error');
       print('Stack trace: $stackTrace');
@@ -259,32 +267,37 @@ class DrinkService {
     }
   }
 
-//   Future<bool> removeFood(String meal_id) async {
-//     await initVariables();
-//     if (isExpired) {
-//       if (await refreshAccessToken()) {
-//         return removeFood(meal_id);
-//       }
-//     }
-//     if (accessToken == null || isExpired) {
-//       print('no valid access token');
-//       return false;
-//     }
-//     try {
-//       final response = await http.patch(
-//         Uri.parse('${url}meal/remove-food/$meal_id'),
-//         headers: {
-//           "Content-Type": "application/json",
-//           'Authorization': 'Bearer $accessToken',
-//         },
-//       );
-//       if (response.statusCode == 200) {
-//         return true;
-//       }
-//       return false;
-//     } catch (e) {
-//       print('Error deleting food: $e');
-//     }
-//     return false;
-//   }
+  Future<bool> addWaterLogByDate(String date, int amount) async {
+    await initVariables();
+    if (isExpired) {
+      if (await refreshAccessToken()) {
+        return addWaterLogByDate(date, amount);
+      }
+    }
+    if (accessToken == null || isExpired) {
+      print('no valid access token');
+      return false;
+    }
+    var newData = Drink(amount: amount).toJson();
+    newData['date'] = date;
+    print(newData);
+    try {
+      final response = await http.post(
+        Uri.parse('${url}drink/create-drink-date'),
+        body: jsonEncode({'userId': userId, "newData": newData}),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+      if ('${jsonDecode(response.body)['success']}' == 'true') {
+        return true;
+      }
+      return false;
+    } catch (error, stackTrace) {
+      print('Stack trace: $stackTrace');
+      print('Error fetching food data: $error');
+      return false;
+    }
+  }
 }

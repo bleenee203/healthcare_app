@@ -95,6 +95,8 @@ void logoutUser() async {
       prefs.remove('refreshToken');
       prefs.remove('email');
       prefs.remove('userId');
+          prefs.remove('isReminderOn');
+
       print('Logout success');
     } else {
       print('Logout failed: ${logoutResponse.body}');

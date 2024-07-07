@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/models/water_point.dart';
 import 'package:healthcare_app/src/presentation/widgets/water_month_chart.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -12,6 +15,39 @@ class MonthWaterTab extends StatefulWidget {
   const MonthWaterTab({super.key, required this.water_target});
   @override
   State<MonthWaterTab> createState() => _MonthWaterTab();
+}
+
+void showReminderNotification() async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  var initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettingsIOS = IOSInitializationSettings();
+  var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    'channel_id',
+    'channel_name',
+    channelDescription: 'Notifications to remind you to drink water',
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
+  var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+  var platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+    iOS: iOSPlatformChannelSpecifics,
+  );
+
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    'Đã đến giờ uống nước!',
+    'Hãy uống nước để duy trì sức khoẻ!',
+    platformChannelSpecifics,
+    payload: 'item x',
+  );
 }
 
 class _MonthWaterTab extends State<MonthWaterTab> {
@@ -40,7 +76,7 @@ class _MonthWaterTab extends State<MonthWaterTab> {
     return daysOfWeek;
   }
 
-  final _scrollController = ScrollController();
+  // final _scrollController = ScrollController();
   // Dummy list of items
   // List<DateTime> listDay = [];
   DrinkService drinkService = DrinkService();
@@ -64,12 +100,55 @@ class _MonthWaterTab extends State<MonthWaterTab> {
     return {'points': waterPoints, 'avg': avg, 'drinks': drinks};
   }
 
+  Future<void> _addWaterLog(int amount) async {
+    if (await drinkService.addWaterLog(amount)) {
+      Fluttertoast.showToast(
+        msg: "Add water log successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+      AndroidAlarmManager.cancel(0);
+
+      // Bắt đầu lại alarm để nhắc nhở tiếp tục sau mỗi phút
+      _startAlarmManager();
+      setState(() {});
+    } else {
+      Fluttertoast.showToast(
+        msg: "An error occurred while adding the water intake log",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
     _datevalue = DateTime.now();
     // listDay = initDayOfWeek(DateTime.now().subtract(const Duration(days: 1)));
     // _scrollController.addListener(_loadMoreItems);
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    // Bắt đầu alarm manager
+    _startAlarmManager();
+  }
+
+  void _startAlarmManager() {
+    const oneMinute = Duration(hours: 1);
+    AndroidAlarmManager.periodic(oneMinute, 0, showReminderNotification,
+        exact: true, wakeup: true);
   }
 
   @override
@@ -183,71 +262,86 @@ class _MonthWaterTab extends State<MonthWaterTab> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              children: [
-                Image.asset("res/images/glass-of-water.png"),
-                const SizedBox(
-                  height: 13,
-                ),
-                const Text(
-                  "1 glass",
-                  style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
+            GestureDetector(
+              onTap: () {
+                _addWaterLog(250);
+              },
+              child: Column(
+                children: [
+                  Image.asset("res/images/glass-of-water.png"),
+                  const SizedBox(
+                    height: 13,
                   ),
-                ),
-                Text(
-                  "(250 ml)",
-                  style: TextStyle(
+                  const Text(
+                    "1 glass",
+                    style: TextStyle(
                       fontFamily: "SourceSans3",
-                      fontSize: 14,
-                      color: Colors.black.withOpacity(0.75)),
-                ),
-              ],
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    "(250 ml)",
+                    style: TextStyle(
+                        fontFamily: "SourceSans3",
+                        fontSize: 14,
+                        color: Colors.black.withOpacity(0.75)),
+                  ),
+                ],
+              ),
             ),
-            Column(
-              children: [
-                Image.asset("res/images/bottle.png"),
-                const SizedBox(
-                  height: 13,
-                ),
-                const Text(
-                  "1 bottle",
-                  style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
+            GestureDetector(
+              onTap: () {
+                _addWaterLog(500);
+              },
+              child: Column(
+                children: [
+                  Image.asset("res/images/bottle.png"),
+                  const SizedBox(
+                    height: 13,
                   ),
-                ),
-                Text(
-                  "(500 ml)",
-                  style: TextStyle(
+                  const Text(
+                    "1 bottle",
+                    style: TextStyle(
                       fontFamily: "SourceSans3",
-                      fontSize: 14,
-                      color: Colors.black.withOpacity(0.75)),
-                ),
-              ],
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    "(500 ml)",
+                    style: TextStyle(
+                        fontFamily: "SourceSans3",
+                        fontSize: 14,
+                        color: Colors.black.withOpacity(0.75)),
+                  ),
+                ],
+              ),
             ),
-            Column(
-              children: [
-                Image.asset("res/images/super_bottle.png"),
-                const SizedBox(
-                  height: 13,
-                ),
-                const Text(
-                  "1 super bottle",
-                  style: TextStyle(
-                    fontFamily: "SourceSans3",
-                    fontSize: 16,
+            GestureDetector(
+              onTap: () {
+                _addWaterLog(750);
+              },
+              child: Column(
+                children: [
+                  Image.asset("res/images/super_bottle.png"),
+                  const SizedBox(
+                    height: 13,
                   ),
-                ),
-                Text(
-                  "(750 ml)",
-                  style: TextStyle(
+                  const Text(
+                    "1 super bottle",
+                    style: TextStyle(
                       fontFamily: "SourceSans3",
-                      fontSize: 14,
-                      color: Colors.black.withOpacity(0.75)),
-                ),
-              ],
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    "(750 ml)",
+                    style: TextStyle(
+                        fontFamily: "SourceSans3",
+                        fontSize: 14,
+                        color: Colors.black.withOpacity(0.75)),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
