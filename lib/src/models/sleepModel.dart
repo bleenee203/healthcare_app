@@ -3,14 +3,24 @@ import 'package:intl/intl.dart';
 class Sleep {
   final DateTime start_time;
   final DateTime end_time;
-  final int? snap_time;
+  final int duration;
   final DateTime? updated_at;
-  final String? userId;
-  Sleep({required this.start_time, required this.end_time, this.snap_time,
-    this.updated_at, this.userId});
-  // Map<String, dynamic> toJson() {
-  //   return {'amount': amount};
-  // }
+  final String? user_id;
+
+  Sleep(
+      {required this.start_time,
+      required this.end_time,
+        required this.duration,
+      this.updated_at,
+      this.user_id});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'start_time': start_time.toIso8601String(),
+      'end_time': end_time.toIso8601String(),
+      'duration': duration
+    };
+  }
 
   static DateTime _parseDate(String dateStr) {
     try {
@@ -28,11 +38,13 @@ class Sleep {
     }
   }
 
-// factory Exercise.fromJson(Map<String, dynamic> json) {
-//   return Exercise(
-//     amount: json['amount'],
-//     date: _parseDate(json['date']),
-//     updated_at: _parseDate(json['date']),
-//   );
-// }
+factory Sleep.fromJson(Map<String, dynamic> json) {
+  return Sleep(
+    start_time: _parseDate(json['start_time']),
+    end_time: _parseDate(json['end_time']),
+    duration: json['duration'].toInt(),
+    updated_at: _parseDate(json['updated_at']),
+    user_id: json['user_id']
+  );
+}
 }

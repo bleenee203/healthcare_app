@@ -7,7 +7,10 @@ import 'package:hexcolor/hexcolor.dart';
 import 'month_sleep_tab.dart';
 
 class sleepNestedTabBar extends StatefulWidget {
-  const sleepNestedTabBar({super.key});
+  final int sleep_target;
+
+  const sleepNestedTabBar({super.key, required this.sleep_target});
+
   @override
   _sleepNestedTabBarState createState() => _sleepNestedTabBarState();
 }
@@ -15,6 +18,7 @@ class sleepNestedTabBar extends StatefulWidget {
 class _sleepNestedTabBarState extends State<sleepNestedTabBar>
     with TickerProviderStateMixin {
   late DateTime _datevalue;
+
   List<DateTime> initDayOfWeek(DateTime day) {
     List<DateTime> daysOfWeek = [];
     DateTime mondayOfThisWeek = day.subtract(
@@ -23,8 +27,8 @@ class _sleepNestedTabBarState extends State<sleepNestedTabBar>
     // Generating days from today to Monday of this week
     if (day.day == DateTime.now().subtract(const Duration(days: 1)).day) {
       for (DateTime i = day;
-      i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
-      i = i.subtract(const Duration(days: 1))) {
+          i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
+          i = i.subtract(const Duration(days: 1))) {
         //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
         daysOfWeek.add(i);
       }
@@ -32,8 +36,8 @@ class _sleepNestedTabBarState extends State<sleepNestedTabBar>
           daysOfWeek[daysOfWeek.length - 1].subtract(const Duration(days: 1))));
     } else {
       for (DateTime i = day;
-      i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
-      i = i.subtract(const Duration(days: 1))) {
+          i.isAfter(mondayOfThisWeek) || i.isAtSameMomentAs(mondayOfThisWeek);
+          i = i.subtract(const Duration(days: 1))) {
         //String formattedDay = DateFormat('EEEE, d MMMM yyyy').format(day);
         daysOfWeek.add(i);
       }
@@ -131,11 +135,19 @@ class _sleepNestedTabBarState extends State<sleepNestedTabBar>
           margin: const EdgeInsets.symmetric(horizontal: 20),
           child: TabBarView(
             controller: _nestedTabController,
-            children: const <Widget>[
-              WeekSleepTab(),
-              MonthSleepTab(),
-              ThreeMonthSleepTab(),
-              YearSleepTab()
+            children: <Widget>[
+              WeekSleepTab(
+                sleep_target: widget.sleep_target,
+              ),
+              MonthSleepTab(
+                sleep_target: widget.sleep_target,
+              ),
+              ThreeMonthSleepTab(
+                // sleep_target: widget.sleep_target,
+              ),
+              YearSleepTab(
+                // sleep_target: widget.sleep_target,
+              )
             ],
           ),
         )

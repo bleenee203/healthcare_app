@@ -7,7 +7,7 @@ class Post {
   final String content;
   final String? image;
   final DateTime created_at;
-  final bool isDeleted;
+  final bool? isDeleted;
   final int number_cmt;
   final String? user_id;
 
@@ -17,7 +17,7 @@ class Post {
       required this.content,
       this.image,
       required this.created_at,
-      required this.isDeleted,
+      this.isDeleted,
       required this.number_cmt,
       this.user_id});
 
@@ -41,7 +41,7 @@ class Post {
       created_at: _parseDate(json['created_at']),
       isDeleted: json['isDeleted'],
       number_cmt: json['number_cmt'].toInt(),
-      // user_id: json['user_id'],
+      user_id: json['user_id'],
     );
   }
 
