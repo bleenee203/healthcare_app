@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/sleep_nested_tab.dart';
 
@@ -13,11 +14,22 @@ class SleepPage extends StatefulWidget {
 
 class _SleepPageState extends State<SleepPage> with TickerProviderStateMixin {
   late TabController _tabController;
+  late SharedPreferences prefs;
+  late int sleep_target = 0;
+
+  Future<void> initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 1, vsync: this);
+    initSharedPref().then((_) {
+      setState(() {
+        sleep_target = prefs.getInt('sleep_target')!;
+      });
+    });
   }
 
   @override
@@ -76,7 +88,8 @@ class _SleepPageState extends State<SleepPage> with TickerProviderStateMixin {
                             Expanded(
                               child: TextButton(
                                 onPressed: () {
-                                  RouterCustom.router.pushNamed('set-wake-time');
+                                  RouterCustom.router
+                                      .pushNamed('set-wake-time');
                                   Navigator.of(context).pop();
                                 },
                                 child: const Text(
@@ -146,8 +159,12 @@ class _SleepPageState extends State<SleepPage> with TickerProviderStateMixin {
                       Row(
                         children: [
                           GestureDetector(
-                              onTap: () =>
-                                  RouterCustom.router.pushNamed('sleep-goal'),
+                              onTap: () => RouterCustom.router
+                                  .pushNamed('sleep-goal')
+                                  .then((value) => setState(() {
+                                        sleep_target =
+                                            prefs.getInt('water_target') ?? 0;
+                                      })),
                               child: Image.asset("res/images/settings.png")),
                           const SizedBox(
                             width: 23,
@@ -163,9 +180,11 @@ class _SleepPageState extends State<SleepPage> with TickerProviderStateMixin {
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
-                    children: const <Widget>[
+                    children: <Widget>[
                       SingleChildScrollView(
-                        child: sleepNestedTabBar(),
+                        child: sleepNestedTabBar(
+                          sleep_target: sleep_target,
+                        ),
                       ),
                     ],
                   ),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:intl/intl.dart'; // Import thư viện để định dạng ngày tháng
+import 'package:intl/intl.dart';
+
+import '../../models/sleepModel.dart';
+import '../../services/sleepServices.dart'; // Import thư viện để định dạng ngày tháng
 
 class SleepLog extends StatefulWidget {
   const SleepLog({super.key});
@@ -14,6 +18,21 @@ class _SleepLog extends State<SleepLog> {
   DateTime sleepStart = DateTime.now();
   DateTime sleepEnd = DateTime.now();
 
+  final SleepService sleepService = SleepService();
+
+  Future<Sleep?> _addSleepData(start_time, end_time, duration) async {
+    final sleep = await sleepService.addSleepLog(start_time, end_time, duration);
+    if (sleep != null) {
+      Fluttertoast.showToast(
+        msg: "Add new exercise log successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    }
+    return null;
+  }
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -101,8 +120,11 @@ class _SleepLog extends State<SleepLog> {
                       flex: 1,
                       child: TextButton(
                         onPressed: () {
-                          print("Đã nhấn nút save nha");
-                          RouterCustom.router.pop();
+                          int duration = (sleepEnd.hour*60+sleepEnd.minute) - (sleepStart.hour*60+sleepStart.minute);
+                          _addSleepData(sleepStart, sleepEnd, duration);
+                          if (RouterCustom.router.canPop()){
+                            RouterCustom.router.pop();
+                          }
                         },
                         child: const Text(
                           'SAVE',

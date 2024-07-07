@@ -55,6 +55,20 @@ class UserService {
             'calo_target', (jsonResponse['user']['calo_target']).toDouble());
         prefs.setInt(
             'water_target', (jsonResponse['user']['water_target'])?.toInt());
+        prefs.setInt(
+            'exercise_day_target', (jsonResponse['user']['exercise_day_target'])?.toInt());
+        prefs.setDouble(
+            'calo_burn_target', (jsonResponse['user']['calo_burn_target'])?.toDouble());
+        prefs.setInt(
+            'sleep_target', (jsonResponse['user']['sleep_target'])?.toInt());
+        prefs.setString(
+            'sleep_begin_target', (jsonResponse['user']['sleep_begin_target'])!.toString());
+        prefs.setString(
+            'sleep_end_target', (jsonResponse['user']['sleep_end_target'])!.toString());
+        print(prefs.getInt('sleep_target'));
+        print(prefs.getString('sleep_begin_target'));
+        print(prefs.getString('sleep_end_target'));
+
         return User.fromJson(jsonResponse['user']);
       } else {
         throw Exception('Failed to load user data');
@@ -71,6 +85,7 @@ class UserService {
     String? accessToken = prefs.getString('accessToken');
     String? refreshToken = prefs.getString('refreshToken');
     String? userId = prefs.getString('userId');
+    print("UserID ne: $userId");
     var url = dotenv.env['URL'];
     if (accessToken == null || refreshToken == null) {
       print('Missing access token or refresh token');

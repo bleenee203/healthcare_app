@@ -76,34 +76,6 @@ class _exerciseNestedTabBarState extends State<exerciseNestedTabBar>
     }
   }
 
-  Widget _buildContainer(bool check, String dayname) {
-    return Column(
-      children: [
-        Container(
-          width: 15,
-          height: 41,
-          decoration: BoxDecoration(
-            color: check
-                ? HexColor("908BD5")
-                : HexColor("BBB7EA"), // Đổi màu khi check
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: check
-              ? const Icon(Icons.check_rounded,
-              color: Colors.white, size: 16) // Thêm icon khi check
-              : null,
-        ),
-        Text(
-          dayname,
-          style: TextStyle(
-              fontFamily: "SourceSans3",
-              fontSize: 16,
-              color: Colors.black.withOpacity(0.5)),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     print(_datevalue);

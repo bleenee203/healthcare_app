@@ -1,9 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../models/postModel.dart';
+import '../../services/postServices.dart';
 
 void main() {
   runApp(const MaterialApp(home: ForumPage()));
@@ -23,78 +27,71 @@ class _ForumPage extends State<ForumPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  List<Map<String, String>> data = [
-    {
-      "user_id": "maibaoxt1",
-      "title": "Đau nửa đầu",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "lyvo12",
-      "title": "Nôn mửa tiêu chảy",
-      "content":
-          "Tôi hay bị nôn mửa tiêu chảy vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "nguyenhoang",
-      "title": "Đau họng",
-      "content": "Tôi hay bị đau họng vào sáng sớm và tối muộn. Xin tư vấn",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Đau nửa đầu",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Đau nửa đầu",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Đau nửa đầu",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Đau nửa đầu",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Đau nửa đầu",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Dau nua dau",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Dau nua dau",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Dau nua dau",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-    {
-      "user_id": "maibaoxt1",
-      "title": "Dau nua dau",
-      "content": "Tôi hay bị đau nữa đầu vào chiều tối. Sáng hôm sau thì uể ỏi",
-    },
-  ];
+  late List<Post> data = [];
 
-  List<Map<String, String>> filteredData = [];
+  List<Post> filteredData = [];
   int currentMax = 5;
   bool isLoading = false;
 
+  PostService postService = PostService();
+  Future<List<Post>?> _fetchPost() async {
+    final List<Post>? response = await postService.fetchPost();
+    if (response!.isEmpty) {
+      return [];
+    }
+    return response;
+  }
+  Future<void> _addPost(newData) async {
+    try {
+      final result = await postService.addPost(newData);
+      if (result == 'Post created successfully') {
+        Fluttertoast.showToast(
+          msg: result,
+          toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+          gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+          timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+          backgroundColor: Colors.green, // Màu nền của toast
+          textColor: Colors.white, // Màu chữ của toast
+          fontSize: 16.0, // Kích thước chữ của toast
+        );
+        Navigator.of(context).pop();
+      } else {
+        Fluttertoast.showToast(
+          msg: result,
+          toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+          gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+          timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+          backgroundColor: Colors.red, // Màu nền của toast
+          textColor: Colors.white, // Màu chữ của toast
+          fontSize: 16.0, // Kích thước chữ của toast
+        );
+      }
+    } catch (error) {
+      Fluttertoast.showToast(
+        msg: error.toString(),
+        toastLength: Toast.LENGTH_SHORT, // Thời gian hiển thị
+        gravity: ToastGravity.BOTTOM, // Vị trí của toast trên màn hình
+        timeInSecForIosWeb: 1, // Thời gian tồn tại trên iOS/web
+        backgroundColor: Colors.red, // Màu nền của toast
+        textColor: Colors.white, // Màu chữ của toast
+        fontSize: 16.0, // Kích thước chữ của toast
+      );
+    }
+  }
+
+  Future<void> _initializeData() async {
+    final List<Post>? posts = await _fetchPost();
+    if (posts != null) {
+      setState(() {
+        data = posts;
+        filteredData = data;
+      });
+    }
+  }
   @override
   void initState() {
     super.initState();
-    filteredData = data;
+    _initializeData();
     _searchController.addListener(_filterThreads);
     _scrollController.addListener(_scrollListener);
   }
@@ -113,7 +110,7 @@ class _ForumPage extends State<ForumPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       filteredData = data.where((thread) {
-        final title = thread['title']!.toLowerCase();
+        final title = thread.title.toLowerCase();
         return title.contains(query);
       }).toList();
     });
@@ -254,20 +251,26 @@ class _ForumPage extends State<ForumPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (formKey.currentState!.validate()) {
+                                  Post newData = Post(
+                                    user_id: 'currentUser',
+                                    title: _titleController.text,
+                                    content: _descriptionController.text,
+                                    created_at: DateTime.now(),
+                                    number_cmt: 0,
+                                  );
+                                  _addPost(newData);
+                                  await Future.delayed(const Duration(seconds: 10));
+                                  if (Navigator.canPop(context)){
+                                    Navigator.of(context).pop();
+                                  }
                                   setState(() {
-                                    data.insert(data.length, {
-                                      "user_id": "currentUser",
-                                      "title": _titleController.text,
-                                      "content": _descriptionController.text,
-                                    });
-                                    filteredData = data;
+                                    _initializeData();
                                     _titleController.clear();
                                     _descriptionController.clear();
                                     _selectedImage = null;
                                   });
-                                  Navigator.of(context).pop();
                                 }
                               },
                               child: const Text(
@@ -430,7 +433,7 @@ class _ForumPage extends State<ForumPage> {
                           onTap: () {
                             print(
                                 "Đã nhấn để xem thread + ${filteredData.length}");
-                            RouterCustom.router.pushNamed("forum-post");
+                            RouterCustom.router.push("/forum-post/${filteredData[index].id}");
                           },
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 5, top: 5),
@@ -463,48 +466,58 @@ class _ForumPage extends State<ForumPage> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width *0.25,
-                                                child: Text(
-                                                  filteredData[index]['title']!,
-                                                  style: const TextStyle(
-                                                    fontFamily: "SourceSans3",
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.w600,
+                                          Expanded(
+                                            flex: 3,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: MediaQuery.of(context).size.width *0.25,
+                                                  child: Text(
+                                                    filteredData[index].title,
+                                                    style: const TextStyle(
+                                                      fontFamily: "SourceSans3",
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
-                                                  overflow: TextOverflow.ellipsis,
                                                 ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              Text(
-                                                filteredData[index]['user_id']!,
-                                                style: const TextStyle(
-                                                  fontFamily: "SourceSans3",
-                                                  fontSize: 12,
-                                                  fontStyle: FontStyle.italic,
-                                                  fontWeight: FontWeight.w300,
+                                                const SizedBox(width: 10),
+                                                SizedBox(
+                                                  width: MediaQuery.of(context).size.width *0.2,
+                                                  child: Text(
+                                                    filteredData[index].user_id ?? '',
+                                                    style: const TextStyle(
+                                                      fontFamily: "SourceSans3",
+                                                      fontSize: 12,
+                                                      fontStyle: FontStyle.italic,
+                                                      fontWeight: FontWeight.w300,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                          const Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Text('16'),
-                                              SizedBox(width: 5,),
-                                              Image(
-                                                  image: AssetImage(
-                                                      "res/images/message.png")),
-                                              Icon(Icons.arrow_forward_ios),
-                                            ],
+                                          Expanded(
+                                            flex: 1,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Text(filteredData[index].number_cmt.toString()),
+                                                const SizedBox(width: 5,),
+                                                const Image(
+                                                    image: AssetImage(
+                                                        "res/images/message.png")),
+                                                const Icon(Icons.arrow_forward_ios),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        filteredData[index]['content']!,
+                                        filteredData[index].content,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           fontFamily: "SourceSans3",

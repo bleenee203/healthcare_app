@@ -70,14 +70,14 @@ class _ExercisePageState extends State<ExercisePage> with TickerProviderStateMix
                         children: [
                           GestureDetector(
                               onTap: () =>
-                                  RouterCustom.router.pushNamed('select-exercise'),
+                                  RouterCustom.router.pushNamed('goal-exercise'),
                               child: Image.asset("res/images/settings.png")),
                           const SizedBox(
                             width: 23,
                           ),
                           GestureDetector(
                               onTap: () =>
-                                  RouterCustom.router.pushNamed('step-count'),
+                                  RouterCustom.router.pushNamed('select-exercise'),
                               child: Image.asset("res/images/plus.png")),
                         ],
                       ),

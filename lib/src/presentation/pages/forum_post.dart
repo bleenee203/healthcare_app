@@ -1,13 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-void main() {
-  runApp(const MaterialApp(home: ForumPost()));
-}
+import '../../models/postModel.dart';
+import '../../services/postServices.dart';
 
 class ForumPost extends StatefulWidget {
-  const ForumPost({super.key});
+  final id;
+
+  const ForumPost({super.key, required this.id});
 
   @override
   State<StatefulWidget> createState() => _ForumPost();
@@ -16,6 +19,30 @@ class ForumPost extends StatefulWidget {
 class _ForumPost extends State<ForumPost> {
   List<Map<String, String>> comments = [];
   List<Map<String, String>> replies = [];
+  PostService postService = PostService();
+  Future<Post?>? data;
+
+  Future<List<Post>?> _fetchPost() async {
+    final List<Post>? response = await postService.fetchPost();
+    if (response!.isEmpty) {
+      return [];
+    }
+    return response;
+  }
+
+  Future<Post?> getPost(String id) async {
+    final Post? response = await postService.getPost(id);
+    if (response != null ) {
+      return response;
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    data = getPost(widget.id);
+  }
 
   void _showCommentDialog() {
     TextEditingController commentController = TextEditingController();
@@ -43,7 +70,8 @@ class _ForumPost extends State<ForumPost> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  comments.add({'userId': 'User', 'comment': commentController.text});
+                  comments.add(
+                      {'userId': 'User', 'comment': commentController.text});
                 });
                 Navigator.of(context).pop();
               },
@@ -82,7 +110,11 @@ class _ForumPost extends State<ForumPost> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  replies.add({'commentId': commentId, 'userId': 'User', 'reply': replyController.text});
+                  replies.add({
+                    'commentId': commentId,
+                    'userId': 'User',
+                    'reply': replyController.text
+                  });
                 });
                 Navigator.of(context).pop();
               },
@@ -133,101 +165,121 @@ class _ForumPost extends State<ForumPost> {
                     ],
                   ),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: HexColor("#FFC3B4"),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
+                FutureBuilder<Post?>(
+                  future: data,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Post?> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data == null) {
+                      return const Center(child: Text('No post found'));
+                    } else {
+                      final data = snapshot.data!;
+                      return Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFBAE9E),
+                          color: HexColor("#FFC3B4"),
                           borderRadius: BorderRadius.circular(10),
-                          // border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid,),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26, // Bóng đổ bên trong
-                              offset: Offset(0, 4),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Đau nửa đầu",
-                                  style: TextStyle(
-                                    fontFamily: "SourceSans3",
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    color: HexColor("000000"),
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFBAE9E),
+                                borderRadius: BorderRadius.circular(10),
+                                // border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid,),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26, // Bóng đổ bên trong
+                                    offset: Offset(0, 4),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "lyvo13",
-                                  style: TextStyle(
-                                    fontFamily: "SourceSans3",
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: HexColor("000000"),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        data.title,
+                                        style: TextStyle(
+                                          fontFamily: "SourceSans3",
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700,
+                                          color: HexColor("000000"),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        data.user_id ?? '',
+                                        style: TextStyle(
+                                          fontFamily: "SourceSans3",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: HexColor("000000"),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        data.created_at.toString(),
+                                        style: TextStyle(
+                                          fontFamily: "SourceSans3",
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          color: HexColor("000000"),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "00/00/00",
-                                  style: TextStyle(
-                                    fontFamily: "SourceSans3",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    color: HexColor("000000"),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            GestureDetector( //Đây là nút comment
-                                onTap: _showCommentDialog,
-                                child: const Image(
-                                  image: AssetImage("res/images/message.png"),
-                                )),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Tôi thường xuyên bị đau nữa đầu vào chiều tối. Đây là triệu chứng của bệnh gì?",
-                              style: TextStyle(
-                                fontFamily: "SourceSans3",
-                                fontSize: 18,
-                                fontWeight: FontWeight.w400,
-                                color: HexColor("000000"),
+                                  GestureDetector(
+                                      //Đây là nút comment
+                                      onTap: _showCommentDialog,
+                                      child: const Image(
+                                        image: AssetImage(
+                                            "res/images/message.png"),
+                                      )),
+                                ],
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Center(
-                                child: Image.asset(
-                              'res/images/dog.png',
-                              width: 310,
-                              height: 113,
-                            )),
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    data.content,
+                                    style: TextStyle(
+                                      fontFamily: "SourceSans3",
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400,
+                                      color: HexColor("000000"),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Center(
+                                      child: Image.asset(
+                                    'res/images/dog.png',
+                                    width: 310,
+                                    height: 113,
+                                  )),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(height: 20),
                 const Text(
@@ -349,12 +401,13 @@ class _ForumPost extends State<ForumPost> {
       ),
     );
   }
+
   Widget _buildReply(String userId, String comment) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
-          width: MediaQuery.of(context).size.width *0.8,
+          width: MediaQuery.of(context).size.width * 0.8,
           margin: const EdgeInsets.only(top: 20),
           decoration: BoxDecoration(
             color: const Color(0xFFDAD1EB),
@@ -398,9 +451,9 @@ class _ForumPost extends State<ForumPost> {
                       ],
                     ),
                     GestureDetector(
-                      onTap: (){{
-
-                      }},
+                      onTap: () {
+                        {}
+                      },
                       child: const Image(
                         image: AssetImage("res/images/message.png"),
                       ),

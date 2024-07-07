@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:healthcare_app/src/models/exerciseModel.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
+
+import '../../services/exercise_services.dart';
 
 String formatDate(DateTime d) {
   return d.toString().substring(0, 19);
 }
 
 class LogExersise extends StatefulWidget {
-  const LogExersise({super.key});
+  final acti;
+  LogExersise({super.key, required this.acti});
 
   @override
   State<StatefulWidget> createState() => _LogExersiseState();
@@ -54,6 +59,28 @@ class _LogExersiseState extends State<LogExersise> {
       });
     }
   }
+
+  final ExerciseService exerciseService = ExerciseService();
+
+  Future<Exercise?> _addExerciseData(newData) async {
+    final exercise = await exerciseService.addExerciseLog(newData);
+    if (exercise != null) {
+      Fluttertoast.showToast(
+        msg: "Add new exercise log successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _actiController.text = widget.acti;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +130,14 @@ class _LogExersiseState extends State<LogExersise> {
                               alignment: Alignment.center,
                               child: TextButton(
                                 onPressed: () {
-                                  print("heheh");
+                                  Exercise data = Exercise(
+                                      type: _actiController.value.text,
+                                      date: datetime,
+                                      calo_burn: double.parse(_energyController.value.text),
+                                    start_time: TimeOfDay.fromDateTime(datetime),
+                                    duration: double.parse(_durationController.value.text),
+                                    distance: double.parse(_distanceController.value.text),                                   );
+                                  _addExerciseData(data);
                                 },
                                 child: const Text(
                                   "SAVE",
@@ -132,6 +166,7 @@ class _LogExersiseState extends State<LogExersise> {
                           ),
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                           child: TextFormField(
+                            readOnly: true,
                             style: const TextStyle(
                               fontFamily: 'SourceSans3',
                               fontSize: 16,

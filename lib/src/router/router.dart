@@ -7,6 +7,7 @@ import 'package:healthcare_app/src/models/userModel.dart';
 import 'package:healthcare_app/src/presentation/pages/Success_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/begin_sleep.dart';
 import 'package:healthcare_app/src/presentation/pages/change-password.dart';
+import 'package:healthcare_app/src/presentation/pages/exercise_goal.dart';
 import 'package:healthcare_app/src/presentation/pages/food_detail_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/foods_screen.dart';
 import 'package:healthcare_app/src/presentation/pages/log_exercise.dart';
@@ -197,10 +198,12 @@ class RouterCustom {
           builder: (BuildContext context, GoRouterState state) =>
               const SleepSetStartPage()),
       GoRoute(
-          path: '/forum-post',
+          path: '/forum-post/:id',
           name: 'forum-post',
-          builder: (BuildContext context, GoRouterState state) =>
-              const ForumPost()),
+          builder: (BuildContext context, GoRouterState state) {
+            String? id = state.pathParameters['id'];
+            return ForumPost(id: id);
+          }),
       GoRoute(
           path: '/sleep',
           name: 'sleep',
@@ -231,20 +234,33 @@ class RouterCustom {
         },
       ),
       GoRoute(
-          path: '/step-count',
+          path: '/step-count/:type',
           name: 'step-count',
-          builder: (BuildContext context, GoRouterState state) =>
-          const StepCountPage()),
+          builder: (BuildContext context, GoRouterState state) {
+            String? type = state.pathParameters['type'];
+            return StepCountPage(
+              type: type,
+            );
+          }),
       GoRoute(
           path: '/select-exercise',
           name: 'select-exercise',
           builder: (BuildContext context, GoRouterState state) =>
-          const SelectExercise()),
+              const SelectExercise()),
       GoRoute(
-          path: '/log-exercise',
+          path: '/log-exercise/:acti',
           name: 'log-exercise',
+          builder: (BuildContext context, GoRouterState state) {
+            String? acti = state.pathParameters['acti'];
+            return LogExersise(
+              acti: acti,
+            );
+          }),
+      GoRoute(
+          path: '/goal-exercise',
+          name: 'goal-exercise',
           builder: (BuildContext context, GoRouterState state) =>
-          const LogExersise()),
+              const ExerciseGoal()),
     ],
   );
 }

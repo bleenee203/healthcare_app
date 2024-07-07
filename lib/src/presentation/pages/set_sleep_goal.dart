@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:healthcare_app/src/router/router.dart';
 import 'package:hexcolor/hexcolor.dart';
+
+import '../../models/userModel.dart';
+import '../../services/userService.dart';
 
 class SleepSetGoalPage extends StatefulWidget {
   const SleepSetGoalPage({super.key});
@@ -12,6 +16,22 @@ class SleepSetGoalPage extends StatefulWidget {
 class _SleepSetGoalPage extends State<SleepSetGoalPage> {
   int _sleepHours = 0;
   int _sleepMin = 0;
+
+  final UserService userService = UserService();
+
+  Future<User?> _updateUserData(newData) async {
+    final user = await userService.updateUserData(newData);
+    if (user != null) {
+      Fluttertoast.showToast(
+        msg: "Set goal successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    }
+    return null;
+  }
 
   final FixedExtentScrollController _hoursController =
       FixedExtentScrollController(initialItem: 0);
@@ -196,9 +216,14 @@ class _SleepSetGoalPage extends State<SleepSetGoalPage> {
                         backgroundColor: const Color(0xFF474672),
                       ),
                       onPressed: () {
-                        print(
-                            "${_hoursController.selectedItem % 24} - ${_minutesController.selectedItem % 60}");
-                        // Handle set goal
+                        User data = User(
+                            sleep_target:
+                                ((_hoursController.selectedItem % 24) * 60 +
+                                    (_minutesController.selectedItem % 60)));
+                        _updateUserData(data);
+                        if (RouterCustom.router.canPop()) {
+                          RouterCustom.router.pop();
+                        }
                       },
                       child: const Text(
                         'SET GOAL',
